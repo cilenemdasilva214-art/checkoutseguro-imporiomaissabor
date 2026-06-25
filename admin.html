@@ -1642,6 +1642,15 @@
                     <label for="theme-announcement-active" style="cursor:pointer; margin:0;">Ativar Barra de Avisos</label>
                   </div>
                   
+                  <div class="settings-group" style="margin-bottom:1rem;">
+                    <label>Posição da Barra</label>
+                    <div style="display:flex; gap:10px;" id="announcement-pos-buttons">
+                      <button type="button" class="announcement-pos-btn" data-pos="top" style="flex:1; padding:0.5rem; border-radius:8px; border:1px solid #7c4dff; background:#7c4dff; color:#fff; cursor:pointer;">Mais acima</button>
+                      <button type="button" class="announcement-pos-btn" data-pos="bottom" style="flex:1; padding:0.5rem; border-radius:8px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:#fff; cursor:pointer;">Mais abaixo</button>
+                    </div>
+                    <input type="hidden" id="theme-announcement-position" value="top">
+                  </div>
+                  
                   <div class="settings-group">
                     <label for="theme-announcement-text">Texto do Aviso</label>
                     <input type="text" id="theme-announcement-text" placeholder="Ex: FRETE GRÁTIS hoje para todo o Brasil!">

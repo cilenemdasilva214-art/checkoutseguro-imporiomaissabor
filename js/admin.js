@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
     productPrice: 10.00,
     favicon: '',
     announcementActive: false,
+    announcementPosition: 'top',
     announcementText: 'FRETE GRÁTIS hoje para todo o Brasil!',
     announcementBg: '#7c4dff',
     announcementColor: '#ffffff',
@@ -1530,7 +1531,7 @@ Fico no aguardo! \u{1F60A}`;
     });
 
     const csvContent = [headers.join(','), ...rows].join('\n');
-    const blob = new Blob(["\\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
@@ -4202,6 +4203,7 @@ Fico no aguardo! \u{1F60A}`;
     { id: 'theme-logo-visible', key: 'logoVisible', type: 'checkbox' },
     { id: 'theme-logo-width', key: 'logoWidth', type: 'number' },
     { id: 'theme-announcement-active', key: 'announcementActive', type: 'checkbox' },
+    { id: 'theme-announcement-position', key: 'announcementPosition', type: 'select' },
     { id: 'theme-announcement-text', key: 'announcementText', type: 'text' },
     { id: 'theme-announcement-bg', key: 'announcementBg', type: 'color' },
     { id: 'theme-announcement-color', key: 'announcementColor', type: 'color' },
@@ -4282,6 +4284,24 @@ Fico no aguardo! \u{1F60A}`;
         el.addEventListener('change', updateVal);
       }
     });
+
+    // Botões de posição da barra de avisos
+    const annPosBtns = document.querySelectorAll('.announcement-pos-btn');
+    const annPosInput = document.getElementById('theme-announcement-position');
+    annPosBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        annPosBtns.forEach(b => {
+          b.style.background = 'transparent';
+          b.style.borderColor = 'rgba(255,255,255,0.2)';
+        });
+        btn.style.background = '#7c4dff';
+        btn.style.borderColor = '#7c4dff';
+        if (annPosInput) {
+          annPosInput.value = btn.dataset.pos;
+          annPosInput.dispatchEvent(new Event('change'));
+        }
+      });
+    });
   }
 
   setupInputSync();
@@ -4348,6 +4368,22 @@ Fico no aguardo! \u{1F60A}`;
 
     // Populate Shopify integration screen inputs from themeConfig
     const shDomainPrefix = document.getElementById('sh-domain-prefix');
+    
+    // Update announcement position buttons visually
+    const annPosBtns = document.querySelectorAll('.announcement-pos-btn');
+    const annPosInput = document.getElementById('theme-announcement-position');
+    if (annPosInput && annPosBtns.length > 0) {
+      const pos = annPosInput.value || 'top';
+      annPosBtns.forEach(b => {
+        if (b.dataset.pos === pos) {
+          b.style.background = '#7c4dff';
+          b.style.borderColor = '#7c4dff';
+        } else {
+          b.style.background = 'transparent';
+          b.style.borderColor = 'rgba(255,255,255,0.2)';
+        }
+      });
+    }
     const shAccessToken = document.getElementById('sh-access-token');
     const shClientId = document.getElementById('sh-client-id');
     const shSecret = document.getElementById('sh-secret');

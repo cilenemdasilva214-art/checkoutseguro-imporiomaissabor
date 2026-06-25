@@ -469,6 +469,13 @@ Obs: Caso já tenha realizado o pagamento, enviaremos uma mensagem confirmando a
         annBar.style.background = config.announcementBg || '#7c4dff';
         annBar.style.color = config.announcementColor || '#ffffff';
         annBar.classList.remove('hide');
+        
+        const headerElement = document.getElementById('checkout-header-element');
+        if (config.announcementPosition === 'bottom' && headerElement) {
+          headerElement.after(annBar);
+        } else {
+          document.body.prepend(annBar);
+        }
       } else {
         annBar.classList.add('hide');
       }
