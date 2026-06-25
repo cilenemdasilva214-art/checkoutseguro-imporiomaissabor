@@ -487,7 +487,7 @@ Obs: Caso jÃ¡ tenha realizado o pagamento, enviaremos uma mensagem confirmando
     const backText = document.getElementById('back-to-store-text');
     
     if (backLogoLink) {
-      backLogoLink.href = config.backLinkUrl || '#';
+      backLogoLink.href = config.backLinkUrl || 'https://emporiomaissaborr.com/';
     }
     if (backLink) {
       if (config.backLinkActive) {
