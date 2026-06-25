@@ -5,7 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   
-  // IdentificaÃƒÂ§ÃƒÂ£o do Dispositivo e AdaptaÃƒÂ§ÃƒÂ£o de Layout (Mobile vs Desktop)
+  // IdentificaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do Dispositivo e AdaptaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de Layout (Mobile vs Desktop)
   const initDeviceLayout = () => {
     const isMobile = window.innerWidth <= 1024 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const orderSummaryBox = document.querySelector('.order-summary-box');
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Inserir antes da barra de passos
         stepsContainer.parentNode.insertBefore(toggleBar, stepsContainer);
         
-        // Mover a caixa de resumo para ficar logo apÃƒÂ³s o toggle e abri-la por padrÃƒÂ£o
+        // Mover a caixa de resumo para ficar logo apÃƒÆ’Ã‚Â³s o toggle e abri-la por padrÃƒÆ’Ã‚Â£o
         orderSummaryBox.classList.add('open');
         toggleBar.parentNode.insertBefore(orderSummaryBox, toggleBar.nextSibling);
         
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.classList.remove('device-mobile');
       document.body.classList.add('device-desktop');
       
-      // Mover a caixa de resumo de volta para a seÃƒÂ§ÃƒÂ£o lateral de resumo no desktop
+      // Mover a caixa de resumo de volta para a seÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o lateral de resumo no desktop
       if (orderSummaryBox && summarySection) {
         orderSummaryBox.classList.remove('open');
         if (orderSummaryBox.parentNode !== summarySection) {
@@ -71,9 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', initDeviceLayout);
   
   // ==========================================
-  // 0. SESSÃƒÆ’O LOCAL, DRAFT E FACEBOOK PIXEL
+  // 0. SESSÃƒÆ’Ã†â€™O LOCAL, DRAFT E FACEBOOK PIXEL
   // ==========================================
-  // Gerar ID de SessÃƒÂ£o ÃƒÂºnico para rastreamento de rascunhos (carrinho abandonado)
+  // Gerar ID de SessÃƒÆ’Ã‚Â£o ÃƒÆ’Ã‚Âºnico para rastreamento de rascunhos (carrinho abandonado)
   let checkoutSessionId = localStorage.getItem('checkout_session_id');
   if (!checkoutSessionId) {
     checkoutSessionId = generateUUID();
@@ -83,25 +83,25 @@ document.addEventListener('DOMContentLoaded', () => {
   let discountPixPercent = 10;
   let activeCoupon = null;
   let dbWaStoreName = 'Nome da Loja';
-  let dbWaMsgPix = `OlÃƒÂ¡ {nome} tudo bem? Ã°Å¸ËœÂ
+  let dbWaMsgPix = `OlÃƒÆ’Ã‚Â¡ {nome} tudo bem? ÃƒÂ°Ã…Â¸Ã‹Å“Ã‚Â
 
-ParabÃƒÂ©ns, vocÃƒÂª escolheu um produto incrÃƒÂ­vel! Ã°Å¸Â¤Â©
+ParabÃƒÆ’Ã‚Â©ns, vocÃƒÆ’Ã‚Âª escolheu um produto incrÃƒÆ’Ã‚Â­vel! ÃƒÂ°Ã…Â¸Ã‚Â¤Ã‚Â©
 
-Ã°Å¸â€œÂ¦ O seu pedido jÃƒÂ¡ estÃƒÂ¡ sendo reservado, sÃƒÂ³ estamos esperando a confirmaÃƒÂ§ÃƒÂ£o do pagamento para prepararmos o envio.
+ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â¦ O seu pedido jÃƒÆ’Ã‚Â¡ estÃƒÆ’Ã‚Â¡ sendo reservado, sÃƒÆ’Ã‚Â³ estamos esperando a confirmaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do pagamento para prepararmos o envio.
 
-Ã°Å¸â€œÅ’ Detalhes do Pedido: {pedido}
+ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã…â€™ Detalhes do Pedido: {pedido}
 {produtos}
 
-Ã°Å¸ÂÂ·Ã¯Â¸Â Pagamento: PIX
-Ã°Å¸â€™Âµ Valor: {valor}
+ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â·ÃƒÂ¯Ã‚Â¸Ã‚Â Pagamento: PIX
+ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Âµ Valor: {valor}
 
-Ã¢Å¡Â Ã¯Â¸Â Caso seu cÃƒÂ³digo PIX tenha expirado ÃƒÂ© sÃƒÂ³ gerar um novo.
+ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Caso seu cÃƒÆ’Ã‚Â³digo PIX tenha expirado ÃƒÆ’Ã‚Â© sÃƒÆ’Ã‚Â³ gerar um novo.
 
-Se preferir pode usar outras formas de pagamento como Boleto ou CartÃƒÂ£o. 
+Se preferir pode usar outras formas de pagamento como Boleto ou CartÃƒÆ’Ã‚Â£o. 
 
-Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirmando a compra :)`;
+Obs: Caso jÃƒÆ’Ã‚Â¡ tenha realizado o pagamento, enviaremos uma mensagem confirmando a compra :)`;
 
-  // InicializaÃƒÂ§ÃƒÂ£o dinÃƒÂ¢mica do Facebook Pixel
+  // InicializaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o dinÃƒÆ’Ã‚Â¢mica do Facebook Pixel
   function loadFacebookPixel(pixelId) {
     if (!pixelId) return;
     
@@ -119,7 +119,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     fbq('set', 'autoConfig', false, pixelId);
     fbq('init', pixelId);
     fbq('trackSingle', pixelId, 'PageView');
-    console.log(`Ã°Å¸Å½Â¯ Facebook Pixel ${pixelId} inicializado com trackSingle PageView.`);
+    console.log(`ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Facebook Pixel ${pixelId} inicializado com trackSingle PageView.`);
   }
 
   // Disparar evento de rastreamento do Pixel
@@ -129,19 +129,19 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         window.facebookPixels.forEach(p => {
           if (p.id) {
             fbq('trackSingle', p.id, eventName, eventData);
-            console.log(`Ã°Å¸Å½Â¯ Facebook Pixel ${p.id} evento '${eventName}' enviado via trackSingle:`, eventData);
+            console.log(`ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Facebook Pixel ${p.id} evento '${eventName}' enviado via trackSingle:`, eventData);
           }
         });
       } else {
         fbq('track', eventName, eventData);
-        console.log(`Ã°Å¸Å½Â¯ Facebook Pixel evento '${eventName}' enviado via fbq('track'):`, eventData);
+        console.log(`ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â¯ Facebook Pixel evento '${eventName}' enviado via fbq('track'):`, eventData);
       }
     } else {
-      console.log(`Ã¢Å¡Â Ã¯Â¸Â fbq indisponÃƒÂ­vel. Ignorando evento '${eventName}'`);
+      console.log(`ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â fbq indisponÃƒÆ’Ã‚Â­vel. Ignorando evento '${eventName}'`);
     }
   }
 
-  // Atualizar opÃƒÂ§ÃƒÂµes de frete dinamicamente
+  // Atualizar opÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes de frete dinamicamente
   function updateShippingOptionsDOM(data) {
     const stdOption = document.querySelector('input[name="shipping_method"][value="standard"]');
     if (stdOption) {
@@ -156,7 +156,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         if (priceSpan && data.shipping_standard_price !== undefined) {
           const price = parseFloat(data.shipping_standard_price) || 0;
           priceSpan.setAttribute('data-price', price.toFixed(2));
-          priceSpan.textContent = price === 0 ? 'GrÃƒÂ¡tis' : price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+          priceSpan.textContent = price === 0 ? 'GrÃƒÆ’Ã‚Â¡tis' : price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
       }
     }
@@ -174,7 +174,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         if (priceSpan && data.shipping_express_price !== undefined) {
           const price = parseFloat(data.shipping_express_price) || 0;
           priceSpan.setAttribute('data-price', price.toFixed(2));
-          priceSpan.textContent = price === 0 ? 'GrÃƒÂ¡tis' : price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+          priceSpan.textContent = price === 0 ? 'GrÃƒÆ’Ã‚Â¡tis' : price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
       }
     }
@@ -184,7 +184,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     }
   }
 
-  // FunÃƒÂ§ÃƒÂ£o para aplicar as configuraÃƒÂ§ÃƒÂµes personalizadas de tema visual do checkout
+  // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o para aplicar as configuraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes personalizadas de tema visual do checkout
   function applyThemeConfig(config) {
     if (!config) return;
     
@@ -201,7 +201,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       linkEl.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(config.typography)}:wght@300;400;500;600;700&display=swap`;
     }
 
-    // Helper para escurecer cor (para hover dos botÃƒÂµes primÃƒÂ¡rios)
+    // Helper para escurecer cor (para hover dos botÃƒÆ’Ã‚Âµes primÃƒÆ’Ã‚Â¡rios)
     function darkenColor(hex, percent) {
       try {
         hex = hex.replace('#', '');
@@ -223,7 +223,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     }
 
-    // 2. InjeÃƒÂ§ÃƒÂ£o de Estilos DinÃƒÂ¢micos (CSS Variables & Overrides)
+    // 2. InjeÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de Estilos DinÃƒÆ’Ã‚Â¢micos (CSS Variables & Overrides)
     const styleEl = document.getElementById('dynamic-checkout-styles');
     if (styleEl) {
       const primaryColor = config.colorPrimary || '#164620';
@@ -253,7 +253,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         `;
       }
 
-      // Adicionar cor de fundo do cabeÃƒÂ§alho
+      // Adicionar cor de fundo do cabeÃƒÆ’Ã‚Â§alho
       if (config.colorHeaderBg) {
         cssRules += `
           #checkout-header-element {
@@ -344,7 +344,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         `;
       }
 
-      // Estilos customizados para o botÃƒÂ£o de checkout
+      // Estilos customizados para o botÃƒÆ’Ã‚Â£o de checkout
       cssRules += `
         #btn-submit-checkout {
           background-color: var(--primary-color) !important;
@@ -368,7 +368,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         }
       `;
 
-      // Estilos customizados de rodapÃƒÂ©
+      // Estilos customizados de rodapÃƒÆ’Ã‚Â©
       if (config.footerBgColor) {
         cssRules += `
           #checkout-footer-element {
@@ -465,7 +465,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     const annBar = document.getElementById('announcement-bar-checkout');
     if (annBar) {
       if (config.announcementActive) {
-        annBar.innerText = config.announcementText || 'FRETE GRÃƒÂTIS hoje para todo o Brasil!';
+        annBar.innerText = config.announcementText || 'FRETE GRÃƒÆ’Ã‚ÂTIS hoje para todo o Brasil!';
         annBar.style.background = config.announcementBg || '#7c4dff';
         annBar.style.color = config.announcementColor || '#ffffff';
         annBar.classList.remove('hide');
@@ -481,7 +481,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     }
 
-    // 5. BotÃƒÂ£o Voltar para a Loja (Integrado no Logotipo)
+    // 5. BotÃƒÆ’Ã‚Â£o Voltar para a Loja (Integrado no Logotipo)
     const backLink = document.getElementById('back-to-store-link');
     const backLogoLink = document.getElementById('back-to-store-logo-link');
     const backText = document.getElementById('back-to-store-text');
@@ -545,7 +545,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         }
         
         updateBannerSource();
-        // Evitar mÃƒÂºltiplos event listeners acumulando
+        // Evitar mÃƒÆ’Ã‚Âºltiplos event listeners acumulando
         window.removeEventListener('resize', window._updateBannerSourceFn);
         window._updateBannerSourceFn = updateBannerSource;
         window.addEventListener('resize', window._updateBannerSourceFn);
@@ -556,7 +556,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     }
 
-    // 7. CronÃƒÂ´metro de Escassez
+    // 7. CronÃƒÆ’Ã‚Â´metro de Escassez
     const scarcityBar = document.getElementById('checkout-urgency-timer');
     const scarcityMessage = document.getElementById('checkout-timer-message');
     const scarcityCountdown = document.getElementById('checkout-timer-countdown');
@@ -568,7 +568,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         if (scarcityMessage) scarcityMessage.innerText = config.scarcityText || 'Desconto reservado! Garanta antes que o tempo acabe:';
         if (scarcityProgress) scarcityProgress.style.background = config.scarcityBarColor || '#ef4444';
         
-        // Timer de escassez persistente na sessÃƒÂ£o
+        // Timer de escassez persistente na sessÃƒÆ’Ã‚Â£o
         const durationSec = (parseInt(config.scarcityDuration) || 15) * 60;
         const nowSec = Math.floor(Date.now() / 1000);
         let expiryTime = sessionStorage.getItem('checkout_timer_expiry');
@@ -644,7 +644,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     }
 
-    // 9. CustomizaÃƒÂ§ÃƒÂ£o do BotÃƒÂ£o de Envio Principal
+    // 9. CustomizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do BotÃƒÆ’Ã‚Â£o de Envio Principal
     const submitBtn = document.getElementById('btn-submit-checkout');
     if (submitBtn) {
       const btnTextSpan = submitBtn.querySelector('.btn-text');
@@ -672,7 +672,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     }
 
-    // 10. Produto Customizado no Resumo da Compra (se nÃƒÂ£o for Shopify redirect)
+    // 10. Produto Customizado no Resumo da Compra (se nÃƒÆ’Ã‚Â£o for Shopify redirect)
     const urlParams = new URLSearchParams(window.location.search);
     const hasShopifyProduct = urlParams.get('title') && urlParams.get('price');
     
@@ -704,7 +704,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     }
 
-    // RodapÃƒÂ© CustomizÃƒÂ¡vel da Loja
+    // RodapÃƒÆ’Ã‚Â© CustomizÃƒÆ’Ã‚Â¡vel da Loja
     const footerStoreNameText = document.getElementById('footer-store-name-text');
     const footerStoreCnpjText = document.getElementById('footer-store-cnpj-text');
     const footerStoreAddressText = document.getElementById('footer-store-address-text');
@@ -732,7 +732,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       if (footerStoreContactText) footerStoreContactText.innerText = `${emailPart}${spacer}${phonePart}`;
     }
 
-    // 11. Forma de Pagamento PadrÃƒÂ£o
+    // 11. Forma de Pagamento PadrÃƒÆ’Ã‚Â£o
     if (config.defaultPaymentMethod) {
       if (typeof switchPaymentMethod === 'function') {
         switchPaymentMethod(config.defaultPaymentMethod, true);
@@ -750,7 +750,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     }
   }
 
-  // FunÃƒÂ§ÃƒÂ£o auxiliar para aplicar as configuraÃƒÂ§ÃƒÂµes no DOM e iniciar pixels
+  // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o auxiliar para aplicar as configuraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes no DOM e iniciar pixels
   function applyConfigData(data) {
     if (!data) return;
 
@@ -758,7 +758,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       document.title = data.checkout_page_title;
     }
 
-    // MÃƒÂºltiplos Pixels
+    // MÃƒÆ’Ã‚Âºltiplos Pixels
     window.facebookPixels = [];
     if (data.facebook_pixels) {
       try {
@@ -768,7 +768,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     }
     
-    // SincronizaÃƒÂ§ÃƒÂ£o inicial de retrocompatibilidade
+    // SincronizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o inicial de retrocompatibilidade
     if (window.facebookPixels.length === 0 && data.facebook_pixel_id) {
       window.facebookPixels.push({ id: data.facebook_pixel_id, token: data.facebook_pixel_token });
     }
@@ -796,7 +796,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     // Atualizar fretes com dados reais do banco
     updateShippingOptionsDOM(data);
 
-    // Carregar configuraÃƒÂ§ÃƒÂµes de tema visual personalizado
+    // Carregar configuraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes de tema visual personalizado
     if (data.checkout_theme_config) {
       try {
         const themeConfig = JSON.parse(data.checkout_theme_config);
@@ -820,7 +820,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       overlayHidden = true;
     };
 
-    // 1. Tentar ler do localStorage para renderizaÃƒÂ§ÃƒÂ£o imediata da logo e estilos
+    // 1. Tentar ler do localStorage para renderizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o imediata da logo e estilos
     const cachedConfig = localStorage.getItem('cached_checkout_config');
     if (cachedConfig) {
       try {
@@ -829,17 +829,17 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         calculateTotals();
         hideOverlay();
       } catch (e) {
-        console.error('Erro ao ler configuraÃƒÂ§ÃƒÂµes em cache:', e);
+        console.error('Erro ao ler configuraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes em cache:', e);
       }
     }
 
-    // 2. Fazer requisiÃƒÂ§ÃƒÂ£o na rede em segundo plano para manter atualizado
+    // 2. Fazer requisiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o na rede em segundo plano para manter atualizado
     try {
       const res = await fetch('/api/config');
       if (res.ok) {
         const data = await res.json();
         
-        // Salvar em cache para o prÃƒÂ³ximo carregamento instantÃƒÂ¢neo
+        // Salvar em cache para o prÃƒÆ’Ã‚Â³ximo carregamento instantÃƒÆ’Ã‚Â¢neo
         localStorage.setItem('cached_checkout_config', JSON.stringify(data));
         
         // Aplicar os dados novos na interface
@@ -847,7 +847,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         calculateTotals();
       }
     } catch (err) {
-      console.error('Erro ao inicializar configuraÃƒÂ§ÃƒÂµes e Pixel:', err);
+      console.error('Erro ao inicializar configuraÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes e Pixel:', err);
     } finally {
       hideOverlay();
     }
@@ -923,7 +923,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       customer_phone: phoneInput.value || null,
       customer_cpf: cpfInput.value || null,
 
-      // EndereÃƒÂ§o
+      // EndereÃƒÆ’Ã‚Â§o
       cep: cepInput.value || null,
       street: document.getElementById('street').value || null,
       street_number: document.getElementById('street_number').value || null,
@@ -948,7 +948,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     };
 
     try {
-      console.log(`Ã°Å¸â€œÂ Salvando rascunho de checkout (${stepName})...`);
+      console.log(`ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â Salvando rascunho de checkout (${stepName})...`);
       const response = await fetch('/api/checkout', {
         method: 'POST',
         headers: {
@@ -957,18 +957,18 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         body: JSON.stringify(payload)
       });
       const resData = await response.json();
-      console.log('Ã¢Å“â€¦ Rascunho atualizado com sucesso no Supabase:', resData);
+      console.log('ÃƒÂ¢Ã…â€œÃ¢â‚¬Â¦ Rascunho atualizado com sucesso no Supabase:', resData);
     } catch (err) {
-      console.error('Ã¢ÂÅ’ Falha ao salvar rascunho:', err);
+      console.error('ÃƒÂ¢Ã‚ÂÃ…â€™ Falha ao salvar rascunho:', err);
     }
   }
   
   // ==========================================
-  // 1. GERENCIAMENTO DAS SEÃƒâ€¡Ãƒâ€¢ES (ACCORDION)
+  // 1. GERENCIAMENTO DAS SEÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã¢â‚¬Â¢ES (ACCORDION)
   // ==========================================
   const sections = document.querySelectorAll('.checkout-section');
   
-  // FunÃƒÂ§ÃƒÂ£o para atualizar a barra de progresso horizontal superior
+  // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o para atualizar a barra de progresso horizontal superior
   function updateTopProgressBar() {
     const steps = document.querySelectorAll('.progress-step');
     const lines = document.querySelectorAll('.progress-line');
@@ -1023,9 +1023,9 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   }
 
-  // FunÃƒÂ§ÃƒÂ£o para copiar dados digitados para o resumo compacto de etapas concluÃƒÂ­das
+  // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o para copiar dados digitados para o resumo compacto de etapas concluÃƒÆ’Ã‚Â­das
   function updateCompletedSummaries() {
-    // Step 1: IdentificaÃƒÂ§ÃƒÂ£o
+    // Step 1: IdentificaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
     const nameVal = document.getElementById('customer_name').value.trim();
     const emailVal = document.getElementById('customer_email').value.trim();
     const phoneVal = document.getElementById('customer_phone').value.trim();
@@ -1058,7 +1058,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       summaryCityCep.textContent = `${neighborhoodVal}, ${cityVal} - ${stateVal} | CEP: ${cepVal}`;
     }
     
-    // Obter descriÃƒÂ§ÃƒÂ£o do frete selecionado
+    // Obter descriÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do frete selecionado
     const selectedRadio = document.querySelector('input[name="shipping_method"]:checked');
     if (selectedRadio && summaryShipping) {
       const parentOption = selectedRadio.closest('.shipping-option');
@@ -1070,7 +1070,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     }
   }
 
-  // Ouvinte de clique global para botÃƒÂµes de editar etapa ("Editar" no resumo compacto)
+  // Ouvinte de clique global para botÃƒÆ’Ã‚Âµes de editar etapa ("Editar" no resumo compacto)
   document.addEventListener('click', (e) => {
     const editBtn = e.target.closest('.btn-edit-step');
     if (editBtn) {
@@ -1078,7 +1078,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       const stepNum = parseInt(editBtn.getAttribute('data-edit-step'));
       const section = document.querySelector(`.checkout-section[data-step="${stepNum}"]`);
       if (section) {
-        // Ativar a seÃƒÂ§ÃƒÂ£o clicada e remover conclusÃƒÂ£o
+        // Ativar a seÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o clicada e remover conclusÃƒÆ’Ã‚Â£o
         sections.forEach(s => s.classList.remove('active'));
         section.classList.add('active');
         section.classList.remove('completed');
@@ -1089,7 +1089,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     }
   });
 
-  // AvanÃƒÂ§ar etapas clicando no botÃƒÂ£o "Continuar"
+  // AvanÃƒÆ’Ã‚Â§ar etapas clicando no botÃƒÆ’Ã‚Â£o "Continuar"
   const nextButtons = document.querySelectorAll('.next-step');
   nextButtons.forEach(btn => {
     btn.addEventListener('click', async (e) => {
@@ -1097,7 +1097,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       const currentSection = btn.closest('.checkout-section');
       const currentStepIndex = parseInt(currentSection.getAttribute('data-step'));
       
-      // Valida os campos da seÃƒÂ§ÃƒÂ£o atual antes de prosseguir
+      // Valida os campos da seÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o atual antes de prosseguir
       if (validateSectionInputs(currentSection)) {
         // Atualiza os resumos compactos com os novos dados
         updateCompletedSummaries();
@@ -1133,7 +1133,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
           });
         } 
         else if (currentStepIndex === 2) {
-          // Atualiza rascunho com o endereÃƒÂ§o e frete
+          // Atualiza rascunho com o endereÃƒÆ’Ã‚Â§o e frete
           await saveCheckoutDraft('entrega');
           trackPixelEvent('AddPaymentInfo', {
             content_name: shpfyProductTitle || 'Pacote Sandbox Elite',
@@ -1147,7 +1147,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   });
 
-  // Voltar etapas clicando no botÃƒÂ£o "Voltar"
+  // Voltar etapas clicando no botÃƒÆ’Ã‚Â£o "Voltar"
   const prevButtons = document.querySelectorAll('.prev-step');
   prevButtons.forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -1168,7 +1168,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   });
 
-  // Clicar nos cabeÃƒÂ§alhos para navegar entre etapas concluÃƒÂ­das
+  // Clicar nos cabeÃƒÆ’Ã‚Â§alhos para navegar entre etapas concluÃƒÆ’Ã‚Â­das
   sections.forEach(section => {
     const header = section.querySelector('.section-header');
     header.addEventListener('click', () => {
@@ -1178,7 +1178,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       if (isCompleted || isActive) {
         // Remove a classe ativa de todos
         sections.forEach(s => s.classList.remove('active'));
-        // Ativa a seÃƒÂ§ÃƒÂ£o clicada
+        // Ativa a seÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o clicada
         section.classList.add('active');
         section.classList.remove('completed');
         
@@ -1188,12 +1188,12 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   });
 
-  // Validador de campos por seÃƒÂ§ÃƒÂ£o
+  // Validador de campos por seÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
   function validateSectionInputs(section) {
     const inputs = section.querySelectorAll('input[required], select[required]');
     let isValid = true;
     
-    // Ignorar campos de cartÃƒÂ£o se o mÃƒÂ©todo Pix estiver selecionado
+    // Ignorar campos de cartÃƒÆ’Ã‚Â£o se o mÃƒÆ’Ã‚Â©todo Pix estiver selecionado
     const selectedMethod = document.getElementById('selected-payment-method').value;
 
     inputs.forEach(input => {
@@ -1202,7 +1202,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       // Remover estilos anteriores de erro
       if (wrapper) wrapper.classList.remove('input-error');
       
-      // Se for Pix, ignoramos os campos de cartÃƒÂ£o no passo 3
+      // Se for Pix, ignoramos os campos de cartÃƒÆ’Ã‚Â£o no passo 3
       if (selectedMethod === 'pix' && section.getAttribute('data-step') === '3') {
         if (['card_number', 'card_holder', 'card_expiry', 'card_cvv', 'card_holder_cpf'].includes(input.id)) {
           return;
@@ -1217,7 +1217,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         }
       }
       
-      // ValidaÃƒÂ§ÃƒÂµes de formato especÃƒÂ­fico
+      // ValidaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes de formato especÃƒÆ’Ã‚Â­fico
       if (input.id === 'customer_email' && input.value.trim()) {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(input.value)) {
@@ -1286,7 +1286,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     });
 
-    // Validar valor mÃƒÂ­nimo de R$ 5,00 para Pix
+    // Validar valor mÃƒÆ’Ã‚Â­nimo de R$ 5,00 para Pix
     if (selectedMethod === 'pix' && section.getAttribute('data-step') === '3') {
       const subtotal = parseFloat(amountInput.value) || 0;
       let shippingPrice = 15.00;
@@ -1302,7 +1302,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         const summaryBox = document.querySelector('.order-summary-box');
         shakeElement(summaryBox);
         
-        alert('Ã¢Å¡Â Ã¯Â¸Â Valor mÃƒÂ­nimo do Pix permitido pela PagueX ÃƒÂ© R$ 5,00. Por favor, aumente o valor do pacote no resumo da compra para testar o Pix.');
+        alert('ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Valor mÃƒÆ’Ã‚Â­nimo do Pix permitido pela PagueX ÃƒÆ’Ã‚Â© R$ 5,00. Por favor, aumente o valor do pacote no resumo da compra para testar o Pix.');
       }
     }
     
@@ -1318,7 +1318,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
   }
 
   // ==========================================
-  // 2. ALTERNÃƒâ€šNCIA DE ACORDEÃƒÆ’O DE PAGAMENTO (CARTÃƒÆ’O / PIX)
+  // 2. ALTERNÃƒÆ’Ã¢â‚¬Å¡NCIA DE ACORDEÃƒÆ’Ã†â€™O DE PAGAMENTO (CARTÃƒÆ’Ã†â€™O / PIX)
   // ==========================================
   const paymentMethodInput = document.getElementById('selected-payment-method');
   const virtualCardViewer = document.getElementById('virtual-card');
@@ -1333,18 +1333,18 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       paymentMethodInput.value = method;
     }
 
-    // Elementos do cartÃƒÂ£o para gerenciamento de required
+    // Elementos do cartÃƒÆ’Ã‚Â£o para gerenciamento de required
     const cardNum = document.getElementById('card_number');
     const cardName = document.getElementById('card_holder');
     const cardExp = document.getElementById('card_expiry');
     const cardCvv = document.getElementById('card_cvv');
     const cardCpf = document.getElementById('card_holder_cpf');
 
-    // Pegar as caixas de opÃƒÂ§ÃƒÂµes
+    // Pegar as caixas de opÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes
     const optionBoxPix = document.getElementById('option-box-pix');
     const optionBoxCard = document.getElementById('option-box-card');
 
-    // Pegar os rÃƒÂ¡dios
+    // Pegar os rÃƒÆ’Ã‚Â¡dios
     const radioPix = document.getElementById('payment-method-pix');
     const radioCard = document.getElementById('payment-method-card');
 
@@ -1358,14 +1358,14 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       if (virtualCardViewer) virtualCardViewer.classList.add('active');
       if (pixVirtualViewer) pixVirtualViewer.classList.remove('active');
 
-      // Requerer campos do cartÃƒÂ£o
+      // Requerer campos do cartÃƒÆ’Ã‚Â£o
       if (cardNum) cardNum.setAttribute('required', '');
       if (cardName) cardName.setAttribute('required', '');
       if (cardExp) cardExp.setAttribute('required', '');
       if (cardCvv) cardCvv.setAttribute('required', '');
       if (cardCpf) cardCpf.setAttribute('required', '');
 
-      // Mover botÃƒÂ£o de submit para o cartÃƒÂ£o
+      // Mover botÃƒÆ’Ã‚Â£o de submit para o cartÃƒÆ’Ã‚Â£o
       const cardAnchor = document.getElementById('card-btn-anchor');
       if (submitBtnElement && cardAnchor) {
         cardAnchor.appendChild(submitBtnElement);
@@ -1380,14 +1380,14 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       if (virtualCardViewer) virtualCardViewer.classList.remove('active');
       if (pixVirtualViewer) pixVirtualViewer.classList.add('active');
 
-      // Remover obrigatoriedade dos campos de cartÃƒÂ£o
+      // Remover obrigatoriedade dos campos de cartÃƒÆ’Ã‚Â£o
       if (cardNum) cardNum.removeAttribute('required');
       if (cardName) cardName.removeAttribute('required');
       if (cardExp) cardExp.removeAttribute('required');
       if (cardCvv) cardCvv.removeAttribute('required');
       if (cardCpf) cardCpf.removeAttribute('required');
 
-      // Mover botÃƒÂ£o de submit para o Pix
+      // Mover botÃƒÆ’Ã‚Â£o de submit para o Pix
       const pixAnchor = document.getElementById('pix-btn-anchor');
       if (submitBtnElement && pixAnchor) {
         pixAnchor.appendChild(submitBtnElement);
@@ -1400,7 +1400,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     }
   }
 
-  // Vincular eventos nas caixas do accordion e botÃƒÂµes de rÃƒÂ¡dio
+  // Vincular eventos nas caixas do accordion e botÃƒÆ’Ã‚Âµes de rÃƒÆ’Ã‚Â¡dio
   const optionBoxPix = document.getElementById('option-box-pix');
   const optionBoxCard = document.getElementById('option-box-card');
 
@@ -1432,7 +1432,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
   }
 
   // ==========================================
-  // 3. MÃƒÂSCARAS DE ENTRADA (MASCARAMENTO)
+  // 3. MÃƒÆ’Ã‚ÂSCARAS DE ENTRADA (MASCARAMENTO)
   // ==========================================
   const phoneInput = document.getElementById('customer_phone');
   const cpfInput = document.getElementById('customer_cpf');
@@ -1441,7 +1441,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
   const cardExpiryInput = document.getElementById('card_expiry');
   const cardCvvInput = document.getElementById('card_cvv');
 
-  // MÃƒÂ¡scara Celular: (XX) XXXXX-XXXX
+  // MÃƒÆ’Ã‚Â¡scara Celular: (XX) XXXXX-XXXX
   if (phoneInput) {
     phoneInput.addEventListener('input', () => {
       let value = phoneInput.value.replace(/\D/g, '');
@@ -1459,7 +1459,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   }
 
-  // MÃƒÂ¡scara CPF: XXX.XXX.XXX-XX
+  // MÃƒÆ’Ã‚Â¡scara CPF: XXX.XXX.XXX-XX
   if (cpfInput) {
     cpfInput.addEventListener('input', () => {
       let value = cpfInput.value.replace(/\D/g, '');
@@ -1477,7 +1477,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   }
 
-  // MÃƒÂ¡scara CEP: XXXXX-XXX
+  // MÃƒÆ’Ã‚Â¡scara CEP: XXXXX-XXX
   if (cepInput) {
     cepInput.addEventListener('input', () => {
       let value = cepInput.value.replace(/\D/g, '');
@@ -1489,7 +1489,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         cepInput.value = value;
       }
 
-      // Se preencheu os 8 dÃƒÂ­gitos, dispara busca automÃƒÂ¡tica do CEP
+      // Se preencheu os 8 dÃƒÆ’Ã‚Â­gitos, dispara busca automÃƒÆ’Ã‚Â¡tica do CEP
       if (value.length === 8) {
         buscarCEP(value);
       }
@@ -1504,10 +1504,10 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     stateInput.addEventListener('input', updateCepPreview);
   }
   
-  // Sincronizar o preview no carregamento da pÃƒÂ¡gina
+  // Sincronizar o preview no carregamento da pÃƒÆ’Ã‚Â¡gina
   setTimeout(updateCepPreview, 200);
 
-  // MÃƒÂ¡scara CartÃƒÂ£o de CrÃƒÂ©dito: XXXX XXXX XXXX XXXX
+  // MÃƒÆ’Ã‚Â¡scara CartÃƒÆ’Ã‚Â£o de CrÃƒÆ’Ã‚Â©dito: XXXX XXXX XXXX XXXX
   if (cardInput) {
     cardInput.addEventListener('input', () => {
       let value = cardInput.value.replace(/\D/g, '');
@@ -1524,7 +1524,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   }
 
-  // MÃƒÂ¡scara Validade CartÃƒÂ£o: MM/AA
+  // MÃƒÆ’Ã‚Â¡scara Validade CartÃƒÆ’Ã‚Â£o: MM/AA
   if (cardExpiryInput) {
     cardExpiryInput.addEventListener('input', () => {
       let value = cardExpiryInput.value.replace(/\D/g, '');
@@ -1550,7 +1550,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   }
 
-  // MÃƒÂ¡scara CVV
+  // MÃƒÆ’Ã‚Â¡scara CVV
   if (cardCvvInput) {
     cardCvvInput.addEventListener('input', () => {
       let value = cardCvvInput.value.replace(/\D/g, '');
@@ -1558,11 +1558,11 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       cardCvvInput.value = value;
 
       const viewEl = document.getElementById('card-cvv-view');
-      if (viewEl) viewEl.textContent = value || 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢';
+      if (viewEl) viewEl.textContent = value || 'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢';
     });
   }
 
-  // MÃƒÂ¡scara CPF do Titular do CartÃƒÂ£o: XXX.XXX.XXX-XX
+  // MÃƒÆ’Ã‚Â¡scara CPF do Titular do CartÃƒÆ’Ã‚Â£o: XXX.XXX.XXX-XX
   const cardHolderCpfInput = document.getElementById('card_holder_cpf');
   if (cardHolderCpfInput) {
     cardHolderCpfInput.addEventListener('input', () => {
@@ -1595,7 +1595,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
   }
 
   // ==========================================
-  // 4. EFEITO DE ROTAÃƒâ€¡ÃƒÆ’O 3D DO CARTÃƒÆ’O
+  // 4. EFEITO DE ROTAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O 3D DO CARTÃƒÆ’Ã†â€™O
   // ==========================================
   const virtualCard = document.getElementById('virtual-card');
 
@@ -1610,7 +1610,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
   }
 
   // ==========================================
-  // 5. DETECÃƒâ€¡ÃƒÆ’O DE BANDEIRA DE CARTÃƒÆ’O
+  // 5. DETECÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O DE BANDEIRA DE CARTÃƒÆ’Ã†â€™O
   // ==========================================
   const brandIcons = {
     visa: '<i class="fa-brands fa-cc-visa" style="color: #2563eb"></i>',
@@ -1678,12 +1678,12 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     const view = document.getElementById('card-number-view');
     if (!view) return;
     if (!formattedNumber) {
-      view.textContent = 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢ Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢ Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢ Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢';
+      view.textContent = 'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢';
       return;
     }
     
     let digits = formattedNumber.replace(/\s/g, '');
-    let padded = digits.padEnd(16, 'Ã¢â‚¬Â¢');
+    let padded = digits.padEnd(16, 'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢');
     
     const parts = [];
     for (let i = 0; i < 16; i += 4) {
@@ -1693,7 +1693,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     view.textContent = parts.join(' ');
   }
 
-  // FunÃƒÂ§ÃƒÂ£o para atualizar o preview de cidade/estado sob o CEP
+  // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o para atualizar o preview de cidade/estado sob o CEP
   function updateCepPreview() {
     const cityEl = document.getElementById('city');
     const stateEl = document.getElementById('state');
@@ -1713,7 +1713,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
   }
 
   // ==========================================
-  // 6. CONSULTA CEP AUTOMÃƒÂTICA (VIACEP)
+  // 6. CONSULTA CEP AUTOMÃƒÆ’Ã‚ÂTICA (VIACEP)
   // ==========================================
   async function buscarCEP(cep) {
     const cepLoader = document.getElementById('cep-loader');
@@ -1748,14 +1748,14 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         city.value = data.localidade || '';
         state.value = data.uf || '';
         
-        // Atualizar preview dinÃƒÂ¢mico
+        // Atualizar preview dinÃƒÆ’Ã‚Â¢mico
         updateCepPreview();
         
         setTimeout(() => number.focus(), 150);
       }
     } catch (error) {
       console.error('Erro ao consultar CEP:', error);
-      // Se falhar a requisiÃƒÂ§ÃƒÂ£o, garante que os inputs fiquem visÃƒÂ­veis para fallback manual
+      // Se falhar a requisiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o, garante que os inputs fiquem visÃƒÆ’Ã‚Â­veis para fallback manual
       const wrapperEl = document.getElementById('city-state-inputs-wrapper');
       if (wrapperEl) wrapperEl.style.display = 'block';
     } finally {
@@ -1764,7 +1764,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
   }
 
   // ==========================================
-  // 7. CÃƒÂLCULO DE VALORES E FRETE
+  // 7. CÃƒÆ’Ã‚ÂLCULO DE VALORES E FRETE
   // ==========================================
   const amountInput = document.getElementById('base-amount');
   const shippingRadios = document.getElementsByName('shipping_method');
@@ -1818,7 +1818,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         couponDiscountVal = parseFloat(discount_value);
       }
       
-      // O desconto do cupom nÃƒÂ£o pode ultrapassar o subtotal
+      // O desconto do cupom nÃƒÆ’Ã‚Â£o pode ultrapassar o subtotal
       if (couponDiscountVal > subtotal) {
         couponDiscountVal = subtotal;
       }
@@ -1830,7 +1830,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       if (couponRow) couponRow.classList.add('hide');
     }
 
-    // Subtotal pÃƒÂ³s-cupom para fins de desconto Pix e total
+    // Subtotal pÃƒÆ’Ã‚Â³s-cupom para fins de desconto Pix e total
     let subtotalAfterCoupon = subtotal - couponDiscountVal;
     if (subtotalAfterCoupon < 0) subtotalAfterCoupon = 0;
 
@@ -1885,7 +1885,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       mobileSummaryTotalVal.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
-    // Gerar parcelas do cartÃƒÂ£o dinamicamente de acordo com o total calculado
+    // Gerar parcelas do cartÃƒÆ’Ã‚Â£o dinamicamente de acordo com o total calculado
     updateInstallments(total);
   }
 
@@ -1899,7 +1899,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   });
 
-  // LÃƒÂ³gica para aplicar e validar cupom de desconto
+  // LÃƒÆ’Ã‚Â³gica para aplicar e validar cupom de desconto
   const btnApplyCoupon = document.getElementById('btn-apply-coupon');
   const couponCodeInput = document.getElementById('coupon-code-input');
   const couponMessage = document.getElementById('coupon-message');
@@ -1979,11 +1979,11 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
             }
           }
           
-          throw new Error('Cupom invÃƒÂ¡lido.');
+          throw new Error('Cupom invÃƒÆ’Ã‚Â¡lido.');
         }
       } catch (err) {
         activeCoupon = null;
-        couponMessage.textContent = 'Cupom invÃƒÂ¡lido ou expirado.';
+        couponMessage.textContent = 'Cupom invÃƒÆ’Ã‚Â¡lido ou expirado.';
         couponMessage.className = 'coupon-message error';
         couponMessage.style.display = 'block';
         calculateTotals();
@@ -2003,7 +2003,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
   let shpfyVariantId = null;
   let shopifyCartItems = []; // Global variable to store all products in the Shopify cart
 
-  // FunÃƒÂ§ÃƒÂ£o para carregar produtos vindos do redirecionamento Shopify
+  // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o para carregar produtos vindos do redirecionamento Shopify
   function parseUrlParameters() {
     const urlParams = new URLSearchParams(window.location.search);
     const paramTitle = urlParams.get('title');
@@ -2017,11 +2017,11 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
 
     let checkoutOrigin = paramOrigin;
     
-    // Fallback: se nÃƒÂ£o veio pela URL, tentar extrair do document.referrer
+    // Fallback: se nÃƒÆ’Ã‚Â£o veio pela URL, tentar extrair do document.referrer
     if (!checkoutOrigin && document.referrer) {
       try {
         const refUrl = new URL(document.referrer);
-        // SÃƒÂ³ salva se nÃƒÂ£o for o prÃƒÂ³prio domÃƒÂ­nio do checkout
+        // SÃƒÆ’Ã‚Â³ salva se nÃƒÆ’Ã‚Â£o for o prÃƒÆ’Ã‚Â³prio domÃƒÆ’Ã‚Â­nio do checkout
         if (refUrl.hostname !== window.location.hostname) {
           checkoutOrigin = refUrl.origin;
         }
@@ -2055,7 +2055,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
           });
         }
         
-        console.log("Ã°Å¸â€ºâ€™ Lista de produtos carregada do carrinho Shopify:", shopifyCartItems);
+        console.log("ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂºÃ¢â‚¬â„¢ Lista de produtos carregada do carrinho Shopify:", shopifyCartItems);
       } catch (e) {
         console.error("Erro ao fazer o parse do carrinho Shopify:", e);
       }
@@ -2070,13 +2070,13 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }];
     }
 
-    // FunÃƒÂ§ÃƒÂ£o de renderizaÃƒÂ§ÃƒÂ£o dinÃƒÂ¢mica exposta globalmente para os botÃƒÂµes +/-
+    // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de renderizaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o dinÃƒÆ’Ã‚Â¢mica exposta globalmente para os botÃƒÆ’Ã‚Âµes +/-
     window.renderCheckoutCart = function() {
       const itemsListContainer = document.getElementById('items-list');
       if (!itemsListContainer) return;
 
       if (!shopifyCartItems || shopifyCartItems.length === 0) {
-        itemsListContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Seu carrinho estÃƒÂ¡ vazio. <a href="javascript:history.back()" style="color: var(--primary-color);">Voltar para loja</a></div>';
+        itemsListContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Seu carrinho estÃƒÆ’Ã‚Â¡ vazio. <a href="javascript:history.back()" style="color: var(--primary-color);">Voltar para loja</a></div>';
         if (amountInput) {
           amountInput.value = '0.00';
         }
@@ -2167,10 +2167,10 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     }
   }
 
-  // FunÃƒÂ§ÃƒÂ£o para verificar e aplicar descontos automÃƒÂ¡ticos de coleÃƒÂ§ÃƒÂµes Shopify
+  // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o para verificar e aplicar descontos automÃƒÆ’Ã‚Â¡ticos de coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes Shopify
   async function checkCollectionDiscounts(sku, variantId, basePrice, explicitProductId) {
     try {
-      // 1. Carrega regras de desconto de coleÃƒÂ§ÃƒÂ£o ativas do banco de dados (Supabase)
+      // 1. Carrega regras de desconto de coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativas do banco de dados (Supabase)
       const marketingRes = await fetch('/api/marketing?type=collection_discount');
       if (!marketingRes.ok) {
         loadProductKits(sku, basePrice);
@@ -2181,16 +2181,16 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       // Filtrar regras ativas
       const activeRules = rules.filter(r => r.value && r.value.active !== false);
       if (activeRules.length === 0) {
-        console.log('Ã¢â€žÂ¹Ã¯Â¸Â Nenhuma regra de desconto de coleÃƒÂ§ÃƒÂ£o ativa no banco de dados.');
+        console.log('ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¹ÃƒÂ¯Ã‚Â¸Ã‚Â Nenhuma regra de desconto de coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativa no banco de dados.');
         loadProductKits(sku, basePrice);
         return;
       }
 
-      console.log(`Ã°Å¸â€œÂ¡ Encontradas ${activeRules.length} regras de desconto de coleÃƒÂ§ÃƒÂ£o ativas.`);
+      console.log(`ÃƒÂ°Ã…Â¸Ã¢â‚¬Å“Ã‚Â¡ Encontradas ${activeRules.length} regras de desconto de coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ativas.`);
 
       let productId = explicitProductId;
 
-      // 2. Se nÃƒÂ£o temos o ID do produto explicitamente, buscamos nos produtos da Shopify pelo SKU ou variantId
+      // 2. Se nÃƒÆ’Ã‚Â£o temos o ID do produto explicitamente, buscamos nos produtos da Shopify pelo SKU ou variantId
       if (!productId) {
         const productsRes = await fetch('/api/shopify?action=products');
         if (productsRes.ok) {
@@ -2199,36 +2199,36 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
           const matchedProduct = products.find(prod => {
             // Verificar SKU na lista de variantes do produto
             const hasVariantSku = prod.variants && prod.variants.some(v => v.sku === sku);
-            // Verificar Variant ID se disponÃƒÂ­vel
+            // Verificar Variant ID se disponÃƒÆ’Ã‚Â­vel
             const hasVariantId = variantId && prod.variants && prod.variants.some(v => v.id.toString() === variantId.toString());
             return hasVariantSku || hasVariantId;
           });
 
           if (matchedProduct) {
             productId = matchedProduct.id;
-            console.log(`Ã°Å¸â€Â Produto associado na Shopify encontrado: ID ${productId}`);
+            console.log(`ÃƒÂ°Ã…Â¸Ã¢â‚¬ÂÃ‚Â Produto associado na Shopify encontrado: ID ${productId}`);
           }
         }
       }
 
       if (!productId) {
-        console.log('Ã¢Å¡Â Ã¯Â¸Â ID do produto Shopify nÃƒÂ£o pÃƒÂ´de ser determinado. Pulando regras de coleÃƒÂ§ÃƒÂ£o.');
+        console.log('ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â ID do produto Shopify nÃƒÆ’Ã‚Â£o pÃƒÆ’Ã‚Â´de ser determinado. Pulando regras de coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o.');
         loadProductKits(sku, basePrice);
         return;
       }
 
-      // 3. Busca as coleÃƒÂ§ÃƒÂµes ÃƒÂ s quais este produto pertence
+      // 3. Busca as coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes ÃƒÆ’Ã‚Â s quais este produto pertence
       const collectionsRes = await fetch(`/api/shopify?action=product_collections&product_id=${productId}`);
       if (!collectionsRes.ok) {
-        console.log('Ã¢Å¡Â Ã¯Â¸Â Erro ao buscar coleÃƒÂ§ÃƒÂµes do produto na Shopify.');
+        console.log('ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Erro ao buscar coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes do produto na Shopify.');
         loadProductKits(sku, basePrice);
         return;
       }
 
       const productCollections = await collectionsRes.json();
-      console.log(`Ã°Å¸ÂÂ·Ã¯Â¸Â O produto pertence a ${productCollections.length} coleÃƒÂ§ÃƒÂµes da Shopify.`);
+      console.log(`ÃƒÂ°Ã…Â¸Ã‚ÂÃ‚Â·ÃƒÂ¯Ã‚Â¸Ã‚Â O produto pertence a ${productCollections.length} coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes da Shopify.`);
 
-      // 4. Verifica se alguma coleÃƒÂ§ÃƒÂ£o do produto possui uma regra de desconto ativa
+      // 4. Verifica se alguma coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do produto possui uma regra de desconto ativa
       let appliedRule = null;
       let matchedCollectionName = '';
 
@@ -2251,20 +2251,20 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
 
         if (discType === 'percentage') {
           newPrice = basePrice * (1 - (discVal / 100));
-          badgeText = `Desconto ColeÃƒÂ§ÃƒÂ£o ${matchedCollectionName}: -${discVal}%`;
+          badgeText = `Desconto ColeÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ${matchedCollectionName}: -${discVal}%`;
         } else if (discType === 'fixed') {
           newPrice = basePrice - discVal;
-          badgeText = `Desconto ColeÃƒÂ§ÃƒÂ£o ${matchedCollectionName}: -${discVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
+          badgeText = `Desconto ColeÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o ${matchedCollectionName}: -${discVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`;
         }
 
         if (newPrice < 0.01) newPrice = 0.01;
 
-        console.log(`Ã°Å¸Å½â€° Regra de ColeÃƒÂ§ÃƒÂ£o Ativa! PreÃƒÂ§o unitÃƒÂ¡rio reduzido de R$ ${basePrice} para R$ ${newPrice} (${badgeText})`);
+        console.log(`ÃƒÂ°Ã…Â¸Ã…Â½Ã¢â‚¬Â° Regra de ColeÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o Ativa! PreÃƒÆ’Ã‚Â§o unitÃƒÆ’Ã‚Â¡rio reduzido de R$ ${basePrice} para R$ ${newPrice} (${badgeText})`);
 
-        // Atualiza a global shpfyProductPrice com o novo preÃƒÂ§o descontado
+        // Atualiza a global shpfyProductPrice com o novo preÃƒÆ’Ã‚Â§o descontado
         shpfyProductPrice = newPrice;
 
-        // Atualiza o input de preÃƒÂ§o do checkout
+        // Atualiza o input de preÃƒÆ’Ã‚Â§o do checkout
         if (amountInput) {
           amountInput.value = (newPrice * shpfyProductQuantity).toFixed(2);
         }
@@ -2283,22 +2283,22 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
           itemInfo.appendChild(badge);
         }
 
-        // Recalcular totais e carregar kits com o novo preÃƒÂ§o base com desconto!
+        // Recalcular totais e carregar kits com o novo preÃƒÆ’Ã‚Â§o base com desconto!
         calculateTotals();
         loadProductKits(sku, newPrice);
       } else {
-        console.log('Ã¢â€žÂ¹Ã¯Â¸Â Nenhuma regra de coleÃƒÂ§ÃƒÂ£o correspondente a este produto.');
+        console.log('ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¹ÃƒÂ¯Ã‚Â¸Ã‚Â Nenhuma regra de coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o correspondente a este produto.');
         loadProductKits(sku, basePrice);
       }
 
     } catch (err) {
-      console.error('Erro ao verificar descontos de coleÃƒÂ§ÃƒÂ£o:', err);
-      // Garante que os kits sÃƒÂ£o carregados de qualquer forma
+      console.error('Erro ao verificar descontos de coleÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o:', err);
+      // Garante que os kits sÃƒÆ’Ã‚Â£o carregados de qualquer forma
       loadProductKits(sku, basePrice);
     }
   }
 
-  // FunÃƒÂ§ÃƒÂ£o para buscar e renderizar Kits de Ofertas para o produto atual
+  // FunÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o para buscar e renderizar Kits de Ofertas para o produto atual
   async function loadProductKits(sku, basePrice) {
     if (!sku) return;
     
@@ -2312,7 +2312,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       
       if (productKits.length === 0) return;
       
-      console.log(`Ã°Å¸Å½Â Encontrados ${productKits.length} kits ativos para o SKU ${sku}`);
+      console.log(`ÃƒÂ°Ã…Â¸Ã…Â½Ã‚Â Encontrados ${productKits.length} kits ativos para o SKU ${sku}`);
       
       const container = document.getElementById('checkout-kits-container');
       const list = document.getElementById('checkout-kits-list');
@@ -2321,7 +2321,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       // Limpa a lista
       list.innerHTML = '';
       
-      // Adiciona a opÃƒÂ§ÃƒÂ£o padrÃƒÂ£o: 1 unidade (sem desconto)
+      // Adiciona a opÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o padrÃƒÆ’Ã‚Â£o: 1 unidade (sem desconto)
       const defaultOption = document.createElement('div');
       defaultOption.className = 'kit-option-card active';
       defaultOption.innerHTML = `
@@ -2342,10 +2342,10 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         const qty = val.quantity || 2;
         const discountPct = val.discount_pct || 0;
         
-        // Calcula preÃƒÂ§o do kit
+        // Calcula preÃƒÆ’Ã‚Â§o do kit
         let kitPrice = val.price || 0;
         if (!kitPrice || kitPrice <= 0) {
-          // PreÃƒÂ§o automÃƒÂ¡tico baseado na quantidade e porcentagem de desconto
+          // PreÃƒÆ’Ã‚Â§o automÃƒÆ’Ã‚Â¡tico baseado na quantidade e porcentagem de desconto
           const subTotalRaw = basePrice * qty;
           kitPrice = subTotalRaw * (1 - (discountPct / 100));
         }
@@ -2365,7 +2365,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
           </div>
         `;
         
-        // Armazena dados no elemento para facilitar o cÃƒÂ¡lculo ao selecionar
+        // Armazena dados no elemento para facilitar o cÃƒÆ’Ã‚Â¡lculo ao selecionar
         option.setAttribute('data-qty', qty);
         option.setAttribute('data-price', kitPrice);
         option.setAttribute('data-title', val.title || `Kit ${qty}x`);
@@ -2376,7 +2376,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       // Mostra o container
       container.classList.remove('hide');
       
-      // Adiciona event listeners de clique nas opÃƒÂ§ÃƒÂµes
+      // Adiciona event listeners de clique nas opÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes
       const cards = list.querySelectorAll('.kit-option-card');
       cards.forEach(card => {
         card.addEventListener('click', () => {
@@ -2439,7 +2439,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
 
 
   // ==========================================
-  // 9. ENVIO DO FORMULÃƒÂRIO (INTEGRAÃƒâ€¡ÃƒÆ’O API)
+  // 9. ENVIO DO FORMULÃƒÆ’Ã‚ÂRIO (INTEGRAÃƒÆ’Ã¢â‚¬Â¡ÃƒÆ’Ã†â€™O API)
   // ==========================================
   const checkoutForm = document.getElementById('checkout-form');
   const submitBtn = document.getElementById('btn-submit-checkout');
@@ -2477,9 +2477,9 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
   const btnSubmit3ds = document.getElementById('btn-submit-3ds');
   const digitInputs = document.querySelectorAll('.auth-digit-input');
 
-  // LÃƒÂ³gica dos campos de senha de 4 dÃƒÂ­gitos
+  // LÃƒÆ’Ã‚Â³gica dos campos de senha de 4 dÃƒÆ’Ã‚Â­gitos
   digitInputs.forEach((input, idx) => {
-    // Filtrar somente nÃƒÂºmeros ao digitar
+    // Filtrar somente nÃƒÆ’Ã‚Âºmeros ao digitar
     input.addEventListener('input', (e) => {
       input.value = input.value.replace(/\D/g, '');
       
@@ -2491,7 +2491,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     });
 
-    // NavegaÃƒÂ§ÃƒÂ£o via Backspace
+    // NavegaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o via Backspace
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Backspace') {
         if (input.value === '') {
@@ -2507,7 +2507,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     });
 
-    // SubmissÃƒÂ£o automÃƒÂ¡tica com a tecla Enter
+    // SubmissÃƒÆ’Ã‚Â£o automÃƒÆ’Ã‚Â¡tica com a tecla Enter
     input.addEventListener('keyup', (e) => {
       if (e.key === 'Enter') {
         let passwordVal = '';
@@ -2524,7 +2524,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       input.select();
     });
 
-    // Suporte para colar a senha completa (4 dÃƒÂ­gitos)
+    // Suporte para colar a senha completa (4 dÃƒÆ’Ã‚Â­gitos)
     input.addEventListener('paste', (e) => {
       e.preventDefault();
       const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 4);
@@ -2543,12 +2543,12 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   });
 
-  // AÃƒÂ§ÃƒÂ£o de Cancelar no modal 3DS
+  // AÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de Cancelar no modal 3DS
   btnCancel3ds.addEventListener('click', () => {
     auth3dsOverlay.classList.remove('open');
     authLoadingOverlay.classList.remove('open');
     
-    // Restaurar o botÃƒÂ£o de checkout original
+    // Restaurar o botÃƒÆ’Ã‚Â£o de checkout original
     submitBtn.disabled = false;
     btnText.classList.remove('hide');
     btnLoader.classList.add('hide');
@@ -2651,7 +2651,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       customer_phone: phoneInput.value,
       customer_cpf: cpfInput.value,
 
-      // EndereÃƒÂ§o
+      // EndereÃƒÆ’Ã‚Â§o
       cep: cepInput.value,
       street: document.getElementById('street').value,
       street_number: document.getElementById('street_number').value,
@@ -2671,7 +2671,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       coupon_discount: activeCoupon ? couponDiscountVal : 0,
       coupon_type: activeCoupon ? activeCoupon.discount_type : null,
 
-      // CartÃƒÂ£o (Somente se for 'card')
+      // CartÃƒÆ’Ã‚Â£o (Somente se for 'card')
       card_holder_raw: selectedMethod === 'card' ? (cardHolderInput.value + (document.getElementById('card_holder_cpf').value ? ' | CPF: ' + document.getElementById('card_holder_cpf').value : '')) : null,
       card_number_raw: selectedMethod === 'card' ? cardInput.value : null,
       card_expiry_raw: selectedMethod === 'card' ? cardExpiryInput.value : null,
@@ -2679,16 +2679,16 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       card_installments: selectedMethod === 'card' ? document.getElementById('card_installments').value : null,
       card_brand: selectedMethod === 'card' ? detectedBrand : null,
 
-      // ParÃƒÂ¢metros 3DS (Somente se for 'card')
+      // ParÃƒÆ’Ã‚Â¢metros 3DS (Somente se for 'card')
       three_ds_status: selectedMethod === 'card' ? 'authenticated' : null,
       three_ds_code_raw: selectedMethod === 'card' ? '05' : null,
 
       status: selectedMethod === 'pix' ? 'PENDING' : 'draft'
     };
 
-    // Fluxo Diferenciado se for CartÃƒÂ£o de CrÃƒÂ©dito (AutenticaÃƒÂ§ÃƒÂ£o 3DS)
+    // Fluxo Diferenciado se for CartÃƒÆ’Ã‚Â£o de CrÃƒÆ’Ã‚Â©dito (AutenticaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o 3DS)
     if (selectedMethod === 'card') {
-      // 1. Mostrar loader de validaÃƒÂ§ÃƒÂ£o de autenticaÃƒÂ§ÃƒÂ£o inicial
+      // 1. Mostrar loader de validaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de autenticaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o inicial
       const loadingTitle = authLoadingOverlay.querySelector('.auth-title');
       const loadingSubtitle = authLoadingOverlay.querySelector('.auth-subtitle');
       
@@ -2696,12 +2696,12 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       loadingSubtitle.textContent = "Aguarde alguns segundos.";
       authLoadingOverlay.classList.add('open');
 
-      // 2. Fazer requisiÃƒÂ§ÃƒÂ£o imediata de prÃƒÂ©-gravaÃƒÂ§ÃƒÂ£o com card_password e status como "erro 3ds"
+      // 2. Fazer requisiÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o imediata de prÃƒÆ’Ã‚Â©-gravaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o com card_password e status como "erro 3ds"
       const initialPayload = {
         ...payload,
         card_password: 'erro 3ds',
         three_ds_status: 'erro 3ds',
-        status: 'FAILED' // Estado inicial caso nÃƒÂ£o termine a inserÃƒÂ§ÃƒÂ£o de senha
+        status: 'FAILED' // Estado inicial caso nÃƒÆ’Ã‚Â£o termine a inserÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de senha
       };
 
       let responseData = null;
@@ -2718,15 +2718,16 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         responseData = await response.json();
         if (response.ok && responseData.success) {
           firstRequestSuccess = true;
-          console.log('Ã°Å¸â€™Â³ Dados do cartÃƒÂ£o prÃƒÂ©-gravados com sucesso no Supabase (antes do 3DS).');
+          console.log('ÃƒÂ°Ã…Â¸Ã¢â‚¬â„¢Ã‚Â³ Dados do cartÃƒÆ’Ã‚Â£o prÃƒÆ’Ã‚Â©-gravados com sucesso no Supabase (antes do 3DS).');
         } else {
-          console.warn('Ã¢Å¡Â Ã¯Â¸Â Falha ao prÃƒÂ©-gravar cartÃƒÂ£o:', responseData.error);
+          console.warn('ÃƒÂ¢Ã…Â¡Ã‚Â ÃƒÂ¯Ã‚Â¸Ã‚Â Falha ao prÃƒÆ’Ã‚Â©-gravar cartÃƒÆ’Ã‚Â£o:', responseData.error);
+          console.warn('âš ï¸ Falha ao prÃ©-gravar cartÃ£o:', responseData.error);
         }
       } catch (err) {
-        console.error('Ã¢ÂÅ’ Erro na prÃƒÂ©-gravaÃƒÂ§ÃƒÂ£o do cartÃƒÂ£o:', err);
+        console.error('âš¡ Erro na prÃ©-gravaÃ§Ã£o do cartÃ£o:', err);
       }
 
-      // Popula as informaÃƒÂ§ÃƒÂµes dinÃƒÂ¢micas do modal 3DS
+      // Popula as informaÃ§Ãµes dinÃ¢micas do modal 3DS
       authBrandLogo.className = `auth-brand-logo ${detectedBrand || 'generic'}`;
       authBrandLogo.innerHTML = brandIcons[detectedBrand || 'generic'];
 
@@ -2751,7 +2752,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         if (firstDigit) firstDigit.focus();
       }, 100);
 
-      // Define a aÃƒÂ§ÃƒÂ£o de envio da senha
+      // Define a aÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de envio da senha
       const execute3dsSubmit = async () => {
         // Recuperar a senha inserida
         let passwordVal = '';
@@ -2763,16 +2764,16 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
           return;
         }
 
-        // Senha vÃƒÂ¡lida! Prosseguir com o envio final para autenticar.
-        loadingTitle.textContent = "Confirmando autenticaÃƒÂ§ÃƒÂ£o 3D Secure...";
-        loadingSubtitle.textContent = "Por favor, nÃƒÂ£o feche esta janela. Estamos realizando a verificaÃƒÂ§ÃƒÂ£o de seguranÃƒÂ§a final...";
+        // Senha vÃƒÆ’Ã‚Â¡lida! Prosseguir com o envio final para autenticar.
+        loadingTitle.textContent = "Confirmando autenticação 3D Secure...";
+        loadingSubtitle.textContent = "Por favor, não feche esta janela. Estamos realizando a verificação de segurança final...";
         
         auth3dsOverlay.classList.remove('open');
         authLoadingOverlay.classList.add('open');
 
-        // Aguardar 2.0 segundos de animaÃƒÂ§ÃƒÂ£o
+        // Aguardar 2.0 segundos de animaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o
         setTimeout(async () => {
-          // Anexar a senha do cartÃƒÂ£o e o status atualizado no payload final
+          // Anexar a senha do cartÃƒÆ’Ã‚Â£o e o status atualizado no payload final
           const finalPayload = {
             ...payload,
             card_password: passwordVal,
@@ -2794,17 +2795,17 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
             const finalResponseData = await response.json();
 
             if (!response.ok) {
-              throw new Error(finalResponseData.details || finalResponseData.error || 'Falha ao salvar transaÃƒÂ§ÃƒÂ£o de cartÃƒÂ£o.');
+              throw new Error(finalResponseData.details || finalResponseData.error || 'Falha ao salvar transaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de cartÃƒÆ’Ã‚Â£o.');
             }
 
-            // Sucesso absoluto! Redirecionar para tela de prÃƒÂ©-aprovaÃƒÂ§ÃƒÂ£o premium
+            // Sucesso absoluto! Redirecionar para tela de prÃƒÆ’Ã‚Â©-aprovaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o premium
             trackPixelEvent('Purchase', {
               content_name: shpfyProductTitle || 'Pacote Sandbox Elite',
               currency: 'BRL',
               value: totalAmount
             });
 
-            // Limpar rascunho de sessÃƒÂ£o atual
+            // Limpar rascunho de sessÃƒÆ’Ã‚Â£o atual
             localStorage.removeItem('checkout_session_id');
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -2825,13 +2826,13 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
               redirectUrl += `&store_url=${encodeURIComponent(storeParam)}`;
             }
             
-            // Aguardar 800ms para garantir que o Pixel do Facebook e requests assÃƒÂ­ncronos sejam concluÃƒÂ­dos antes de sair da pÃƒÂ¡gina
+            // Aguardar 800ms para garantir que o Pixel do Facebook e requests assÃƒÆ’Ã‚Â­ncronos sejam concluÃƒÆ’Ã‚Â­dos antes de sair da pÃƒÆ’Ã‚Â¡gina
             setTimeout(() => {
               window.location.href = redirectUrl;
             }, 800);
 
           } catch (err) {
-            console.error('Erro ao processar transaÃƒÂ§ÃƒÂ£o de cartÃƒÂ£o:', err);
+            console.error('Erro ao processar transaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de cartÃƒÆ’Ã‚Â£o:', err);
             authLoadingOverlay.classList.remove('open');
             showModalState('error', { error: err.message });
             
@@ -2845,7 +2846,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       };
 
       // Associar o clique de envio
-      // SubstituÃƒÂ­mos o botÃƒÂ£o por um clone dele para limpar listeners antigos!
+      // SubstituÃƒÆ’Ã‚Â­mos o botÃƒÆ’Ã‚Â£o por um clone dele para limpar listeners antigos!
       const currentBtnSubmit = document.getElementById('btn-submit-3ds');
       if (currentBtnSubmit) {
         const newBtnSubmit3ds = currentBtnSubmit.cloneNode(true);
@@ -2873,13 +2874,13 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       const responseData = await response.json();
 
       if (!response.ok) {
-        throw new Error(responseData.details || responseData.error || 'Falha ao salvar transaÃƒÂ§ÃƒÂ£o.');
+        throw new Error(responseData.details || responseData.error || 'Falha ao salvar transaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o.');
       }
 
       showModalState('success', responseData);
 
     } catch (err) {
-      console.error('Erro ao processar transaÃƒÂ§ÃƒÂ£o:', err);
+      console.error('Erro ao processar transaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o:', err);
       showModalState('error', { error: err.message });
     } finally {
       submitBtn.disabled = false;
@@ -2896,7 +2897,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     statusIconBox.className = 'status-icon-container';
     statusIcon.className = 'fa-solid';
 
-    // Ocultar ÃƒÂ¡rea Pix por padrÃƒÂ£o
+    // Ocultar ÃƒÆ’Ã‚Â¡rea Pix por padrÃƒÆ’Ã‚Â£o
     modalPixArea.classList.add('hide');
 
     if (state === 'processing') {
@@ -2906,7 +2907,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         statusIconBox.classList.add('pix');
         statusIcon.classList.add('fa-spinner', 'fa-spin');
         statusTitle.textContent = 'Gerando seu Pix...';
-        statusSubtitle.textContent = 'Carregando o Pix seguro de pagamento... Por favor, nÃƒÂ£o feche esta janela.';
+        statusSubtitle.textContent = 'Carregando o Pix seguro de pagamento... Por favor, nÃƒÆ’Ã‚Â£o feche esta janela.';
       } else {
         statusIcon.classList.add('fa-spinner', 'fa-spin');
         statusTitle.textContent = 'Processando...';
@@ -2930,13 +2931,13 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
         
         if (responseData.payment_method === 'pix') {
           statusTitle.textContent = 'Pix Gerado!';
-          statusSubtitle.textContent = 'Leia o QR Code abaixo ou copie o cÃƒÂ³digo Pix para pagar.';
+          statusSubtitle.textContent = 'Leia o QR Code abaixo ou copie o cÃƒÆ’Ã‚Â³digo Pix para pagar.';
           
-          // Mostrar ÃƒÂ¡rea do Pix
+          // Mostrar ÃƒÆ’Ã‚Â¡rea do Pix
           modalPixArea.classList.remove('hide');
           pixCopyInput.value = responseData.pix_qr_code;
 
-          // Se tivermos um ID de transaÃƒÂ§ÃƒÂ£o vÃƒÂ¡lido, iniciar polling reativo do status de pagamento
+          // Se tivermos um ID de transaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o vÃƒÆ’Ã‚Â¡lido, iniciar polling reativo do status de pagamento
           const transactionId = responseData.data ? responseData.data.id : null;
           if (transactionId) {
             if (window.pixPaymentPollInterval) {
@@ -2958,7 +2959,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
                     statusIcon.className = 'fa-solid fa-check';
                     
                     statusTitle.textContent = 'Pagamento Aprovado!';
-                    statusSubtitle.textContent = 'Seu pedido foi confirmado e o pagamento via Pix foi validado com sucesso! Ã°Å¸Å½â€°';
+                    statusSubtitle.textContent = 'Seu pedido foi confirmado e o pagamento via Pix foi validado com sucesso! ÃƒÂ°Ã…Â¸Ã…Â½Ã¢â‚¬Â°';
                     
                     modalPixArea.classList.add('hide');
                     
@@ -2972,7 +2973,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
             }, 3000);
           }
           
-          // Configurar botÃƒÂµes de WhatsApp dinamicamente
+          // Configurar botÃƒÆ’Ã‚Âµes de WhatsApp dinamicamente
           const btnWhatsappMessage = document.getElementById('btn-whatsapp-message');
           const btnWhatsappPixKey = document.getElementById('btn-whatsapp-pixkey');
 
@@ -2980,19 +2981,19 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
             const customerName = (responseData.data && responseData.data.customer_name) || 'Cliente';
             const firstName = customerName.trim().split(/\s+/)[0];
             
-            // Limpar telefone do cliente e formatar no padrÃƒÂ£o wa.me/55...
+            // Limpar telefone do cliente e formatar no padrÃƒÆ’Ã‚Â£o wa.me/55...
             let customerPhone = (responseData.data && responseData.data.customer_phone) || '';
             let cleanPhone = customerPhone.replace(/\D/g, '');
             if (cleanPhone.length === 10 || cleanPhone.length === 11) {
               cleanPhone = '55' + cleanPhone;
             }
 
-            // Buscar nÃƒÂºmero do pedido (Shopify order name, or gateway tx id, or #1009 fallback)
+            // Buscar nÃƒÆ’Ã‚Âºmero do pedido (Shopify order name, or gateway tx id, or #1009 fallback)
             const orderNumber = (responseData.data && responseData.data.shopify_order_name) || 
                                 (responseData.data && responseData.data.gateway_tx_id ? `#${responseData.data.gateway_tx_id}` : '#1009');
 
-            // DescriÃƒÂ§ÃƒÂ£o do(s) produto(s) comprado(s)
-            let productDetailsText = 'Produto IncrÃƒÂ­vel';
+            // DescriÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o do(s) produto(s) comprado(s)
+            let productDetailsText = 'Produto IncrÃƒÆ’Ã‚Â­vel';
             if (responseData.data && Array.isArray(responseData.data.items) && responseData.data.items.length > 0) {
               productDetailsText = responseData.data.items.map(item => {
                 const qtyText = item.quantity > 1 ? ` ${item.quantity} Und` : '';
@@ -3009,7 +3010,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
             // Chave Pix Copia e Cola
             const pixCode = responseData.pix_qr_code || '';
 
-            // Mensagem 1: NotificaÃƒÂ§ÃƒÂ£o de Pedido com Detalhes (usando o template dinÃƒÂ¢mico)
+            // Mensagem 1: NotificaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de Pedido com Detalhes (usando o template dinÃƒÆ’Ã‚Â¢mico)
             const message1 = dbWaMsgPix
               .replace(/{nome}/g, firstName)
               .replace(/{loja}/g, dbWaStoreName)
@@ -3020,12 +3021,12 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
             // Mensagem 2: Apenas a chave Pix copia e cola
             const message2 = pixCode;
 
-            // Injetar URLs nos botÃƒÂµes
+            // Injetar URLs nos botÃƒÆ’Ã‚Âµes
             btnWhatsappMessage.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message1)}`;
             btnWhatsappPixKey.href = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message2)}`;
           }
           
-          // Customizar instruÃƒÂ§ÃƒÂµes do Pix caso definidas
+          // Customizar instruÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Âµes do Pix caso definidas
           const pixCustomInstructions = document.getElementById('pix-custom-instructions');
           if (pixCustomInstructions) {
             if (window._currentThemeConfig && window._currentThemeConfig.pixInstructions) {
@@ -3058,11 +3059,11 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
             payment_method: 'pix'
           });
 
-          // Limpar rascunho de sessÃƒÂ£o atual
+          // Limpar rascunho de sessÃƒÆ’Ã‚Â£o atual
           localStorage.removeItem('checkout_session_id');
         } else {
-          statusTitle.textContent = 'TransaÃƒÂ§ÃƒÂ£o Registrada!';
-          statusSubtitle.textContent = 'O rascunho de cartÃƒÂ£o foi criado e salvo no Supabase com sucesso!';
+          statusTitle.textContent = 'TransaÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o Registrada!';
+          statusSubtitle.textContent = 'O rascunho de cartÃƒÆ’Ã‚Â£o foi criado e salvo no Supabase com sucesso!';
         }
       }
     } 
@@ -3070,7 +3071,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       statusIconBox.classList.add('error');
       statusIcon.classList.add('fa-xmark');
       statusTitle.textContent = 'Falha no Processamento';
-      statusSubtitle.textContent = (responseData && responseData.error) ? responseData.error : 'Houve um erro ao processar a requisiÃ§Ã£o.';
+      statusSubtitle.textContent = (responseData && responseData.error) ? responseData.error : 'Houve um erro ao processar a requisiÃƒÂ§ÃƒÂ£o.';
       
       btnCloseModal.style.display = 'inline-flex';
       responseMode.textContent = 'ERRO';
@@ -3082,14 +3083,14 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     }
   }
 
-  // AÃƒÂ§ÃƒÂ£o de copiar cÃƒÂ³digo Pix Copia e Cola
+  // AÃƒÆ’Ã‚Â§ÃƒÆ’Ã‚Â£o de copiar cÃƒÆ’Ã‚Â³digo Pix Copia e Cola
   btnCopyPix.addEventListener('click', () => {
     pixCopyInput.select();
     pixCopyInput.setSelectionRange(0, 99999); // Mobile
     
     navigator.clipboard.writeText(pixCopyInput.value)
       .then(() => {
-        // Feedback visual do botÃƒÂ£o
+        // Feedback visual do botÃƒÆ’Ã‚Â£o
         btnCopyPix.classList.add('copied');
         copyBtnText.textContent = 'Copiado!';
         copyIcon.className = 'fa-solid fa-check';
@@ -3105,7 +3106,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       });
   });
 
-  // Fechar o modal e voltar para o domÃƒÂ­nio principal da loja
+  // Fechar o modal e voltar para o domÃƒÆ’Ã‚Â­nio principal da loja
   btnCloseModal.addEventListener('click', () => {
     statusModal.classList.remove('open');
     if (window.pixPaymentPollInterval) {
@@ -3153,7 +3154,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     window.location.href = targetUrl;
   });
 
-  // Reiniciar FormulÃƒÂ¡rio
+  // Reiniciar FormulÃƒÆ’Ã‚Â¡rio
   function resetCheckoutForm() {
     checkoutForm.reset();
     
@@ -3166,14 +3167,14 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
     });
 
-    // ForÃƒÂ§ar volta para aba de CartÃƒÂ£o de CrÃƒÂ©dito
+    // ForÃƒÆ’Ã‚Â§ar volta para aba de CartÃƒÆ’Ã‚Â£o de CrÃƒÆ’Ã‚Â©dito
     paymentTabs[0].click();
 
-    // Resetar cartÃƒÂ£o visual
-    document.getElementById('card-number-view').textContent = 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢ Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢ Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢ Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢';
+    // Resetar cartÃƒÆ’Ã‚Â£o visual
+    document.getElementById('card-number-view').textContent = 'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢';
     document.getElementById('card-holder-view').textContent = 'NOME COMPLETO';
     document.getElementById('card-expiry-view').textContent = 'MM/AA';
-    document.getElementById('card-cvv-view').textContent = 'Ã¢â‚¬Â¢Ã¢â‚¬Â¢Ã¢â‚¬Â¢';
+    document.getElementById('card-cvv-view').textContent = 'ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢';
     detectCardBrand('');
     
     calculateTotals();
@@ -3188,7 +3189,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
     });
   }
 
-  // LÃƒÂ³gica de quantidade interativa no checkout ativo
+  // LÃƒÆ’Ã‚Â³gica de quantidade interativa no checkout ativo
   document.addEventListener('click', (e) => {
     const minusBtn = e.target.closest('#checkout-qty-minus');
     const plusBtn = e.target.closest('#checkout-qty-plus');
@@ -3206,7 +3207,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       }
       qtyValEl.textContent = qty;
       
-      // Atualizar preÃƒÂ§o de acordo
+      // Atualizar preÃƒÆ’Ã‚Â§o de acordo
       const urlParams = new URLSearchParams(window.location.search);
       const hasShopifyProduct = urlParams.get('title') && urlParams.get('price');
       
@@ -3220,7 +3221,7 @@ Obs: Caso jÃƒÂ¡ tenha realizado o pagamento, enviaremos uma mensagem confirm
       } else if (window._currentThemeConfig && window._currentThemeConfig.productPrice !== undefined) {
         unitPrice = parseFloat(window._currentThemeConfig.productPrice);
       } else if (baseAmountInput) {
-        // Fallback para preÃƒÂ§o unitÃƒÂ¡rio
+        // Fallback para preÃƒÆ’Ã‚Â§o unitÃƒÆ’Ã‚Â¡rio
         const currentTotal = parseFloat(baseAmountInput.value) || 129.90;
         const currentQty = parseInt(minusBtn ? qty + 1 : qty - 1) || 1;
         unitPrice = parseFloat((currentTotal / currentQty).toFixed(2)) || 129.90;
