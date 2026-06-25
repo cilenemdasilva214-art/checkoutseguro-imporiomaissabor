@@ -4457,6 +4457,13 @@ Fico no aguardo! \u{1F60A}`;
       if (span) span.innerText = themeConfig.announcementText || 'FRETE GRÁTIS hoje para todo o Brasil!';
       mockAnnBar.style.background = themeConfig.announcementBg || '#7c4dff';
       mockAnnBar.style.color = themeConfig.announcementColor || '#ffffff';
+      
+      const headerElement = document.getElementById('mock-header-element');
+      if (themeConfig.announcementPosition === 'bottom' && headerElement) {
+        headerElement.after(mockAnnBar);
+      } else {
+        mockupRoot.prepend(mockAnnBar);
+      }
     }
     
     // Link Voltar
