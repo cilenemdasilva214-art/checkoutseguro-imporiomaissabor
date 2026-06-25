@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let themeConfig = {
     logo: '',
     logoCenter: false,
+    logoVisible: true,
     productName: 'item.product.name',
     productSize: 'size',
     productPrice: 10.00,
@@ -4198,6 +4199,7 @@ Fico no aguardo! \u{1F60A}`;
   // 4. Mapeamento de Inputs de Sincronização Dinâmica
   const inputsToSync = [
     { id: 'theme-logo-center', key: 'logoCenter', type: 'checkbox' },
+    { id: 'theme-logo-visible', key: 'logoVisible', type: 'checkbox' },
     { id: 'theme-logo-width', key: 'logoWidth', type: 'number' },
     { id: 'theme-announcement-active', key: 'announcementActive', type: 'checkbox' },
     { id: 'theme-announcement-text', key: 'announcementText', type: 'text' },
@@ -4433,6 +4435,14 @@ Fico no aguardo! \u{1F60A}`;
     const mockLogoPlaceholder = document.getElementById('mock-logo-placeholder');
     const mockLogoImg = document.getElementById('mock-logo-img');
     const mockLogoWrapper = document.getElementById('mock-logo-wrapper');
+    
+    if (mockLogoWrapper) {
+      if (themeConfig.logoVisible === false) {
+        mockLogoWrapper.style.display = 'none';
+      } else {
+        mockLogoWrapper.style.display = 'flex';
+      }
+    }
     
     if (themeConfig.logo) {
       if (mockLogoPlaceholder) mockLogoPlaceholder.classList.add('hide');

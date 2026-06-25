@@ -414,12 +414,17 @@ Obs: Caso já tenha realizado o pagamento, enviaremos uma mensagem confirmando a
       }
       const logoContainer = document.getElementById('checkout-logo-container');
       if (logoContainer) {
-        if (config.logoCenter) {
-          logoContainer.style.justifyContent = 'center';
-          logoContainer.style.width = '100%';
+        if (config.logoVisible === false) {
+          logoContainer.style.display = 'none';
         } else {
-          logoContainer.style.justifyContent = 'flex-start';
-          logoContainer.style.width = 'auto';
+          logoContainer.style.display = 'flex';
+          if (config.logoCenter) {
+            logoContainer.style.justifyContent = 'center';
+            logoContainer.style.width = '100%';
+          } else {
+            logoContainer.style.justifyContent = 'flex-start';
+            logoContainer.style.width = 'auto';
+          }
         }
       }
       if (logoIcon) {
