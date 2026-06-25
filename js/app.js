@@ -502,13 +502,16 @@ Obs: Caso já tenha realizado o pagamento, enviaremos uma mensagem confirmando a
         promoBanner.classList.remove('hide');
         
         function updateBannerSource() {
+          let hasImage = false;
           const isMobileViewport = window.innerWidth < 768;
           if (isMobileViewport) {
             if (bannerDesktop) bannerDesktop.classList.add('hide');
             if (bannerMobile) {
-              bannerMobile.src = config.bannerMobile || config.bannerDesktop || '';
-              if (bannerMobile.src) {
+              const src = config.bannerMobile || config.bannerDesktop || '';
+              if (src && src.trim() !== '') {
+                bannerMobile.src = src;
                 bannerMobile.classList.remove('hide');
+                hasImage = true;
               } else {
                 bannerMobile.classList.add('hide');
               }
@@ -516,13 +519,21 @@ Obs: Caso já tenha realizado o pagamento, enviaremos uma mensagem confirmando a
           } else {
             if (bannerMobile) bannerMobile.classList.add('hide');
             if (bannerDesktop) {
-              bannerDesktop.src = config.bannerDesktop || config.bannerMobile || '';
-              if (bannerDesktop.src) {
+              const src = config.bannerDesktop || config.bannerMobile || '';
+              if (src && src.trim() !== '') {
+                bannerDesktop.src = src;
                 bannerDesktop.classList.remove('hide');
+                hasImage = true;
               } else {
                 bannerDesktop.classList.add('hide');
               }
             }
+          }
+          
+          if (!hasImage) {
+            promoBanner.style.display = 'none';
+          } else {
+            promoBanner.style.display = 'block';
           }
         }
         

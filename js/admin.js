@@ -4498,7 +4498,7 @@ Fico no aguardo! \u{1F60A}`;
           } else {
             mockHeaderElement.style.justifyContent = 'center';
             mockHeaderElement.style.gap = '8px';
-          }
+}
         }
         if (mockLogoWrapper) mockLogoWrapper.style.order = '2';
         if (mockBackLink) mockBackLink.style.order = '1';
@@ -4515,30 +4515,39 @@ Fico no aguardo! \u{1F60A}`;
       const bannerPlaceholder = mockPromoBanner.querySelector('.banner-mock-placeholder');
       
       if (themeConfig.bannerActive) {
+        let hasImage = false;
         if (isMobile) {
           if (bannerDesktopImg) bannerDesktopImg.classList.add('hide');
-          if (themeConfig.bannerMobile) {
+          if (themeConfig.bannerMobile || themeConfig.bannerDesktop) {
             if (bannerPlaceholder) bannerPlaceholder.classList.add('hide');
             if (bannerMobileImg) {
-              bannerMobileImg.src = themeConfig.bannerMobile;
+              bannerMobileImg.src = themeConfig.bannerMobile || themeConfig.bannerDesktop;
               bannerMobileImg.classList.remove('hide');
+              hasImage = true;
             }
           } else {
-            if (bannerPlaceholder) bannerPlaceholder.classList.remove('hide');
             if (bannerMobileImg) bannerMobileImg.classList.add('hide');
+            if (bannerPlaceholder) bannerPlaceholder.classList.add('hide');
           }
         } else {
           if (bannerMobileImg) bannerMobileImg.classList.add('hide');
-          if (themeConfig.bannerDesktop) {
+          if (themeConfig.bannerDesktop || themeConfig.bannerMobile) {
             if (bannerPlaceholder) bannerPlaceholder.classList.add('hide');
             if (bannerDesktopImg) {
-              bannerDesktopImg.src = themeConfig.bannerDesktop;
+              bannerDesktopImg.src = themeConfig.bannerDesktop || themeConfig.bannerMobile;
               bannerDesktopImg.classList.remove('hide');
+              hasImage = true;
             }
           } else {
-            if (bannerPlaceholder) bannerPlaceholder.classList.remove('hide');
             if (bannerDesktopImg) bannerDesktopImg.classList.add('hide');
+            if (bannerPlaceholder) bannerPlaceholder.classList.add('hide');
           }
+        }
+        
+        if (!hasImage) {
+          mockPromoBanner.style.display = 'none';
+        } else {
+          mockPromoBanner.style.display = 'block';
         }
       }
     }
