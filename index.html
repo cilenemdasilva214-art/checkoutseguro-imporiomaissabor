@@ -15,6 +15,11 @@
   <style id="dynamic-checkout-styles"></style>
 </head>
 <body>
+  <!-- GLOBAL LOADING OVERLAY (PREVENT DELAY FLASH) -->
+  <div id="global-init-overlay" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background-color: #0a0f1a; z-index:999999; display:flex; flex-direction:column; align-items:center; justify-content:center; transition: opacity 0.4s ease, visibility 0.4s ease;">
+    <i class="fa-solid fa-spinner fa-spin" style="font-size: 2.5rem; color: #7c5dfa; margin-bottom: 1rem;"></i>
+    <p style="color:#ffffff; font-family: sans-serif; font-weight: 500; font-size: 1.1rem; letter-spacing: 0.5px;">Preparando ambiente seguro...</p>
+  </div>
 
   <!-- Barra de Avisos Checkout -->
   <div id="announcement-bar-checkout" class="announcement-bar hide"></div>
