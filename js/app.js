@@ -3127,13 +3127,13 @@ Obs: Caso jÃ¡ tenha realizado o pagamento, enviaremos uma mensagem confirmando
             if (cartItems.length > 0 && cartItems[0].image) {
                targetUrl = new URL(cartItems[0].image).origin;
             } else {
-               targetUrl = 'https://emporiomaissabor.com.br';
+               targetUrl = 'https://emporiomaissaborr.com';
             }
           } else {
-            targetUrl = 'https://emporiomaissabor.com.br';
+            targetUrl = 'https://emporiomaissaborr.com';
           }
         } catch(e) {
-          targetUrl = 'https://emporiomaissabor.com.br';
+          targetUrl = 'https://emporiomaissaborr.com';
         }
       } else {
         targetUrl = sessionOrigin.startsWith('http') ? sessionOrigin : 'https://' + sessionOrigin;
@@ -3147,7 +3147,7 @@ Obs: Caso jÃ¡ tenha realizado o pagamento, enviaremos uma mensagem confirmando
     } else if (window._currentThemeConfig && window._currentThemeConfig.wooCommerceDomain) {
       targetUrl = 'https://' + window._currentThemeConfig.wooCommerceDomain.trim();
     } else {
-      targetUrl = 'https://emporiomaissabor.com.br';
+      targetUrl = 'https://emporiomaissaborr.com';
     }
     
     window.location.href = targetUrl;
