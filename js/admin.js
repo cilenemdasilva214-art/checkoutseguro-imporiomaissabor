@@ -4414,7 +4414,7 @@ Fico no aguardo! \u{1F60A}`;
     const wcConsumerSecret = document.getElementById('wc-consumer-secret');
     const wcImportCoupons = document.getElementById('wc-import-coupons');
 
-    if (wcDomainPrefix) wcDomainPrefix.value = themeConfig.wooCommerceDomain || 'nacional-brasil.store';
+    if (wcDomainPrefix) wcDomainPrefix.value = themeConfig.wooCommerceDomain || '';
     if (wcConsumerKey) wcConsumerKey.value = themeConfig.wooCommerceConsumerKey || '';
     if (wcConsumerSecret) wcConsumerSecret.value = themeConfig.wooCommerceConsumerSecret || '';
     if (wcImportCoupons) wcImportCoupons.checked = !!themeConfig.wooCommerceImportCoupons;

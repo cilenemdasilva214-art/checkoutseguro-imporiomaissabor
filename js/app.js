@@ -3114,13 +3114,13 @@ Obs: Caso já tenha realizado o pagamento, enviaremos uma mensagem confirmando a
             if (cartItems.length > 0 && cartItems[0].image) {
                targetUrl = new URL(cartItems[0].image).origin;
             } else {
-               targetUrl = 'https://nacional-brasil.store';
+               targetUrl = '/';
             }
           } else {
-            targetUrl = 'https://nacional-brasil.store';
+            targetUrl = '/';
           }
         } catch(e) {
-          targetUrl = 'https://nacional-brasil.store';
+          targetUrl = '/';
         }
       } else {
         targetUrl = sessionOrigin.startsWith('http') ? sessionOrigin : 'https://' + sessionOrigin;
