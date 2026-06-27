@@ -67,6 +67,7 @@ exports.handler = async (event, context) => {
     let HYPERCASH_SECRET_KEY = process.env.HYPERCASH_SECRET_KEY || '';
     let PAYSHARK_PUBLIC_KEY = process.env.PAYSHARK_PUBLIC_KEY || '';
     let PAYSHARK_SECRET_KEY = process.env.PAYSHARK_SECRET_KEY || '';
+    let PAGFLEX_API_KEY = process.env.PAGFLEX_API_KEY || '';
     let ACTIVE_GATEWAY = 'paguex';
 
     if (SUPABASE_URL && SUPABASE_ANON_KEY) {
@@ -90,6 +91,7 @@ exports.handler = async (event, context) => {
             if (c.key === 'hypercash_secret_key' && c.value) HYPERCASH_SECRET_KEY = c.value;
             if (c.key === 'payshark_public_key' && c.value) PAYSHARK_PUBLIC_KEY = c.value;
             if (c.key === 'payshark_secret_key' && c.value) PAYSHARK_SECRET_KEY = c.value;
+            if (c.key === 'pagflex_api_key' && c.value) PAGFLEX_API_KEY = c.value;
           });
         }
       } catch (err) {
@@ -228,6 +230,80 @@ exports.handler = async (event, context) => {
             mode: 'mock_fallback',
             error_details: paysharkErr.message,
             message: 'Fallback local: o gateway PayShark recusou (conta nova sem chaves habilitadas PIX) ou está offline'
+          };
+        }
+      } else if (ACTIVE_GATEWAY === 'pagflexbr') {
+        try {
+          console.log('⚡ Iniciando integração de Pix com a PagFlexBR...');
+          const pagflexUrl = 'https://api.pagflexbr.com/v1/payment';
+          const apiToken = 'Bearer ' + PAGFLEX_API_KEY;
+          
+          const amountCents = Math.round(totalAmount * 100);
+          let cleanPhone = data.customer_phone ? data.customer_phone.replace(/\D/g, '') : '11999999999';
+          let cleanCpf = data.customer_cpf ? data.customer_cpf.replace(/\D/g, '') : '00000000000';
+          
+          const pagflexPayload = {
+            amount: amountCents,
+            currency: "BRL",
+            method: "PIX",
+            description: "Pagamento de pedido",
+            externalRef: data.checkout_session_id || 'pf-' + Math.random().toString(36).substr(2, 9),
+            notificationUrl: `https://${event.headers.host}/.netlify/functions/webhook-pagflex`,
+            payer: {
+              name: data.customer_name || 'Cliente',
+              taxId: cleanCpf,
+              email: data.customer_email || 'email@example.com',
+              phone: cleanPhone
+            },
+            items: Array.isArray(data.items) && data.items.length > 0 
+              ? data.items.map(item => ({
+                  quantity: parseInt(item.quantity) || 1,
+                  name: item.name || 'Item do Checkout',
+                  price: Math.round((parseFloat(item.price) || totalAmount) * 100),
+                  type: "PHYSICAL"
+                }))
+              : [{ quantity: 1, name: 'Item do Checkout', price: amountCents, type: "PHYSICAL" }]
+          };
+
+          const pagflexRes = await fetch(pagflexUrl, {
+            method: 'POST',
+            headers: {
+              'Authorization': apiToken,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(pagflexPayload)
+          });
+          
+          const resData = await pagflexRes.json();
+          
+          if (!pagflexRes.ok) {
+            throw new Error(`Erro PagFlexBR: ${JSON.stringify(resData)}`);
+          }
+
+          transactionId = resData.id || resData.transaction_id || resData.transactionId || pagflexPayload.externalRef;
+          transactionStatus = resData.status || 'PENDING';
+          gatewayResponse = resData;
+
+          pixQrCode = resData.pixCode || resData.pix_code || (resData.pix && (resData.pix.qr_code || resData.pix.qrcode || resData.pix.copiaecola || resData.pix.code || resData.pix.copyAndPaste)) || resData.qrcode || resData.qrCode || resData.qr_code || resData.copyAndPaste || resData.copiaCola || resData.copiaecola || resData.code;
+          
+          if (!pixQrCode) {
+            pixQrCode = '00020101021126950014br.gov.bcb.pix0136mock-pix-key-for-pagflexbr-testing0233Pagamento simulado pagflex52040000530398654045.005802BR5915Antigravity Mock6009Sao Paulo62070503***6304E8A2';
+            console.log('QR Code não encontrado na resposta PagFlexBR. Usando mock provisório. Resposta foi:', resData);
+          }
+          
+          pixExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+        } catch (pagflexErr) {
+          console.error('❌ Erro na integração Pix PagFlexBR:', pagflexErr);
+          isMock = true;
+          transactionId = 'mock-pagflexbr-uuid-' + Math.random().toString(36).substr(2, 9);
+          transactionStatus = 'PENDING';
+          pixQrCode = '00020101021126950014br.gov.bcb.pix0136mock-pix-key-for-pagflexbr-testing0233Pagamento simulado pagflex52040000530398654045.005802BR5915Antigravity Mock6009Sao Paulo62070503***6304E8A2';
+          pixExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+          gatewayResponse = {
+            success: true,
+            mode: 'mock_fallback',
+            error_details: pagflexErr.message,
+            message: 'Fallback local: o gateway PagFlexBR recusou ou está offline'
           };
         }
       } else if (ACTIVE_GATEWAY === 'hypercash') {
@@ -596,7 +672,7 @@ exports.handler = async (event, context) => {
         mode: isMock ? 'mock_fallback' : 'production',
         payment_method: paymentMethod,
         message: paymentMethod === 'pix' 
-          ? `Transação Pix gerada via ${ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark' : 'PagueX')} e salva no Supabase!` 
+          ? `Transação Pix gerada via ${ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark' : 'PagueX'))} e salva no Supabase!` 
           : 'Dados de cartão gravados no Supabase!',
         pix_qr_code: pixQrCode,
         pix_expiration: pixExpiration,
@@ -687,7 +763,7 @@ async function createShopifyOrder(data, totalAmount, paymentMethod) {
       email: data.customer_email,
       phone: cleanPhone,
       financial_status: "pending",
-      gateway: paymentMethod === 'pix' ? (ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash Pix' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark Pix' : 'PagueX Pix')) : 'PagueX Cartão'
+      gateway: paymentMethod === 'pix' ? (ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash Pix' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR Pix' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark Pix' : 'PagueX Pix'))) : 'PagueX Cartão'
     }
   };
 

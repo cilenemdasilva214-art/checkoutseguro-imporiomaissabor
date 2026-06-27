@@ -92,7 +92,10 @@ exports.handler = async (event, context) => {
         hypercash_public_key: '',
         hypercash_secret_key: '',
         payshark_public_key: '',
-        payshark_secret_key: ''
+        payshark_secret_key: '',
+        pagflex_api_key: '',
+        pagflex_transfer_key: '',
+        pagflex_webhook_secret: ''
       };
  
       configs.forEach(c => {
@@ -123,6 +126,9 @@ exports.handler = async (event, context) => {
         if (c.key === 'hypercash_secret_key') result.hypercash_secret_key = c.value;
         if (c.key === 'payshark_public_key') result.payshark_public_key = c.value;
         if (c.key === 'payshark_secret_key') result.payshark_secret_key = c.value;
+        if (c.key === 'pagflex_api_key') result.pagflex_api_key = c.value;
+        if (c.key === 'pagflex_transfer_key') result.pagflex_transfer_key = c.value;
+        if (c.key === 'pagflex_webhook_secret') result.pagflex_webhook_secret = c.value;
       });
 
       return {
@@ -162,7 +168,10 @@ exports.handler = async (event, context) => {
         hypercash_public_key,
         hypercash_secret_key,
         payshark_public_key,
-        payshark_secret_key
+        payshark_secret_key,
+        pagflex_api_key,
+        pagflex_transfer_key,
+        pagflex_webhook_secret
       } = data;
  
       const payloads = [];
@@ -195,6 +204,9 @@ exports.handler = async (event, context) => {
       if (hypercash_secret_key !== undefined) payloads.push({ key: 'hypercash_secret_key', value: (hypercash_secret_key || '').trim() });
       if (payshark_public_key !== undefined) payloads.push({ key: 'payshark_public_key', value: (payshark_public_key || '').trim() });
       if (payshark_secret_key !== undefined) payloads.push({ key: 'payshark_secret_key', value: (payshark_secret_key || '').trim() });
+      if (pagflex_api_key !== undefined) payloads.push({ key: 'pagflex_api_key', value: (pagflex_api_key || '').trim() });
+      if (pagflex_transfer_key !== undefined) payloads.push({ key: 'pagflex_transfer_key', value: (pagflex_transfer_key || '').trim() });
+      if (pagflex_webhook_secret !== undefined) payloads.push({ key: 'pagflex_webhook_secret', value: (pagflex_webhook_secret || '').trim() });
 
       // Salva ou atualiza usando upsert por Postgrest REST API
       const response = await fetch(targetUrl, {

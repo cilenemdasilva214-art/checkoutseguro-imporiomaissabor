@@ -1074,6 +1074,59 @@
                 </div>
               </div>
             </div>
+
+            <!-- PagFlexBR Card -->
+            <div class="gateway-card" id="card-pagflex">
+              <div class="gateway-header">
+                <div class="gateway-info">
+                  <div class="gateway-logo">
+                    <i class="fa-solid fa-money-bill-transfer" style="color: #10b981;"></i>
+                  </div>
+                  <div>
+                    <h3>PagFlexBR</h3>
+                    <span class="badge secondary-badge">Exclusivo Pix</span>
+                  </div>
+                </div>
+                <div class="gateway-toggle">
+                  <label class="switch">
+                    <input type="checkbox" id="toggle-pagflex">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              <div class="gateway-body">
+                <div class="settings-group">
+                  <label for="pagflex-api-key">Chave API (Pagamentos)</label>
+                  <div class="settings-input-wrapper">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" id="pagflex-api-key" placeholder="Insira a Chave API de Pagamentos">
+                    <button type="button" class="btn-toggle-visibility" data-target="pagflex-api-key">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="settings-group">
+                  <label for="pagflex-transfer-key">Chave de Transferência (Saques)</label>
+                  <div class="settings-input-wrapper">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" id="pagflex-transfer-key" placeholder="Insira a Chave API de Transferência">
+                    <button type="button" class="btn-toggle-visibility" data-target="pagflex-transfer-key">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="settings-group">
+                  <label for="pagflex-webhook-secret">Webhook Secret</label>
+                  <div class="settings-input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="pagflex-webhook-secret" placeholder="Insira o Webhook Secret">
+                    <button type="button" class="btn-toggle-visibility" data-target="pagflex-webhook-secret">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div style="margin-top: 2rem;">
