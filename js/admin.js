@@ -879,9 +879,6 @@ Fico no aguardo! \u{1F60A}`;
         const hSecKeyInput = document.getElementById('hypercash-secret-key');
         const psPubKeyInput = document.getElementById('payshark-public-key');
         const psSecKeyInput = document.getElementById('payshark-secret-key');
-  const pfApiInput = document.getElementById('pagflex-api-key');
-  const pfTransferInput = document.getElementById('pagflex-transfer-key');
-  const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
         const pfApiInput = document.getElementById('pagflex-api-key');
         const pfTransferInput = document.getElementById('pagflex-transfer-key');
         const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
@@ -5406,9 +5403,6 @@ Fico no aguardo! \u{1F60A}`;
   const hSecKeyInput = document.getElementById('hypercash-secret-key');
   const psPubKeyInput = document.getElementById('payshark-public-key');
   const psSecKeyInput = document.getElementById('payshark-secret-key');
-  const pfApiInput = document.getElementById('pagflex-api-key');
-  const pfTransferInput = document.getElementById('pagflex-transfer-key');
-  const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
         const pfApiInput = document.getElementById('pagflex-api-key');
         const pfTransferInput = document.getElementById('pagflex-transfer-key');
         const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
@@ -5618,4 +5612,5 @@ Fico no aguardo! \u{1F60A}`;
   }
 
 });
+
 
