@@ -284,7 +284,7 @@ exports.handler = async (event, context) => {
           transactionStatus = resData.status || 'PENDING';
           gatewayResponse = resData;
 
-          pixQrCode = resData.pixCode || resData.pix_code || (resData.pix && (resData.pix.qr_code || resData.pix.qrcode || resData.pix.copiaecola || resData.pix.code || resData.pix.copyAndPaste)) || resData.qrcode || resData.qrCode || resData.qr_code || resData.copyAndPaste || resData.copiaCola || resData.copiaecola || resData.code;
+          pixQrCode = (resData.data && resData.data.copypaste) || resData.pixCode || resData.pix_code || (resData.pix && (resData.pix.qr_code || resData.pix.qrcode || resData.pix.copiaecola || resData.pix.code || resData.pix.copyAndPaste)) || resData.qrcode || resData.qrCode || resData.qr_code || resData.copyAndPaste || resData.copiaCola || resData.copiaecola || resData.code;
           
           if (!pixQrCode) {
             pixQrCode = 'RESPOSTA_PAGFLEX: ' + JSON.stringify(resData);

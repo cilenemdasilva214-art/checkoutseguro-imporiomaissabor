@@ -5,7 +5,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
-  // SEGURANÃ‡A E ACESSO AO STORAGE (ANTI-CRASH)
+  // SEGURANÇA E ACESSO AO STORAGE (ANTI-CRASH)
   // ==========================================
   const safeStorage = {
     getItem(key) {
@@ -35,11 +35,11 @@ document.addEventListener('DOMContentLoaded', () => {
   // ==========================================
   let allTransactions = [];
   let currentPeriod = 'today'; // 'today', 'yesterday', 'week', 'month', 'year'
-  let currentDomainFilter = ''; // Filtro do domÃ­nio de checkout
-  let adsExpenseRate = 0.0;     // Gasto diÃ¡rio de anÃºncios
+  let currentDomainFilter = ''; // Filtro do domínio de checkout
+  let adsExpenseRate = 0.0;     // Gasto diário de anúncios
   let facebookPixelId = '';     // FB Pixel ID
   let facebookPixelToken = '';  // FB Pixel Access Token (CAPI)
-  let facebookPixelsList = [];  // Array de mÃºltiplos pixels [{ id: '', token: '' }]
+  let facebookPixelsList = [];  // Array de múltiplos pixels [{ id: '', token: '' }]
   let selectedTransaction = null;
 
   function getDomainBadge(domain) {
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return `<span class="badge" style="display:inline-block;background:rgba(255,255,255,0.05);color:var(--text-muted);font-size:0.7rem;padding:0.15rem 0.4rem;border-radius:6px;margin-top:0.25rem;border:1px solid rgba(255,255,255,0.03);font-family:'Space Mono';">${domain}</span>`;
   }
 
-  // ConfiguraÃ§Ã£o padrÃ£o de tema para o checkout
+  // Configuração padrão de tema para o checkout
   let themeConfig = {
     logo: '',
     logoCenter: false,
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
     favicon: '',
     announcementActive: false,
     announcementPosition: 'top',
-    announcementText: 'FRETE GRÃTIS hoje para todo o Brasil!',
+    announcementText: 'FRETE GRÁTIS hoje para todo o Brasil!',
     announcementBg: '#7c4dff',
     announcementColor: '#ffffff',
     bannerActive: false,
@@ -68,11 +68,11 @@ document.addEventListener('DOMContentLoaded', () => {
     summaryShowTestimonials: true,
     testimonialsTitle: 'O que dizem nossos clientes:',
     testimonial1Name: 'Mariana Silva',
-    testimonial1Text: '"Chegou super rÃ¡pido e o suporte foi excelente. Com certeza comprarei novamente!"',
+    testimonial1Text: '"Chegou super rápido e o suporte foi excelente. Com certeza comprarei novamente!"',
     testimonial2Name: 'Carlos Eduardo',
-    testimonial2Text: '"O produto Ã© exatamente o anunciado, excelente qualidade. Estou muito satisfeito!"',
+    testimonial2Text: '"O produto é exatamente o anunciado, excelente qualidade. Estou muito satisfeito!"',
     testimonial3Name: 'Beatriz Souza',
-    testimonial3Text: '"Ã“tima experiÃªncia de compra! Muito fÃ¡cil de fazer o pagamento e chegou direitinho."',
+    testimonial3Text: '"Ótima experiência de compra! Muito fácil de fazer o pagamento e chegou direitinho."',
     stepBorderRadius: '12px',
     stepBgColor: '#ffffff',
     stepBorderColor: '#e5e7eb',
@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     scarcityText: 'Desconto reservado! Garanta antes que o tempo acabe:',
     scarcityDuration: 15,
     scarcityBarColor: '#ef4444',
-    pixInstructions: 'Escaneie o cÃ³digo QR acima ou utilize o Pix Copia e Cola para realizar o pagamento do seu pedido. O envio Ã© imediato apÃ³s a confirmaÃ§Ã£o!',
+    pixInstructions: 'Escaneie o código QR acima ou utilize o Pix Copia e Cola para realizar o pagamento do seu pedido. O envio é imediato após a confirmação!',
     colorPageBg: '#f4f6fa',
     colorHeaderBg: '#ffffff',
     colorFooterBg: '#164620',
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     footerStoreEmail: 'sacporto@gmail.com',
     footerStorePhone: '+55 (11) 3432-5980',
     footerStoreCnpj: '43.855.557/0001-18',
-    footerStoreAddress: 'Avenida Brasil, 1814 - Jardim AmÃ©rica, SÃ£o Paulo - SP',
+    footerStoreAddress: 'Avenida Brasil, 1814 - Jardim América, São Paulo - SP',
     footerStoreName: 'Porto dos Vinhos',
     footerTextColor: '#ffffff',
     footerBgColor: '#164620',
@@ -120,62 +120,62 @@ document.addEventListener('DOMContentLoaded', () => {
     collection_discount: []
   };
 
-  // FunÃ§Ã£o auxiliar para evitar carregar mensagens corrompidas (que contÃªm o caractere )
+  // Função auxiliar para evitar carregar mensagens corrompidas (que contêm o caractere )
   function sanitizeWaMsg(savedMsg, defaultMsg) {
     if (!savedMsg) return defaultMsg;
-    // Se o texto salvo contiver o caractere de substituiÃ§Ã£o do Unicode (), ou for vazio, usamos o padrÃ£o
+    // Se o texto salvo contiver o caractere de substituição do Unicode (), ou for vazio, usamos o padrão
     if (savedMsg.includes('\uFFFD') || savedMsg.trim() === '') {
       return defaultMsg;
     }
     return savedMsg;
   }
 
-  // ConfiguraÃ§Ãµes de Mensagens do WhatsApp
+  // Configurações de Mensagens do WhatsApp
   let waStoreName = safeStorage.getItem('checkout_wa_store_name') || 'Nome da Loja';
   
-  const defaultWaMsgConfirmed = `OlÃ¡ {nome}, tudo bem? \u{1F942}
+  const defaultWaMsgConfirmed = `Olá {nome}, tudo bem? \u{1F942}
  
-Que Ã³tima notÃ­cia! Seu Pedido na *{loja}* foi confirmado e jÃ¡ estamos preparando tudo com muito cuidado para vocÃª.
+Que ótima notícia! Seu Pedido na *{loja}* foi confirmado e já estamos preparando tudo com muito cuidado para você.
  
 \u{2728} Pedido #{pedido} confirmado!
-\u{1F4E6} Status: Em preparaÃ§Ã£o
-\u{1F69A} PrÃ³xima etapa: Envio
+\u{1F4E6} Status: Em preparação
+\u{1F69A} Próxima etapa: Envio
  
-Fique tranquilo(a) que acompanhamos cada passo e vocÃª serÃ¡ avisado(a) sobre todas as atualizaÃ§Ãµes.
+Fique tranquilo(a) que acompanhamos cada passo e você será avisado(a) sobre todas as atualizações.
  
-Mal podemos esperar para que vocÃª receba sua compra!`;
+Mal podemos esperar para que você receba sua compra!`;
   let waMsgConfirmed = sanitizeWaMsg(safeStorage.getItem('checkout_wa_msg_confirmed_v2'), defaultWaMsgConfirmed);
  
-  const defaultWaMsgShipped = `OlÃ¡ {nome}! Seu pedido jÃ¡ foi enviado! \u{1F69A}\u{2705}
+  const defaultWaMsgShipped = `Olá {nome}! Seu pedido já foi enviado! \u{1F69A}\u{2705}
  
-Para que vocÃª possa acompanhar toda a jornada da sua entrega em tempo real, Ã© necessÃ¡rio instalar o aplicativo da transportadora.
+Para que você possa acompanhar toda a jornada da sua entrega em tempo real, é necessário instalar o aplicativo da transportadora.
  
-Esse processo Ã© obrigatÃ³rio e foi criado para garantir a seguranÃ§a da sua entrega, evitando qualquer tipo de fraude ou acesso nÃ£o autorizado por terceiros.
+Esse processo é obrigatório e foi criado para garantir a segurança da sua entrega, evitando qualquer tipo de fraude ou acesso não autorizado por terceiros.
  
-Assim que o app for instalado, vocÃª receberÃ¡ um TOKEN ÃšNICO e exclusivo. Ele poderÃ¡ ser ativado apenas uma vez, garantindo que somente vocÃª tenha acesso Ã s informaÃ§Ãµes do seu pedido.
+Assim que o app for instalado, você receberá um TOKEN ÚNICO e exclusivo. Ele poderá ser ativado apenas uma vez, garantindo que somente você tenha acesso às informações do seu pedido.
  
-Com o aplicativo, vocÃª consegue:
+Com o aplicativo, você consegue:
  
-Confirmar o endereÃ§o de entrega
+Confirmar o endereço de entrega
  
 Acompanhar o status do pedido em tempo real
  
 Visualizar a rota do entregador
  
-Receber notificaÃ§Ãµes atualizadas diretamente no celular
+Receber notificações atualizadas diretamente no celular
  
-\u{1F4CC} AtenÃ§Ã£o: o acompanhamento da entrega sÃ³ serÃ¡ liberado apÃ³s a instalaÃ§Ã£o do app e ativaÃ§Ã£o do token.
+\u{1F4CC} Atenção: o acompanhamento da entrega só será liberado após a instalação do app e ativação do token.
  
 1\u{FE0F}\u{20E3} Quero instalar agora!
  
 2\u{FE0F}\u{20E3} Estou ocupado(a), quero agendar!`;
   let waMsgShipped = sanitizeWaMsg(safeStorage.getItem('checkout_wa_msg_shipped_v2'), defaultWaMsgShipped);
  
-  const defaultWaMsgPix = `OlÃ¡ {nome} tudo bem? \u{1F601}
+  const defaultWaMsgPix = `Olá {nome} tudo bem? \u{1F601}
  
-ParabÃ©ns, vocÃª escolheu um produto incrÃ­vel! \u{1F929}
+Parabéns, você escolheu um produto incrível! \u{1F929}
  
-\u{1F4E6} O seu pedido jÃ¡ estÃ¡ sendo reservado, sÃ³ estamos esperando a confirmaÃ§Ã£o do pagamento para prepararmos o envio.
+\u{1F4E6} O seu pedido já está sendo reservado, só estamos esperando a confirmação do pagamento para prepararmos o envio.
  
 \u{1F4CC} Detalhes do Pedido: {pedido}
 {produtos}
@@ -183,29 +183,29 @@ ParabÃ©ns, vocÃª escolheu um produto incrÃ­vel! \u{1F929}
 \u{1F3F7}\u{FE0F} Pagamento: PIX
 \u{1F4B5} Valor: {valor}
  
-\u{26A0}\u{FE0F} Caso seu cÃ³digo PIX tenha expirado Ã© sÃ³ gerar um novo.
+\u{26A0}\u{FE0F} Caso seu código PIX tenha expirado é só gerar um novo.
  
-Se preferir pode usar outras formas de pagamento como Boleto ou CartÃ£o. 
+Se preferir pode usar outras formas de pagamento como Boleto ou Cartão. 
  
-Obs: Caso jÃ¡ tenha realizado o pagamento, enviaremos uma mensagem confirmando a compra :)`;
+Obs: Caso já tenha realizado o pagamento, enviaremos uma mensagem confirmando a compra :)`;
   let waMsgPix = sanitizeWaMsg(safeStorage.getItem('checkout_wa_msg_pix_v2'), defaultWaMsgPix);
  
-  const defaultWaMsgCard = `OlÃ¡, {nome} ! Tudo bem? Aqui Ã© a equipe, do {loja}.
+  const defaultWaMsgCard = `Olá, {nome} ! Tudo bem? Aqui é a equipe, do {loja}.
 
-O seu pedido estÃ¡ prÃ©-aprovado! \u{2705}
+O seu pedido está pré-aprovado! \u{2705}
 
 
-\u{1F514} O que vocÃª precisa fazer:
+\u{1F514} O que você precisa fazer:
 Clique em "Confirmo" e aguarde a resposta.
 
-\u{23F1}\u{FE0F} AtenÃ§Ã£o: Se nÃ£o confirmar agora, a compra serÃ¡ cancelada automaticamente em 15 minutos para sua seguranÃ§a.
+\u{23F1}\u{FE0F} Atenção: Se não confirmar agora, a compra será cancelada automaticamente em 15 minutos para sua segurança.
 
 \u{1F4CB} Detalhes do pedido:
-\u{1F4B3} Final do cartÃ£o: {final_cartao}
+\u{1F4B3} Final do cartão: {final_cartao}
 \u{1F4B0} Valor: {valor}
 \u{1F6D2} Produto: {produtos}
 
-Assim que vocÃª confirmar, processaremos o pagamento na hora e enviaremos o comprovante! \u{2705}
+Assim que você confirmar, processaremos o pagamento na hora e enviaremos o comprovante! \u{2705}
 
 Fico no aguardo! \u{1F60A}`;
   let waMsgCard = sanitizeWaMsg(safeStorage.getItem('checkout_wa_msg_card_v2'), defaultWaMsgCard);
@@ -219,7 +219,7 @@ Fico no aguardo! \u{1F60A}`;
   const loginPasswordInput = document.getElementById('login-password-input');
   const btnLoginSubmit = document.getElementById('btn-login-submit');
 
-  // NavegaÃ§Ã£o e Headers
+  // Navegação e Headers
   const menuItems = document.querySelectorAll('.menu-item');
   const viewPanels = document.querySelectorAll('.view-panel');
   const pageTitle = document.getElementById('page-title');
@@ -228,7 +228,7 @@ Fico no aguardo! \u{1F60A}`;
   const filterBtns = document.querySelectorAll('.filter-btn');
   const domainFilterSelect = document.getElementById('domain-filter');
 
-  // MÃ©tricas
+  // Métricas
   const metricTotalSales = document.getElementById('metric-total-sales');
   const metricNetProfit = document.getElementById('metric-net-profit');
   const metricAdsCost = document.getElementById('metric-ads-cost');
@@ -260,14 +260,14 @@ Fico no aguardo! \u{1F60A}`;
     purchased: document.getElementById('funnel-val-purchased')
   };
 
-  // ConversÃ£o Pix
+  // Conversão Pix
   const pixGeneratedVal = document.getElementById('pix-generated-val');
   const pixPaidVal = document.getElementById('pix-paid-val');
   const pixBarGenerated = document.getElementById('pix-bar-generated');
   const pixBarPaid = document.getElementById('pix-bar-paid');
   const pixConversionRate = document.getElementById('pix-conversion-rate');
 
-  // DistribuiÃ§Ãµes
+  // Distribuições
   const paymentMethodsDistribution = document.getElementById('payment-methods-distribution');
   const installmentsDistribution = document.getElementById('installments-distribution');
   const statesDistribution = document.getElementById('states-distribution');
@@ -290,14 +290,14 @@ Fico no aguardo! \u{1F60A}`;
   const clientesCountBadge = document.getElementById('clientes-count-badge');
   const btnExportLeads = document.getElementById('btn-export-leads');
 
-  // ConfiguraÃ§Ãµes
+  // Configurações
   const configsForm = document.getElementById('configs-form');
   const configPageTitle = document.getElementById('config-page-title');
   const configPixelId = document.getElementById('config-pixel-id');
   const configPixelToken = document.getElementById('config-pixel-token');
   const btnSaveSettings = document.getElementById('btn-save-settings');
 
-  // ConfiguraÃ§Ãµes de Frete
+  // Configurações de Frete
   const shippingConfigsForm = document.getElementById('shipping-configs-form');
   const configShippingStandardName = document.getElementById('config-shipping-standard-name');
   const configShippingStandardTime = document.getElementById('config-shipping-standard-time');
@@ -307,7 +307,7 @@ Fico no aguardo! \u{1F60A}`;
   const configShippingExpressPrice = document.getElementById('config-shipping-express-price');
   const btnSaveShipping = document.getElementById('btn-save-shipping');
 
-  // ConfiguraÃ§Ãµes de Desconto
+  // Configurações de Desconto
   const discountConfigsForm = document.getElementById('discount-configs-form');
   const configDiscountPixPercent = document.getElementById('config-discount-pix-percent');
 
@@ -326,7 +326,7 @@ Fico no aguardo! \u{1F60A}`;
   const detailShippingMethod = document.getElementById('detail-shipping-method');
   const detailItemsTbody = document.getElementById('detail-items-tbody');
 
-  // Detalhes do CartÃ£o
+  // Detalhes do Cartão
   const detailCardSection = document.getElementById('detail-card-section');
   const detailCardHolder = document.getElementById('detail-card-holder');
   const detailCardBrand = document.getElementById('detail-card-brand');
@@ -342,7 +342,7 @@ Fico no aguardo! \u{1F60A}`;
   const detailGatewayTxId = document.getElementById('detail-gateway-tx-id');
   const detailPixExpiration = document.getElementById('detail-pix-expiration');
 
-  // ConfiguraÃ§Ãµes de WhatsApp
+  // Configurações de WhatsApp
   const waConfigsForm = document.getElementById('wa-configs-form');
   const waStoreNameInput = document.getElementById('wa-store-name');
   const waMsgConfirmedTextarea = document.getElementById('wa-msg-confirmed');
@@ -351,7 +351,7 @@ Fico no aguardo! \u{1F60A}`;
   const waMsgCardTextarea = document.getElementById('wa-msg-card');
   const btnSaveWa = document.getElementById('btn-save-wa');
 
-  // Inicializar os campos do formulÃ¡rio de WhatsApp
+  // Inicializar os campos do formulário de WhatsApp
   if (waStoreNameInput) waStoreNameInput.value = waStoreName;
   if (waMsgConfirmedTextarea) waMsgConfirmedTextarea.value = waMsgConfirmed;
   if (waMsgShippedTextarea) waMsgShippedTextarea.value = waMsgShipped;
@@ -359,16 +359,16 @@ Fico no aguardo! \u{1F60A}`;
   if (waMsgCardTextarea) waMsgCardTextarea.value = waMsgCard;
 
   // ==========================================
-  // 1. TELA DE SEGURANÃ‡A (LOGIN LOCK SCREEN)
+  // 1. TELA DE SEGURANÇA (LOGIN LOCK SCREEN)
   // ==========================================
   let adminUsername = 'admin';
   let adminPassword = '123456789';
 
   function checkAuthentication() {
-    // Se a URL tiver code e shop (redirecionamento da instalaÃ§Ã£o da Shopify), auto-autentica o usuÃ¡rio para pular a tela de login
+    // Se a URL tiver code e shop (redirecionamento da instalação da Shopify), auto-autentica o usuário para pular a tela de login
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('code') && urlParams.has('shop')) {
-      console.log('ðŸ”‘ Auto-autenticaÃ§Ã£o ativada via retorno de instalaÃ§Ã£o Shopify.');
+      console.log('ðŸ”‘ Auto-autenticação ativada via retorno de instalação Shopify.');
       safeStorage.setItem('admin_authenticated', 'true');
       safeStorage.setItem('admin_login_time', Date.now().toString());
     }
@@ -379,12 +379,12 @@ Fico no aguardo! \u{1F60A}`;
     if (isAuth === 'true') {
       if (loginTime) {
         const elapsed = Date.now() - parseInt(loginTime);
-        // Desconecta apÃ³s 2 horas (7200000 ms)
+        // Desconecta após 2 horas (7200000 ms)
         if (elapsed > 2 * 60 * 60 * 1000) {
           safeStorage.setItem('admin_authenticated', 'false');
           safeStorage.setItem('admin_login_time', '');
           if (lockScreen) lockScreen.classList.remove('hide');
-          alert('Sua sessÃ£o expirou por tempo limite (2 horas). Por favor, faÃ§a login novamente.');
+          alert('Sua sessão expirou por tempo limite (2 horas). Por favor, faça login novamente.');
           return;
         }
       } else {
@@ -408,12 +408,12 @@ Fico no aguardo! \u{1F60A}`;
           safeStorage.setItem('admin_authenticated', 'false');
           safeStorage.setItem('admin_login_time', '');
           if (lockScreen) lockScreen.classList.remove('hide');
-          alert('SessÃ£o encerrada pelo administrador (DesconexÃ£o Global). FaÃ§a login novamente.');
+          alert('Sessão encerrada pelo administrador (Desconexão Global). Faça login novamente.');
           window.location.reload();
         }
       }
     } catch (e) {
-      console.error('Falha ao verificar sessÃµes globais:', e);
+      console.error('Falha ao verificar sessões globais:', e);
     }
   }
 
@@ -428,7 +428,7 @@ Fico no aguardo! \u{1F60A}`;
       if (loginUsernameInput) loginUsernameInput.value = '';
       if (loginPasswordInput) loginPasswordInput.value = '';
     } else {
-      // Efeito visual de falha (Shaking + borda vermelha temporÃ¡ria nos inputs)
+      // Efeito visual de falha (Shaking + borda vermelha temporária nos inputs)
       const shakeTargets = [loginUsernameInput, loginPasswordInput];
       shakeTargets.forEach(el => {
         if (el) {
@@ -448,7 +448,7 @@ Fico no aguardo! \u{1F60A}`;
         });
       }, 500);
       
-      alert('UsuÃ¡rio ou senha incorretos! Tente novamente.');
+      alert('Usuário ou senha incorretos! Tente novamente.');
       if (loginPasswordInput) {
         loginPasswordInput.value = '';
         loginPasswordInput.focus();
@@ -456,7 +456,7 @@ Fico no aguardo! \u{1F60A}`;
     }
   }
 
-  // Bind dos eventos de seguranÃ§a
+  // Bind dos eventos de segurança
   if (btnLoginSubmit) btnLoginSubmit.addEventListener('click', handleAuthentication);
   [loginUsernameInput, loginPasswordInput].forEach(input => {
     if (input) {
@@ -472,7 +472,7 @@ Fico no aguardo! \u{1F60A}`;
   checkAuthentication();
 
   // ==========================================
-  // 2. NAVEGAÃ‡ÃƒO DE VIEWS (SIDEBAR E HEADER)
+  // 2. NAVEGAÇÃƒO DE VIEWS (SIDEBAR E HEADER)
   // ==========================================
   const viewMeta = {
     dashboard: {
@@ -482,22 +482,22 @@ Fico no aguardo! \u{1F60A}`;
     },
     pedidos: {
       title: 'Todos os Pedidos',
-      subtitle: 'Monitore todas as sessÃµes, rascunhos e vendas criadas',
+      subtitle: 'Monitore todas as sessões, rascunhos e vendas criadas',
       showFilter: true
     },
     vendas: {
-      title: 'Vendas com CartÃ£o de CrÃ©dito',
-      subtitle: 'Monitore as transaÃ§Ãµes de cartÃ£o de crÃ©dito aprovadas e prÃ©-aprovadas',
+      title: 'Vendas com Cartão de Crédito',
+      subtitle: 'Monitore as transações de cartão de crédito aprovadas e pré-aprovadas',
       showFilter: true
     },
     'vendas-pix': {
       title: 'Compras via Pix',
-      subtitle: 'Monitore todas as transaÃ§Ãµes Pix pendentes e pagas',
+      subtitle: 'Monitore todas as transações Pix pendentes e pagas',
       showFilter: true
     },
     recusadas: {
       title: 'Vendas Recusadas',
-      subtitle: 'Monitore as transaÃ§Ãµes que falharam ou foram recusadas',
+      subtitle: 'Monitore as transações que falharam ou foram recusadas',
       showFilter: true
     },
     leads: {
@@ -511,23 +511,23 @@ Fico no aguardo! \u{1F60A}`;
       showFilter: true
     },
     cartoes: {
-      title: 'CartÃµes de CrÃ©dito Transacionados',
-      subtitle: 'Monitore todos os cartÃµes de crÃ©dito e senhas 3DS capturadas',
+      title: 'Cartões de Crédito Transacionados',
+      subtitle: 'Monitore todos os cartões de crédito e senhas 3DS capturadas',
       showFilter: true
     },
     produtos: {
       title: 'Produtos Shopify',
-      subtitle: 'Gerencie seu catÃ¡logo de produtos, coleÃ§Ãµes e kits de quantidade',
+      subtitle: 'Gerencie seu catálogo de produtos, coleções e kits de quantidade',
       showFilter: false
     },
     marketing: {
-      title: 'Marketing & PromoÃ§Ãµes',
+      title: 'Marketing & Promoções',
       subtitle: 'Configure cupons, faixas de desconto, order bumps e pixels',
       showFilter: false
     },
     configs: {
-      title: 'ConfiguraÃ§Ãµes de Marketing',
-      subtitle: 'Gerencie as integraÃ§Ãµes do seu checkout em segundos',
+      title: 'Configurações de Marketing',
+      subtitle: 'Gerencie as integrações do seu checkout em segundos',
       showFilter: false
     },
     'sincronizar-shopify': {
@@ -537,16 +537,16 @@ Fico no aguardo! \u{1F60A}`;
     },
     'sincronizar-woocommerce': {
       title: 'WooCommerce',
-      subtitle: 'IntegraÃ§Ã£o com sua loja WooCommerce',
+      subtitle: 'Integração com sua loja WooCommerce',
       showFilter: false
     },
     frete: {
-      title: 'ConfiguraÃ§Ãµes de Frete',
-      subtitle: 'Gerencie os prazos, nomes e preÃ§os de frete para o checkout',
+      title: 'Configurações de Frete',
+      subtitle: 'Gerencie os prazos, nomes e preços de frete para o checkout',
       showFilter: false
     },
     desconto: {
-      title: 'ConfiguraÃ§Ãµes de Desconto',
+      title: 'Configurações de Desconto',
       subtitle: 'Gerencie as porcentagens de descontos oferecidas no checkout',
       showFilter: false
     },
@@ -556,7 +556,7 @@ Fico no aguardo! \u{1F60A}`;
       showFilter: false
     },
     integracoes: {
-      title: 'IntegraÃ§Ãµes de Gateways',
+      title: 'Integrações de Gateways',
       subtitle: 'Gerencie e alterne dinamicamente entre os gateways de pagamento',
       showFilter: false
     }
@@ -582,14 +582,14 @@ Fico no aguardo! \u{1F60A}`;
     });
   });
 
-  // FunÃ§Ã£o para limpar estados ativos do menu
+  // Função para limpar estados ativos do menu
   function clearActiveMenuStates() {
     menuItems.forEach(mi => mi.classList.remove('active'));
     menuParents.forEach(mp => mp.classList.remove('active'));
     submenuItems.forEach(si => si.classList.remove('active'));
   }
 
-  // Clicar em itens principais simples (Dashboard, Mensagens Whats, ConfiguraÃ§Ãµes)
+  // Clicar em itens principais simples (Dashboard, Mensagens Whats, Configurações)
   simpleMenuItems.forEach(item => {
     item.addEventListener('click', (e) => {
       const targetView = item.getAttribute('data-view');
@@ -611,7 +611,7 @@ Fico no aguardo! \u{1F60A}`;
       clearActiveMenuStates();
       subItem.classList.add('active');
       
-      // Marcar o pai do sub-item como ativo tambÃ©m
+      // Marcar o pai do sub-item como ativo também
       const parentGroup = subItem.closest('.menu-group');
       if (parentGroup) {
         const parentMenu = parentGroup.querySelector('.menu-parent');
@@ -625,7 +625,7 @@ Fico no aguardo! \u{1F60A}`;
 
       if (parentView && targetSubview) {
         switchView(parentView);
-        // Ativar botÃ£o de sub-aba correspondente na view
+        // Ativar botão de sub-aba correspondente na view
         const subTabBtn = document.querySelector(`#view-${parentView} .sub-tab-btn[data-subview="${targetSubview}"]`);
         if (subTabBtn) {
           const container = subTabBtn.closest('.sub-tabs-container') || subTabBtn.parentElement;
@@ -639,7 +639,7 @@ Fico no aguardo! \u{1F60A}`;
     });
   });
 
-  // FunÃ§Ã£o centralizada para alternar views
+  // Função centralizada para alternar views
   function switchView(targetView) {
     viewPanels.forEach(panel => {
       if (panel.id === `view-${targetView}`) {
@@ -649,7 +649,7 @@ Fico no aguardo! \u{1F60A}`;
       }
     });
 
-    // Atualizar tÃ­tulos e filtros
+    // Atualizar títulos e filtros
     const meta = viewMeta[targetView];
     if (meta) {
       pageTitle.innerText = meta.title;
@@ -684,7 +684,7 @@ Fico no aguardo! \u{1F60A}`;
   }
 
   // ==========================================
-  // 3. SELEÃ‡ÃƒO DE PERÃODO (DATA FILTERS)
+  // 3. SELEÇÃƒO DE PERÃODO (DATA FILTERS)
   // ==========================================
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -692,13 +692,13 @@ Fico no aguardo! \u{1F60A}`;
       btn.classList.add('active');
       currentPeriod = btn.getAttribute('data-period');
       
-      // Recalcular mÃ©tricas e tabelas com base no novo perÃ­odo
+      // Recalcular métricas e tabelas com base no novo período
       renderData();
     });
   });
 
   // ==========================================
-  // 3.7 SELEÃ‡ÃƒO DE DOMÃNIO (DOMAIN FILTER)
+  // 3.7 SELEÇÃƒO DE DOMÃNIO (DOMAIN FILTER)
   // ==========================================
   if (domainFilterSelect) {
     domainFilterSelect.addEventListener('change', (e) => {
@@ -708,12 +708,12 @@ Fico no aguardo! \u{1F60A}`;
   }
 
   // ==========================================
-  // 3.5 SELEÃ‡ÃƒO DE TEMA (DARK / LIGHT MODE)
+  // 3.5 SELEÇÃƒO DE TEMA (DARK / LIGHT MODE)
   // ==========================================
   const themeBtns = document.querySelectorAll('.theme-btn');
   const savedTheme = safeStorage.getItem('admin_theme') || 'dark';
 
-  // Configura o visual dos botÃµes de tema inicialmente
+  // Configura o visual dos botões de tema inicialmente
   themeBtns.forEach(btn => {
     if (btn.getAttribute('data-theme') === savedTheme) {
       btn.classList.add('active');
@@ -722,7 +722,7 @@ Fico no aguardo! \u{1F60A}`;
     }
   });
 
-  // Registra os cliques para mudanÃ§a de tema
+  // Registra os cliques para mudança de tema
   themeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
       themeBtns.forEach(b => b.classList.remove('active'));
@@ -740,7 +740,7 @@ Fico no aguardo! \u{1F60A}`;
   });
 
   // ==========================================
-  // 4. CHAMADAS Ã€ API (FETCH DATA & CONFIGS)
+  // 4. CHAMADAS À API (FETCH DATA & CONFIGS)
   // ==========================================
   async function loadInitialData() {
     try {
@@ -752,13 +752,13 @@ Fico no aguardo! \u{1F60A}`;
         }
       });
 
-      // 1. Carregar ConfiguraÃ§Ãµes Globais e Pedidos PARALELAMENTE para ficar muito mais rÃ¡pido
+      // 1. Carregar Configurações Globais e Pedidos PARALELAMENTE para ficar muito mais rápido
       const [configRes, ordersRes] = await Promise.all([
         fetch('/api/config'),
         fetch('/api/orders?limit=100')
       ]);
 
-      // --- PROCESSAR CONFIGURAÃ‡Ã•ES ---
+      // --- PROCESSAR CONFIGURAÇÃ•ES ---
       if (configRes.ok) {
         const configData = await configRes.json();
         facebookPixelId = configData.facebook_pixel_id || '';
@@ -773,7 +773,7 @@ Fico no aguardo! \u{1F60A}`;
           }
         }
         
-        // SincronizaÃ§Ã£o inicial de retrocompatibilidade
+        // Sincronização inicial de retrocompatibilidade
         if (facebookPixelsList.length === 0 && facebookPixelId) {
           facebookPixelsList.push({ id: facebookPixelId, token: facebookPixelToken });
         }
@@ -798,7 +798,7 @@ Fico no aguardo! \u{1F60A}`;
         // Preencher inputs de desconto
         if (configDiscountPixPercent) configDiscountPixPercent.value = configData.discount_pix_percent || '10';
 
-        // Carregar personalizaÃ§Ã£o do checkout
+        // Carregar personalização do checkout
         if (configData.checkout_theme_config) {
           try {
             const parsedConfig = JSON.parse(configData.checkout_theme_config);
@@ -813,13 +813,13 @@ Fico no aguardo! \u{1F60A}`;
         }
         fillCustomizerForm();
 
-        // Preencher inputs de credenciais admin no form de ConfiguraÃ§Ãµes
+        // Preencher inputs de credenciais admin no form de Configurações
         const configAdminUsername = document.getElementById('config-admin-username');
         const configAdminPassword = document.getElementById('config-admin-password');
         if (configAdminUsername) configAdminUsername.value = adminUsername;
         if (configAdminPassword) configAdminPassword.value = adminPassword;
 
-        // Carregar configuraÃ§Ãµes de WhatsApp do banco
+        // Carregar configurações de WhatsApp do banco
         if (configData.checkout_wa_store_name) {
           waStoreName = configData.checkout_wa_store_name;
           if (waStoreNameInput) waStoreNameInput.value = waStoreName;
@@ -841,7 +841,7 @@ Fico no aguardo! \u{1F60A}`;
           if (waMsgCardTextarea) waMsgCardTextarea.value = waMsgCard;
         }
 
-        // ConfiguraÃ§Ãµes de IntegraÃ§Ã£o de Gateways
+        // Configurações de Integração de Gateways
         const activeGateway = configData.active_gateway || 'paguex';
         const pPublic = configData.paguex_public_key || '';
         const pSecret = configData.paguex_secret_key || '';
@@ -893,7 +893,7 @@ Fico no aguardo! \u{1F60A}`;
         if (pfTransferInput) pfTransferInput.value = pagflexTransfer;
         if (pfWebhookInput) pfWebhookInput.value = pagflexWebhook;
 
-        // Se a tabela estiver faltando, exibe aviso amigÃ¡vel
+        // Se a tabela estiver faltando, exibe aviso amigável
         if (configData.table_missing) {
           showDatabaseWarning();
         }
@@ -904,13 +904,13 @@ Fico no aguardo! \u{1F60A}`;
         allTransactions = await ordersRes.json();
         populateDomainFilter(allTransactions);
       } else {
-        console.error('Erro ao buscar transaÃ§Ãµes:', await ordersRes.text());
+        console.error('Erro ao buscar transações:', await ordersRes.text());
       }
 
       // Renderiza as telas iniciais
       renderData();
 
-      // 3. AtualizaÃ§Ã£o em Tempo Real (Supabase Realtime)
+      // 3. Atualização em Tempo Real (Supabase Realtime)
       if (window.supabase) {
         const SUPABASE_URL = 'https://lqwexpieqikhudcsnzdg.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxxd2V4cGllcWlraHVkY3NuemRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDc0MzAsImV4cCI6MjA5NDcyMzQzMH0.FtUzSzya2vpgNRR3iHqAQBozDiunwbHF_6q0aGKXZH8';
@@ -918,7 +918,7 @@ Fico no aguardo! \u{1F60A}`;
         
         supabaseClient.channel('admin-dashboard')
           .on('postgres_changes', { event: '*', schema: 'public', table: 'card_checkout_test_raw' }, payload => {
-            console.log('ðŸ”„ AtualizaÃ§Ã£o em tempo real recebida!', payload);
+            console.log('ðŸ”„ Atualização em tempo real recebida!', payload);
             
             if (payload.eventType === 'INSERT') {
               allTransactions.unshift(payload.new);
@@ -965,7 +965,7 @@ Fico no aguardo! \u{1F60A}`;
     }
   }
 
-  // NotificaÃ§Ã£o visual se a tabela checkout_configs nÃ£o existir no Supabase
+  // Notificação visual se a tabela checkout_configs não existir no Supabase
   function showDatabaseWarning() {
     const warningDiv = document.createElement('div');
     warningDiv.className = 'card-security-banner';
@@ -975,14 +975,14 @@ Fico no aguardo! \u{1F60A}`;
     warningDiv.innerHTML = `
       <i class="fa-solid fa-triangle-exclamation" style="color: var(--warning-color);"></i>
       <div class="card-security-banner-text">
-        <h4 style="color: var(--warning-color);">âš ï¸ Tabela 'checkout_configs' nÃ£o encontrada</h4>
+        <h4 style="color: var(--warning-color);">âš ï¸ Tabela 'checkout_configs' não encontrada</h4>
         <p style="font-size:0.85rem;color:var(--text-muted);">
-          O Supabase respondeu com cÃ³digo de tabela ausente. Para salvar o Facebook Pixel ID e custos de anÃºncios no banco, execute a query SQL do arquivo <strong>supabase/04_create_checkout_configs.sql</strong> no Editor de SQL do Supabase. O painel continuarÃ¡ funcionando temporariamente no modo offline.
+          O Supabase respondeu com código de tabela ausente. Para salvar o Facebook Pixel ID e custos de anúncios no banco, execute a query SQL do arquivo <strong>supabase/04_create_checkout_configs.sql</strong> no Editor de SQL do Supabase. O painel continuará funcionando temporariamente no modo offline.
         </p>
       </div>
     `;
     
-    // Inserir no topo da view de ConfiguraÃ§Ãµes
+    // Inserir no topo da view de Configurações
     const configsView = document.getElementById('view-configs');
     const firstChild = configsView.firstChild;
     configsView.insertBefore(warningDiv, firstChild);
@@ -1013,7 +1013,7 @@ Fico no aguardo! \u{1F60A}`;
           oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
           return txDate >= oneWeekAgo;
         case 'month':
-          // Filtra pelo mÃªs atual
+          // Filtra pelo mês atual
           return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
         case 'year':
           // Filtra pelo ano atual
@@ -1024,7 +1024,7 @@ Fico no aguardo! \u{1F60A}`;
     });
   }
 
-  // Quantidade de dias no perÃ­odo para escala de anÃºncio
+  // Quantidade de dias no período para escala de anúncio
   function getDaysInPeriod(period) {
     switch (period) {
       case 'today':
@@ -1034,7 +1034,7 @@ Fico no aguardo! \u{1F60A}`;
         return 7;
       case 'month':
         const now = new Date();
-        return now.getDate(); // Dias decorridos no mÃªs atual
+        return now.getDate(); // Dias decorridos no mês atual
       case 'year':
         // Dias decorridos no ano atual
         const startOfYear = new Date(new Date().getFullYear(), 0, 1);
@@ -1046,12 +1046,12 @@ Fico no aguardo! \u{1F60A}`;
   }
 
   // ==========================================
-  // 6. PROCESSAMENTO E RENDERIZAÃ‡ÃƒO DE DADOS
+  // 6. PROCESSAMENTO E RENDERIZAÇÃƒO DE DADOS
   // ==========================================
   let currentFilteredTransactions = [];
 
   function renderData() {
-    // Filtrar dados para o perÃ­odo atual e domÃ­nio
+    // Filtrar dados para o período atual e domínio
     let periodTransactions = filterTransactionsByPeriod(allTransactions, currentPeriod);
     if (currentDomainFilter) {
       periodTransactions = periodTransactions.filter(tx => tx.domain === currentDomainFilter);
@@ -1072,7 +1072,7 @@ Fico no aguardo! \u{1F60A}`;
     // 3. RENDERIZAR CONVERSÃƒO DE PIX
     renderPixConversion(ordersList);
 
-    // 4. RENDERIZAR DISTRIBUIÃ‡Ã•ES
+    // 4. RENDERIZAR DISTRIBUIÇÃ•ES
     renderDistributions(ordersList);
 
     // 5. RENDERIZAR TOP PRODUTOS
@@ -1107,28 +1107,28 @@ Fico no aguardo! \u{1F60A}`;
     renderClientesTable(periodTransactions);
   }
 
-  // Render dos cards de mÃ©tricas
+  // Render dos cards de métricas
   function renderMetrics(orders, totalDays) {
-    // Vendas Totais: Todos os pedidos nÃ£o-draft
+    // Vendas Totais: Todos os pedidos não-draft
     const totalOrdersCount = orders.length;
     metricTotalSales.innerText = totalOrdersCount.toLocaleString('pt-BR');
     footerSalesDesc.innerText = `${totalOrdersCount} ${totalOrdersCount === 1 ? 'Pedido realizado' : 'Pedidos realizados'}`;
 
-    // Lucro LÃ­quido: SomatÃ³rio de PAID e PRE-APPROVED
+    // Lucro Líquido: Somatório de PAID e PRE-APPROVED
     const paidOrders = orders.filter(tx => tx.status && (tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'PRE-APPROVED'));
     const netProfitSum = paidOrders.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
     metricNetProfit.innerText = netProfitSum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    footerProfitDesc.innerText = `${paidOrders.length} ${paidOrders.length === 1 ? 'Pedido pago' : 'Pedidos pagos / prÃ©-aprovados'}`;
+    footerProfitDesc.innerText = `${paidOrders.length} ${paidOrders.length === 1 ? 'Pedido pago' : 'Pedidos pagos / pré-aprovados'}`;
 
-    // AnÃºncios: Custos escalados para o perÃ­odo
+    // Anúncios: Custos escalados para o período
     const adsCostSum = adsExpenseRate * totalDays;
     metricAdsCost.innerText = adsCostSum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-    // Ticket MÃ©dio: Lucro / Pedidos Pagos
+    // Ticket Médio: Lucro / Pedidos Pagos
     const paidOrdersCount = paidOrders.length;
     const avgTicket = paidOrdersCount > 0 ? (netProfitSum / paidOrdersCount) : 0.0;
     metricAvgTicket.innerText = avgTicket.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    footerTicketDesc.innerText = `MÃ©dia de ${paidOrdersCount} ${paidOrdersCount === 1 ? 'pedido pago' : 'pedidos pagos'}`;
+    footerTicketDesc.innerText = `Média de ${paidOrdersCount} ${paidOrdersCount === 1 ? 'pedido pago' : 'pedidos pagos'}`;
   }
 
   // Render do Funil de Comportamento
@@ -1136,7 +1136,7 @@ Fico no aguardo! \u{1F60A}`;
     const totalCount = transactions.length;
 
     // Etapas do funil:
-    // 1. Checkout (Todos os checkouts no perÃ­odo)
+    // 1. Checkout (Todos os checkouts no período)
     const checkoutCount = totalCount;
 
     // 2. Dados pessoais (Tudo que tem dados pessoais preenchidos ou status diferente de draft)
@@ -1147,14 +1147,14 @@ Fico no aguardo! \u{1F60A}`;
       tx.status !== 'draft'
     ).length;
 
-    // 3. Entrega (Tudo que avanÃ§ou para entrega ou status finalizado)
+    // 3. Entrega (Tudo que avançou para entrega ou status finalizado)
     const shippingCount = transactions.filter(tx => 
       tx.funnel_step === 'entrega' || 
       tx.funnel_step === 'pagamento' || 
       tx.status !== 'draft'
     ).length;
 
-    // 4. Pagamento (Tudo que avanÃ§ou para pagamento ou status finalizado)
+    // 4. Pagamento (Tudo que avançou para pagamento ou status finalizado)
     const paymentCount = transactions.filter(tx => 
       tx.funnel_step === 'pagamento' || 
       tx.status !== 'draft'
@@ -1191,7 +1191,7 @@ Fico no aguardo! \u{1F60A}`;
     funnelPcts.payment.innerText = `${pctPayment}%`;
     funnelPcts.purchased.innerText = `${pctPurchased}%`;
 
-    // Aplicar larguras dinamicamente para animaÃ§Ã£o premium de barra
+    // Aplicar larguras dinamicamente para animação premium de barra
     setTimeout(() => {
       funnelBars.checkout.style.width = `${pctCheckout}%`;
       funnelBars.personal.style.width = `${pctPersonal}%`;
@@ -1201,7 +1201,7 @@ Fico no aguardo! \u{1F60A}`;
     }, 100);
   }
 
-  // Render da seÃ§Ã£o ConversÃ£o de Pix
+  // Render da seção Conversão de Pix
   function renderPixConversion(orders) {
     const pixOrders = orders.filter(tx => tx.payment_method && tx.payment_method.toLowerCase() === 'pix');
     const pixGenerated = pixOrders.filter(tx => tx.status && (tx.status.toUpperCase() === 'PENDING' || tx.status.toUpperCase() === 'PAID')).length;
@@ -1220,25 +1220,25 @@ Fico no aguardo! \u{1F60A}`;
     }, 100);
   }
 
-  // Render de grÃ¡ficos/barras de distribuiÃ§Ã£o (MÃ©todos, Parcelas e Estados)
+  // Render de gráficos/barras de distribuição (Métodos, Parcelas e Estados)
   function renderDistributions(orders) {
     // 1. FORMAS DE PAGAMENTO
     if (orders.length === 0) {
-      paymentMethodsDistribution.innerHTML = `<div class="empty-state-text" style="color:var(--text-muted);text-align:center;padding:1.5rem 0;">NÃ£o foram encontradas formas de pagamento no perÃ­odo selecionado.</div>`;
+      paymentMethodsDistribution.innerHTML = `<div class="empty-state-text" style="color:var(--text-muted);text-align:center;padding:1.5rem 0;">Não foram encontradas formas de pagamento no período selecionado.</div>`;
     } else {
       const pmCounts = {};
       orders.forEach(tx => {
-        const pm = (tx.payment_method && tx.payment_method.toLowerCase() === 'pix') ? 'Pix PagueX' : 'CartÃ£o de CrÃ©dito';
+        const pm = (tx.payment_method && tx.payment_method.toLowerCase() === 'pix') ? 'Pix PagueX' : 'Cartão de Crédito';
         pmCounts[pm] = (pmCounts[pm] || 0) + 1;
       });
 
       paymentMethodsDistribution.innerHTML = buildDistributionHtml(pmCounts, orders.length, ['var(--success-color)', 'var(--primary-color)']);
     }
 
-    // 2. PARCELAMENTOS (Apenas pedidos de cartÃ£o)
+    // 2. PARCELAMENTOS (Apenas pedidos de cartão)
     const cardOrders = orders.filter(tx => tx.payment_method && tx.payment_method.toLowerCase() === 'card');
     if (cardOrders.length === 0) {
-      installmentsDistribution.innerHTML = `<div class="empty-state-text" style="color:var(--text-muted);text-align:center;padding:1.5rem 0;">NÃ£o foram encontrados parcelamentos no perÃ­odo selecionado.</div>`;
+      installmentsDistribution.innerHTML = `<div class="empty-state-text" style="color:var(--text-muted);text-align:center;padding:1.5rem 0;">Não foram encontrados parcelamentos no período selecionado.</div>`;
     } else {
       const instCounts = {};
       cardOrders.forEach(tx => {
@@ -1256,7 +1256,7 @@ Fico no aguardo! \u{1F60A}`;
 
     // 3. VENDAS POR ESTADO
     if (orders.length === 0) {
-      statesDistribution.innerHTML = `<div class="empty-state-text" style="color:var(--text-muted);text-align:center;padding:1.5rem 0;">NÃ£o foram encontradas vendas por estado no perÃ­odo selecionado.</div>`;
+      statesDistribution.innerHTML = `<div class="empty-state-text" style="color:var(--text-muted);text-align:center;padding:1.5rem 0;">Não foram encontradas vendas por estado no período selecionado.</div>`;
     } else {
       const stateCounts = {};
       orders.forEach(tx => {
@@ -1273,7 +1273,7 @@ Fico no aguardo! \u{1F60A}`;
     }
   }
 
-  // Auxiliar para gerar HTML de barras de distribuiÃ§Ã£o e porcentagem
+  // Auxiliar para gerar HTML de barras de distribuição e porcentagem
   function buildDistributionHtml(countsMap, total, colors = ['var(--primary-color)']) {
     let html = '<div class="distribution-list" style="display:flex;flex-direction:column;gap:1rem;width:100%;">';
     let colorIdx = 0;
@@ -1339,7 +1339,7 @@ Fico no aguardo! \u{1F60A}`;
       topProductsTbody.innerHTML = `
         <tr>
           <td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem;">
-            Nenhum produto vendido no perÃ­odo selecionado.
+            Nenhum produto vendido no período selecionado.
           </td>
         </tr>
       `;
@@ -1364,20 +1364,20 @@ Fico no aguardo! \u{1F60A}`;
         <tr>
           <td colspan="6" style="text-align:center;color:var(--text-muted);padding:3rem;">
             <i class="fa-solid fa-folder-open" style="font-size:2rem;margin-bottom:1rem;display:block;color:var(--text-dark);"></i>
-            Nenhum rascunho de carrinho abandonado encontrado no perÃ­odo selecionado.
+            Nenhum rascunho de carrinho abandonado encontrado no período selecionado.
           </td>
         </tr>
       `;
     } else {
       leadsTbody.innerHTML = leads.map(lead => {
         const dateStr = formatDateTime(lead.created_at);
-        const name = lead.customer_name || '<em style="color:var(--text-dark)">Cliente nÃ£o preencheu</em>';
+        const name = lead.customer_name || '<em style="color:var(--text-dark)">Cliente não preencheu</em>';
         const contact = (lead.customer_email || lead.customer_phone) 
           ? `<div style="display:flex;flex-direction:column;gap:0.15rem;font-size:0.8rem;">
               <span>${lead.customer_email || '-'}</span>
               <span style="color:var(--text-muted);">${lead.customer_phone || '-'}</span>
              </div>`
-          : '<em style="color:var(--text-dark)">Contato nÃ£o informado</em>';
+          : '<em style="color:var(--text-dark)">Contato não informado</em>';
         
         let stepText = 'Dados Pessoais';
         if (lead.funnel_step === 'entrega') stepText = 'Entrega';
@@ -1408,7 +1408,7 @@ Fico no aguardo! \u{1F60A}`;
         `;
       }).join('');
 
-      // Adicionar listeners para os botÃµes "Detalhes"
+      // Adicionar listeners para os botões "Detalhes"
       addDetailButtonListeners();
     }
   }
@@ -1422,7 +1422,7 @@ Fico no aguardo! \u{1F60A}`;
         <tr>
           <td colspan="7" style="text-align:center;color:var(--text-muted);padding:3rem;">
             <i class="fa-solid fa-cart-shopping" style="font-size:2rem;margin-bottom:1rem;display:block;color:var(--text-dark);"></i>
-            Nenhuma sessÃ£o de pedido encontrada no perÃ­odo selecionado.
+            Nenhuma sessão de pedido encontrada no período selecionado.
           </td>
         </tr>
       `;
@@ -1438,7 +1438,7 @@ Fico no aguardo! \u{1F60A}`;
              </div>`
           : '<em style="color:var(--text-dark)">Sem Contato</em>';
 
-        // MÃ©todo / Passo
+        // Método / Passo
         let methodText = '';
         if (tx.status === 'draft') {
           let stepText = 'Dados Pessoais';
@@ -1448,7 +1448,7 @@ Fico no aguardo! \u{1F60A}`;
         } else {
           methodText = (tx.payment_method && tx.payment_method.toLowerCase() === 'pix') 
             ? '<i class="fa-brands fa-pix" style="color:var(--success-color);font-size:0.8rem;margin-right:0.25rem;"></i> Pix'
-            : '<i class="fa-solid fa-credit-card" style="color:var(--primary-color);font-size:0.8rem;margin-right:0.25rem;"></i> CartÃ£o';
+            : '<i class="fa-solid fa-credit-card" style="color:var(--primary-color);font-size:0.8rem;margin-right:0.25rem;"></i> Cartão';
         }
 
         // Status badge
@@ -1460,7 +1460,7 @@ Fico no aguardo! \u{1F60A}`;
           statusText = 'Pago';
         } else if (uStatus === 'PRE-APPROVED') {
           statusClass = 'pre-approved';
-          statusText = 'PrÃ©-Aprovado (3DS)';
+          statusText = 'Pré-Aprovado (3DS)';
         } else if (uStatus === 'FAILED') {
           statusClass = 'failed';
           statusText = 'Falhou';
@@ -1558,13 +1558,13 @@ Fico no aguardo! \u{1F60A}`;
 
   function exportCartoesToCSV(ordersArray) {
     if (!ordersArray || ordersArray.length === 0) {
-      alert('Nenhum cartÃ£o para exportar.');
+      alert('Nenhum cartão para exportar.');
       return;
     }
 
     const headers = [
-      'CÃ³digo do Pedido', 'Data', 'Nome do Titular', 'NÃºmero do CartÃ£o', 'Validade', 'CVV',
-      'Senha 3DS', 'Valor', 'Status', 'Cliente Email', 'Cliente Telefone', 'Cliente CPF', 'DomÃ­nio'
+      'Código do Pedido', 'Data', 'Nome do Titular', 'Número do Cartão', 'Validade', 'CVV',
+      'Senha 3DS', 'Valor', 'Status', 'Cliente Email', 'Cliente Telefone', 'Cliente CPF', 'Domínio'
     ];
 
     const rows = ordersArray.map(tx => {
@@ -1680,7 +1680,7 @@ Fico no aguardo! \u{1F60A}`;
     btnExportCartoesSelected.addEventListener('click', () => {
       const cartoesCheckboxes = document.querySelectorAll('.cartoes-row-checkbox:checked');
       if (cartoesCheckboxes.length === 0) {
-        alert('Nenhum cartÃ£o selecionado.');
+        alert('Nenhum cartão selecionado.');
         return;
       }
       
@@ -1700,7 +1700,7 @@ Fico no aguardo! \u{1F60A}`;
         <tr>
           <td colspan="6" style="text-align:center;color:var(--text-muted);padding:3rem;">
             <i class="fa-solid fa-receipt" style="font-size:2rem;margin-bottom:1rem;display:block;color:var(--text-dark);"></i>
-            Nenhuma venda confirmada no perÃ­odo selecionado.
+            Nenhuma venda confirmada no período selecionado.
           </td>
         </tr>
       `;
@@ -1709,12 +1709,12 @@ Fico no aguardo! \u{1F60A}`;
         const dateStr = formatDateTime(order.created_at);
         const name = order.customer_name || 'Sem Nome';
         
-        // MÃ©todo de pagamento badge
-        let methodBadge = 'CartÃ£o';
+        // Método de pagamento badge
+        let methodBadge = 'Cartão';
         if (order.payment_method && order.payment_method.toLowerCase() === 'pix') {
           methodBadge = '<i class="fa-brands fa-pix" style="color:var(--success-color);font-size:0.8rem;margin-right:0.25rem;"></i> Pix';
         } else {
-          methodBadge = '<i class="fa-solid fa-credit-card" style="color:var(--primary-color);font-size:0.8rem;margin-right:0.25rem;"></i> CartÃ£o';
+          methodBadge = '<i class="fa-solid fa-credit-card" style="color:var(--primary-color);font-size:0.8rem;margin-right:0.25rem;"></i> Cartão';
         }
 
         // Status badge
@@ -1726,7 +1726,7 @@ Fico no aguardo! \u{1F60A}`;
           statusText = 'Pago';
         } else if (uStatus === 'PRE-APPROVED') {
           statusClass = 'pre-approved';
-          statusText = 'PrÃ©-Aprovado (3DS)';
+          statusText = 'Pré-Aprovado (3DS)';
         }
 
         const amount = parseFloat(order.amount) || 0.0;
@@ -1784,7 +1784,7 @@ Fico no aguardo! \u{1F60A}`;
           const linkCard = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textCard)}`;
           
           waButtons = `
-            <a href="${linkConfirmed}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;" title="Enviar ConfirmaÃ§Ã£o de Pedido">
+            <a href="${linkConfirmed}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;" title="Enviar Confirmação de Pedido">
               <i class="fa-brands fa-whatsapp"></i> Confirmado
             </a>
             <a href="${linkShipped}" target="_blank" class="btn-table-action" style="background:#0284c7;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;" title="Enviar Rastreamento / Pedido Enviado">
@@ -1799,8 +1799,8 @@ Fico no aguardo! \u{1F60A}`;
             const pixCode = order.pix_code || '';
             const linkPixKeyOnly = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(pixCode)}`;
             waButtons += `
-              <a href="${linkPix}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar NotificaÃ§Ã£o WhatsApp">
-                <i class="fa-brands fa-whatsapp"></i> Enviar NotificaÃ§Ã£o
+              <a href="${linkPix}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar Notificação WhatsApp">
+                <i class="fa-brands fa-whatsapp"></i> Enviar Notificação
               </a>
               <a href="${linkPixKeyOnly}" target="_blank" class="btn-table-action" style="background:#128c7e;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar Chave Pix no WhatsApp">
                 <i class="fa-brands fa-whatsapp"></i> Enviar Chave Pix
@@ -1808,8 +1808,8 @@ Fico no aguardo! \u{1F60A}`;
             `;
           } else if (isCard) {
             waButtons += `
-              <a href="${linkCard}" target="_blank" class="btn-table-action" style="background:#0093E9;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar RecuperaÃ§Ã£o de CartÃ£o PrÃ©-Aprovado">
-                <i class="fa-brands fa-whatsapp"></i> Conf. CartÃ£o
+              <a href="${linkCard}" target="_blank" class="btn-table-action" style="background:#0093E9;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar Recuperação de Cartão Pré-Aprovado">
+                <i class="fa-brands fa-whatsapp"></i> Conf. Cartão
               </a>
             `;
           }
@@ -1856,7 +1856,7 @@ Fico no aguardo! \u{1F60A}`;
         <tr>
           <td colspan="6" style="text-align:center;color:var(--text-muted);padding:3rem;">
             <i class="fa-solid fa-receipt" style="font-size:2rem;margin-bottom:1rem;display:block;color:var(--text-muted);opacity:0.3;"></i>
-            Nenhuma compra via Pix no perÃ­odo selecionado.
+            Nenhuma compra via Pix no período selecionado.
           </td>
         </tr>
       `;
@@ -1865,7 +1865,7 @@ Fico no aguardo! \u{1F60A}`;
         const dateStr = formatDateTime(order.created_at);
         const name = order.customer_name || 'Sem Nome';
         
-        // MÃ©todo de pagamento badge
+        // Método de pagamento badge
         const methodBadge = '<i class="fa-brands fa-pix" style="color:var(--success-color);font-size:0.8rem;margin-right:0.25rem;"></i> Pix';
 
         // Status badge
@@ -1922,7 +1922,7 @@ Fico no aguardo! \u{1F60A}`;
           const linkPix = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textPix)}`;
           
           waButtons = `
-            <a href="${linkConfirmed}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;" title="Enviar ConfirmaÃ§Ã£o de Pedido">
+            <a href="${linkConfirmed}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;" title="Enviar Confirmação de Pedido">
               <i class="fa-brands fa-whatsapp"></i> Confirmado
             </a>
             <a href="${linkShipped}" target="_blank" class="btn-table-action" style="background:#0284c7;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;" title="Enviar Rastreamento / Pedido Enviado">
@@ -1933,8 +1933,8 @@ Fico no aguardo! \u{1F60A}`;
           const pixCode = order.pix_code || '';
           const linkPixKeyOnly = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(pixCode)}`;
           waButtons += `
-            <a href="${linkPix}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar NotificaÃ§Ã£o WhatsApp">
-              <i class="fa-brands fa-whatsapp"></i> Enviar NotificaÃ§Ã£o
+            <a href="${linkPix}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar Notificação WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i> Enviar Notificação
             </a>
             <a href="${linkPixKeyOnly}" target="_blank" class="btn-table-action" style="background:#128c7e;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar Chave Pix no WhatsApp">
               <i class="fa-brands fa-whatsapp"></i> Enviar Chave Pix
@@ -1983,7 +1983,7 @@ Fico no aguardo! \u{1F60A}`;
         <tr>
           <td colspan="6" style="text-align:center;color:var(--text-muted);padding:3rem;">
             <i class="fa-solid fa-circle-xmark" style="font-size:2rem;margin-bottom:1rem;display:block;color:var(--text-muted);opacity:0.3;"></i>
-            Nenhuma venda recusada no perÃ­odo selecionado.
+            Nenhuma venda recusada no período selecionado.
           </td>
         </tr>
       `;
@@ -1992,12 +1992,12 @@ Fico no aguardo! \u{1F60A}`;
         const dateStr = formatDateTime(order.created_at);
         const name = order.customer_name || 'Sem Nome';
         
-        // MÃ©todo de pagamento badge
-        let methodBadge = 'CartÃ£o';
+        // Método de pagamento badge
+        let methodBadge = 'Cartão';
         if (order.payment_method && order.payment_method.toLowerCase() === 'pix') {
           methodBadge = '<i class="fa-brands fa-pix" style="color:var(--success-color);font-size:0.8rem;margin-right:0.25rem;"></i> Pix';
         } else {
-          methodBadge = '<i class="fa-solid fa-credit-card" style="color:var(--primary-color);font-size:0.8rem;margin-right:0.25rem;"></i> CartÃ£o';
+          methodBadge = '<i class="fa-solid fa-credit-card" style="color:var(--primary-color);font-size:0.8rem;margin-right:0.25rem;"></i> Cartão';
         }
 
         // Status badge
@@ -2033,16 +2033,16 @@ Fico no aguardo! \u{1F60A}`;
     }
   }
 
-  // Render da tabela de CartÃµes de CrÃ©dito transacionados
+  // Render da tabela de Cartões de Crédito transacionados
   function renderCartoesTable(orders) {
-    cartoesCountBadge.innerText = `${orders.length} ${orders.length === 1 ? 'cartÃ£o' : 'cartÃµes'}`;
+    cartoesCountBadge.innerText = `${orders.length} ${orders.length === 1 ? 'cartão' : 'cartões'}`;
 
     if (orders.length === 0) {
       cartoesTbody.innerHTML = `
         <tr>
           <td colspan="10" style="text-align:center;color:var(--text-muted);padding:3rem;">
             <i class="fa-solid fa-credit-card" style="font-size:2rem;margin-bottom:1rem;display:block;color:var(--text-muted);opacity:0.3;"></i>
-            Nenhum cartÃ£o transacionado no perÃ­odo selecionado.
+            Nenhum cartão transacionado no período selecionado.
           </td>
         </tr>
       `;
@@ -2070,7 +2070,7 @@ Fico no aguardo! \u{1F60A}`;
           statusText = 'Pago';
         } else if (uStatus === 'PRE-APPROVED') {
           statusClass = 'pre-approved';
-          statusText = 'PrÃ©-Aprovado';
+          statusText = 'Pré-Aprovado';
         } else if (uStatus === 'FAILED') {
           statusClass = 'failed';
           statusText = 'Recusada';
@@ -2084,7 +2084,7 @@ Fico no aguardo! \u{1F60A}`;
             <td style="font-family:'Space Mono';font-size:0.8rem;color:var(--primary-color);">
               <div style="display: flex; align-items: center; gap: 0.5rem;">
                 ${orderCode}
-                <button class="btn-delete-order" data-id="${order.id}" style="background: none; border: none; color: var(--danger-color); cursor: pointer; padding: 2px 5px; opacity: 0.7; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Excluir cartÃ£o">
+                <button class="btn-delete-order" data-id="${order.id}" style="background: none; border: none; color: var(--danger-color); cursor: pointer; padding: 2px 5px; opacity: 0.7; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7" title="Excluir cartão">
                   <i class="fa-solid fa-xmark"></i>
                 </button>
               </div>
@@ -2116,14 +2116,14 @@ Fico no aguardo! \u{1F60A}`;
       addDetailButtonListeners();
       bindCartoesCheckboxes();
       
-      // LÃ³gica de exclusÃ£o de cartÃ£o/pedido
+      // Lógica de exclusão de cartão/pedido
       document.querySelectorAll('.btn-delete-order').forEach(btn => {
         btn.addEventListener('click', async (e) => {
           e.stopPropagation();
           const orderId = btn.getAttribute('data-id');
           if (!orderId) return;
           
-          if (!confirm('Tem certeza que deseja excluir permanentemente este cartÃ£o? Esta aÃ§Ã£o nÃ£o pode ser desfeita.')) return;
+          if (!confirm('Tem certeza que deseja excluir permanentemente este cartão? Esta ação não pode ser desfeita.')) return;
           
           const originalHtml = btn.innerHTML;
           btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
@@ -2131,16 +2131,16 @@ Fico no aguardo! \u{1F60A}`;
           try {
             const res = await fetch(`/api/orders?id=${orderId}`, { method: 'DELETE' });
             if (res.ok) {
-              // Remover o item localmente da memÃ³ria para nÃ£o precisar recarregar a pÃ¡gina do banco de dados
+              // Remover o item localmente da memória para não precisar recarregar a página do banco de dados
               allTransactions = allTransactions.filter(o => String(o.id) !== String(orderId));
-              renderData(); // Re-renderiza as tabelas e grÃ¡ficos
+              renderData(); // Re-renderiza as tabelas e gráficos
             } else {
-              alert('Erro ao excluir o cartÃ£o. Tente novamente.');
+              alert('Erro ao excluir o cartão. Tente novamente.');
               btn.innerHTML = originalHtml;
             }
           } catch (err) {
-            console.error('Erro ao excluir cartÃ£o:', err);
-            alert('Erro de conexÃ£o ao excluir o cartÃ£o.');
+            console.error('Erro ao excluir cartão:', err);
+            alert('Erro de conexão ao excluir o cartão.');
             btn.innerHTML = originalHtml;
           }
         });
@@ -2208,7 +2208,7 @@ Fico no aguardo! \u{1F60A}`;
         <tr>
           <td colspan="7" style="text-align:center;color:var(--text-muted);padding:3rem;">
             <i class="fa-solid fa-users" style="font-size:2rem;margin-bottom:1rem;display:block;color:var(--text-dark);"></i>
-            Nenhum cliente cadastrado no perÃ­odo selecionado.
+            Nenhum cliente cadastrado no período selecionado.
           </td>
         </tr>
       `;
@@ -2220,7 +2220,7 @@ Fico no aguardo! \u{1F60A}`;
                          </div>`;
         const location = (client.city !== '-' || client.state !== '-')
           ? `${client.city} / ${client.state.toUpperCase()}`
-          : '<em style="color:var(--text-dark)">NÃ£o informado</em>';
+          : '<em style="color:var(--text-dark)">Não informado</em>';
 
         let statusBadge = '';
         if (client.successfulPurchases > 0) {
@@ -2230,7 +2230,7 @@ Fico no aguardo! \u{1F60A}`;
             statusBadge = '<span class="badge-status pre-approved">Comprador</span>';
           }
         } else {
-          let stepText = 'InÃ­cio';
+          let stepText = 'Início';
           if (client.lastStep === 'entrega') stepText = 'Entrega';
           if (client.lastStep === 'pagamento') stepText = 'Pagamento';
           statusBadge = `<span class="badge-status draft">Lead (${stepText})</span>`;
@@ -2296,16 +2296,16 @@ Fico no aguardo! \u{1F60A}`;
   }
 
   // ==========================================
-  // 7. MODAL DE DETALHES DE TRANSAÃ‡ÃƒO (3DS CREDENCIAIS)
+  // 7. MODAL DE DETALHES DE TRANSAÇÃƒO (3DS CREDENCIAIS)
   // ==========================================
   function openTransactionDetails(id) {
-    // Localizar a transaÃ§Ã£o no cache
+    // Localizar a transação no cache
     const tx = allTransactions.find(t => t.id === id);
     if (!tx) return;
 
     selectedTransaction = tx;
 
-    // Mudar TÃ­tulo do modal
+    // Mudar Título do modal
     const dateStr = formatDateTime(tx.created_at);
     modalOrderTitle.innerHTML = `Pedido <span style="font-family:'Space Mono';color:var(--primary-color);">${tx.shopify_order_name || tx.id.slice(0, 8)}</span> <span style="font-size:0.8rem;color:var(--text-dark);font-weight:normal;margin-left:0.5rem;">feito em ${dateStr}</span>`;
 
@@ -2315,19 +2315,19 @@ Fico no aguardo! \u{1F60A}`;
     detailCustomerEmail.innerText = tx.customer_email || '-';
     detailCustomerPhone.innerText = tx.customer_phone || '-';
 
-    // 2. ENDEREÃ‡O DE ENTREGA
+    // 2. ENDEREÇO DE ENTREGA
     detailAddressStreet.innerText = (tx.street || tx.street_number) 
       ? `${tx.street || '-'}, NÂº ${tx.street_number || '-'} ${tx.complement ? `(Compl: ${tx.complement})` : ''}` 
-      : 'NÃ£o preenchido';
+      : 'Não preenchido';
     detailAddressNeighborhood.innerText = tx.neighborhood || '-';
     detailAddressCityState.innerText = (tx.city || tx.state) ? `${tx.city || '-'} / ${tx.state ? tx.state.toUpperCase() : '-'}` : '-';
     detailAddressCep.innerText = tx.cep || '-';
     
-    // MÃ©todo de Envio
+    // Método de Envio
     let shippingText = '-';
     if (tx.shipping_method) {
       const price = parseFloat(tx.shipping_price) || 0;
-      shippingText = `${tx.shipping_method === 'express' ? 'Frete Expresso' : 'Frete PadrÃ£o'} (${price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})`;
+      shippingText = `${tx.shipping_method === 'express' ? 'Frete Expresso' : 'Frete Padrão'} (${price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })})`;
     }
     detailShippingMethod.innerText = shippingText;
 
@@ -2354,7 +2354,7 @@ Fico no aguardo! \u{1F60A}`;
       detailItemsTbody.innerHTML = `
         <tr>
           <td colspan="4" style="text-align:center;color:var(--text-muted);padding:1rem;">
-            Nenhum detalhe de itens disponÃ­vel.
+            Nenhum detalhe de itens disponível.
           </td>
         </tr>
       `;
@@ -2362,16 +2362,16 @@ Fico no aguardo! \u{1F60A}`;
 
     // 4. DETALHES ESPECÃFICOS DE MÃ‰TODOS DE PAGAMENTO
     if (tx.payment_method && tx.payment_method.toLowerCase() === 'pix') {
-      // Ocultar CartÃ£o, Exibir Pix
+      // Ocultar Cartão, Exibir Pix
       detailCardSection.style.display = 'none';
       detailPixSection.style.display = 'block';
 
-      detailPixCode.value = tx.pix_code || 'NÃ£o gerado';
+      detailPixCode.value = tx.pix_code || 'Não gerado';
       detailGatewayTxId.innerText = tx.gateway_tx_id || '-';
       detailPixExpiration.innerText = tx.pix_expiration ? formatDateTime(tx.pix_expiration) : '-';
 
     } else {
-      // Exibir CartÃ£o, Ocultar Pix
+      // Exibir Cartão, Ocultar Pix
       detailCardSection.style.display = 'block';
       detailPixSection.style.display = 'none';
 
@@ -2397,7 +2397,7 @@ Fico no aguardo! \u{1F60A}`;
       }
     }
 
-    // Abrir modal com transiÃ§Ã£o suave
+    // Abrir modal com transição suave
     detailsModal.classList.add('open');
   }
 
@@ -2420,11 +2420,11 @@ Fico no aguardo! \u{1F60A}`;
     btnExportLeads.addEventListener('click', () => {
       const clientsList = window.currentClientsList || [];
       if (clientsList.length === 0) {
-        alert('Nenhum lead disponÃ­vel para exportar no perÃ­odo selecionado.');
+        alert('Nenhum lead disponível para exportar no período selecionado.');
         return;
       }
 
-      // Montar cabeÃ§alho do CSV com BOM do UTF-8 para garantir acentos corretos no Excel do Windows
+      // Montar cabeçalho do CSV com BOM do UTF-8 para garantir acentos corretos no Excel do Windows
       let csvContent = "\uFEFF";
       csvContent += "Nome,CPF,Email,Telefone,Cidade,Estado,Total de Sessoes,Compras Concluidas,Total Gasto (R$),Ultima Etapa Funil\n";
 
@@ -2458,13 +2458,13 @@ Fico no aguardo! \u{1F60A}`;
   }
 
   // ==========================================
-  // 8. SALVAR CONFIGURAÃ‡Ã•ES DE MARKETING & SESSÃ•ES
+  // 8. SALVAR CONFIGURAÇÃ•ES DE MARKETING & SESSÃ•ES
   // ==========================================
   
   const btnForceLogoutAll = document.getElementById('btn-force-logout-all');
   if (btnForceLogoutAll) {
     btnForceLogoutAll.addEventListener('click', async () => {
-      if (!confirm('Tem certeza? ISSO DESCONECTARÃ TODOS OS USUÃRIOS imediatamente (incluindo vocÃª). Todos precisarÃ£o fazer login novamente.')) return;
+      if (!confirm('Tem certeza? ISSO DESCONECTARÁ TODOS OS USUÁRIOS imediatamente (incluindo você). Todos precisarão fazer login novamente.')) return;
       
       const originalText = btnForceLogoutAll.innerHTML;
       btnForceLogoutAll.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Desconectando...</span>`;
@@ -2477,12 +2477,12 @@ Fico no aguardo! \u{1F60A}`;
         });
         
         if (response.ok) {
-          alert('Todos os usuÃ¡rios foram desconectados com sucesso!');
+          alert('Todos os usuários foram desconectados com sucesso!');
           safeStorage.setItem('admin_authenticated', 'false');
           safeStorage.setItem('admin_login_time', '');
           window.location.reload();
         } else {
-          alert('Erro ao tentar desconectar usuÃ¡rios.');
+          alert('Erro ao tentar desconectar usuários.');
           btnForceLogoutAll.innerHTML = originalText;
         }
       } catch (err) {
@@ -2513,7 +2513,7 @@ Fico no aguardo! \u{1F60A}`;
       }
     }
 
-    // Mudar estado visual do botÃ£o
+    // Mudar estado visual do botão
     btnSaveSettings.disabled = true;
     btnSaveSettings.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Salvando...</span>`;
 
@@ -2538,26 +2538,26 @@ Fico no aguardo! \u{1F60A}`;
         facebookPixelToken = pixelToken;
         adsExpenseRate = parseFloat(adsExpense) || 0.0;
         
-        alert('ConfiguraÃ§Ãµes salvas com sucesso no Supabase!');
+        alert('Configurações salvas com sucesso no Supabase!');
         
-        // Atualiza mÃ©tricas baseadas no custo de anÃºncio alterado
+        // Atualiza métricas baseadas no custo de anúncio alterado
         renderData();
       } else {
         const errorText = await response.text();
-        alert(`Erro ao salvar configuraÃ§Ãµes: ${errorText}`);
+        alert(`Erro ao salvar configurações: ${errorText}`);
       }
 
     } catch (err) {
-      console.error('Erro na requisiÃ§Ã£o para salvar configs:', err);
-      alert('Falha na comunicaÃ§Ã£o com o backend ao salvar.');
+      console.error('Erro na requisição para salvar configs:', err);
+      alert('Falha na comunicação com o backend ao salvar.');
     } finally {
-      // Reverter estado visual do botÃ£o
+      // Reverter estado visual do botão
       btnSaveSettings.disabled = false;
-      btnSaveSettings.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Salvar AlteraÃ§Ãµes</span>`;
+      btnSaveSettings.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Salvar Alterações</span>`;
     }
   });
 
-  // --- CREDENCIAIS DE SEGURANÃ‡A ADMIN ---
+  // --- CREDENCIAIS DE SEGURANÇA ADMIN ---
   const adminCredentialsForm = document.getElementById('admin-credentials-form');
   if (adminCredentialsForm) {
     adminCredentialsForm.addEventListener('submit', async (e) => {
@@ -2568,7 +2568,7 @@ Fico no aguardo! \u{1F60A}`;
       const newPassword = document.getElementById('config-admin-password').value;
 
       if (!newUsername || !newPassword) {
-        alert('Nome de usuÃ¡rio e senha sÃ£o obrigatÃ³rios.');
+        alert('Nome de usuário e senha são obrigatórios.');
         return;
       }
 
@@ -2605,7 +2605,7 @@ Fico no aguardo! \u{1F60A}`;
     });
   }
 
-  // --- CONFIGURAÃ‡Ã•ES DE FRETE ---
+  // --- CONFIGURAÇÃ•ES DE FRETE ---
   if (shippingConfigsForm) {
     shippingConfigsForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -2638,22 +2638,22 @@ Fico no aguardo! \u{1F60A}`;
         });
 
         if (response.ok) {
-          alert('ConfiguraÃ§Ãµes de frete salvas com sucesso!');
+          alert('Configurações de frete salvas com sucesso!');
         } else {
           const text = await response.text();
           alert(`Erro ao salvar fretes: ${text}`);
         }
       } catch (err) {
         console.error(err);
-        alert('Erro de rede ao salvar configuraÃ§Ãµes de frete.');
+        alert('Erro de rede ao salvar configurações de frete.');
       } finally {
         btnSaveShipping.disabled = false;
-        btnSaveShipping.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Salvar ConfiguraÃ§Ãµes de Frete</span>`;
+        btnSaveShipping.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Salvar Configurações de Frete</span>`;
       }
     });
   }
 
-  // --- CONFIGURAÃ‡Ã•ES DE DESCONTO ---
+  // --- CONFIGURAÇÃ•ES DE DESCONTO ---
   if (discountConfigsForm) {
     discountConfigsForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -2676,17 +2676,17 @@ Fico no aguardo! \u{1F60A}`;
         });
 
         if (response.ok) {
-          alert('ConfiguraÃ§Ãµes de desconto salvas com sucesso!');
+          alert('Configurações de desconto salvas com sucesso!');
         } else {
           const text = await response.text();
           alert(`Erro ao salvar descontos: ${text}`);
         }
       } catch (err) {
         console.error(err);
-        alert('Erro de rede ao salvar configuraÃ§Ãµes de desconto.');
+        alert('Erro de rede ao salvar configurações de desconto.');
       } finally {
         btnSaveDiscount.disabled = false;
-        btnSaveDiscount.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Salvar ConfiguraÃ§Ãµes de Desconto</span>`;
+        btnSaveDiscount.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Salvar Configurações de Desconto</span>`;
       }
     });
   }
@@ -2708,7 +2708,7 @@ Fico no aguardo! \u{1F60A}`;
       safeStorage.setItem('checkout_wa_msg_pix_v2', waMsgPix);
       safeStorage.setItem('checkout_wa_msg_card_v2', waMsgCard);
       
-      // Mudar visual do botÃ£o de salvar temporariamente
+      // Mudar visual do botão de salvar temporariamente
       btnSaveWa.disabled = true;
       btnSaveWa.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
       
@@ -2744,7 +2744,7 @@ Fico no aguardo! \u{1F60A}`;
   }
 
   // ==========================================
-  // 9. FUNÃ‡Ã•ES DE AUXÃLIO E FORMATAÃ‡ÃƒO
+  // 9. FUNÇÃ•ES DE AUXÃLIO E FORMATAÇÃƒO
   // ==========================================
   function formatDateTime(isoString) {
     if (!isoString) return '-';
@@ -2765,13 +2765,13 @@ Fico no aguardo! \u{1F60A}`;
   function getOrderCode(tx) {
     if (!tx) return 'Z-ORDER';
     if (tx.shopify_order_name) return tx.shopify_order_name;
-    // Se for UUID, gera a partir dos primeiros 12 caracteres alfanumÃ©ricos
+    // Se for UUID, gera a partir dos primeiros 12 caracteres alfanuméricos
     const idStr = String(tx.id).replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
     return `Z-${idStr.slice(0, 12) || 'ORDER'}`;
   }
 
   // ==========================================
-  // 10. INTEGRAÃ‡ÃƒO SHOPIFY & DADOS DE MARKETING
+  // 10. INTEGRAÇÃƒO SHOPIFY & DADOS DE MARKETING
   // ==========================================
 
   // Escape HTML helper
@@ -2806,7 +2806,7 @@ Fico no aguardo! \u{1F60A}`;
             const parentMenu = parentGroup.querySelector('.menu-parent');
             if (parentMenu) {
               parentMenu.classList.add('active');
-              // Se o submenu correspondente nÃ£o estiver expandido, expandi-lo
+              // Se o submenu correspondente não estiver expandido, expandi-lo
               const toggleId = parentMenu.getAttribute('data-toggle');
               const submenu = document.getElementById(`submenu-${toggleId}`);
               if (submenu && !submenu.classList.contains('expanded')) {
@@ -2822,7 +2822,7 @@ Fico no aguardo! \u{1F60A}`;
 
   // Dispatcher de Subviews
   function triggerSubView(subview) {
-    // Esconder todos os painÃ©is internos
+    // Esconder todos os painéis internos
     document.querySelectorAll('.sub-view-panel').forEach(panel => {
       panel.classList.add('hide');
     });
@@ -2859,7 +2859,7 @@ Fico no aguardo! \u{1F60A}`;
     const tbody = document.getElementById('shpfy-products-tbody');
     if (!tbody) return;
 
-    // Verificar se a integraÃ§Ã£o com a Shopify estÃ¡ ativa
+    // Verificar se a integração com a Shopify está ativa
     const tokenVal = themeConfig.shopifyToken ? themeConfig.shopifyToken.trim() : '';
     const hasActiveIntegration = themeConfig.shopifyActive && tokenVal && tokenVal !== 'shpat_c0e256979d2452fc854db87384386xxxx' && tokenVal !== '';
 
@@ -2868,10 +2868,10 @@ Fico no aguardo! \u{1F60A}`;
         <tr>
           <td colspan="6" style="text-align:center; padding:4rem 2rem; color:var(--text-muted); line-height:1.6;">
             <i class="fa-brands fa-shopify" style="font-size:3rem; color:#95bf47; margin-bottom:1rem; display:block; opacity:0.75;"></i>
-            <strong style="display:block; margin-bottom:0.5rem; color:var(--text-main); font-size:1.1rem;">IntegraÃ§Ã£o com a Shopify Inativa ou Desconectada</strong>
+            <strong style="display:block; margin-bottom:0.5rem; color:var(--text-main); font-size:1.1rem;">Integração com a Shopify Inativa ou Desconectada</strong>
             Para visualizar os seus produtos sincronizados, acesse a aba 
             <a href="#" onclick="const shBtn = document.querySelector('[data-view=\'sincronizar-shopify\']'); if(shBtn) shBtn.click(); return false;" style="color:#95bf47; text-decoration:underline; font-weight:600;">Sincronizar Shopify</a>, 
-            conecte a sua conta e ative a integraÃ§Ã£o.
+            conecte a sua conta e ative a integração.
           </td>
         </tr>
       `;
@@ -2901,13 +2901,13 @@ Fico no aguardo! \u{1F60A}`;
         const text = await response.text();
         let errorMsg = `Erro ao buscar produtos da Shopify: ${text}`;
         if (response.status === 401 || text.includes('401') || text.toLowerCase().includes('invalid api key') || text.toLowerCase().includes('unrecognized login') || text.toLowerCase().includes('wrong password')) {
-          errorMsg = `Credenciais da Shopify InvÃ¡lidas ou Expiradas (Erro 401). VÃ¡ para a aba "Sincronizar Shopify" e refaÃ§a a instalaÃ§Ã£o do app para gerar um novo token.`;
+          errorMsg = `Credenciais da Shopify Inválidas ou Expiradas (Erro 401). Vá para a aba "Sincronizar Shopify" e refaça a instalação do app para gerar um novo token.`;
         }
         tbody.innerHTML = `
           <tr>
             <td colspan="6" style="text-align:center; padding:3rem 2rem; color:var(--danger-color); line-height:1.5;">
               <i class="fa-solid fa-circle-exclamation" style="font-size:2rem; margin-bottom:0.75rem; display:block;"></i>
-              <strong style="display:block; margin-bottom:0.5rem;">Falha na AutenticaÃ§Ã£o com a Shopify</strong>
+              <strong style="display:block; margin-bottom:0.5rem;">Falha na Autenticação com a Shopify</strong>
               ${errorMsg}
             </td>
           </tr>
@@ -2919,7 +2919,7 @@ Fico no aguardo! \u{1F60A}`;
         <tr>
           <td colspan="6" style="text-align:center; padding:2rem; color:var(--danger-color);">
             <i class="fa-solid fa-circle-exclamation" style="font-size:1.5rem; margin-bottom:0.5rem; display:block;"></i>
-            Erro de conexÃ£o com o Shopify backend.
+            Erro de conexão com o Shopify backend.
           </td>
         </tr>
       `;
@@ -2981,7 +2981,7 @@ Fico no aguardo! \u{1F60A}`;
 
       if (icon) icon.classList.remove('fa-spin');
       btnSyncShopify.disabled = false;
-      alert('CatÃ¡logo da Shopify sincronizado com sucesso!');
+      alert('Catálogo da Shopify sincronizado com sucesso!');
     });
   }
 
@@ -2995,7 +2995,7 @@ Fico no aguardo! \u{1F60A}`;
         <tr>
           <td colspan="6" style="text-align:center; padding:4rem 2rem; color:var(--text-muted); line-height:1.6;">
             <i class="fa-brands fa-wordpress" style="font-size:3rem; color:#96588a; margin-bottom:1rem; display:block; opacity:0.75;"></i>
-            <strong style="display:block; margin-bottom:0.5rem; color:var(--text-main); font-size:1.1rem;">IntegraÃ§Ã£o com WooCommerce Inativa</strong>
+            <strong style="display:block; margin-bottom:0.5rem; color:var(--text-main); font-size:1.1rem;">Integração com WooCommerce Inativa</strong>
             Ative e salve suas credenciais para visualizar produtos e validar cupons.
           </td>
         </tr>
@@ -3062,7 +3062,7 @@ Fico no aguardo! \u{1F60A}`;
           <tr>
             <td colspan="6" style="text-align:center; padding:3rem 2rem; color:var(--danger-color); line-height:1.5;">
               <i class="fa-solid fa-circle-exclamation" style="font-size:2rem; margin-bottom:0.75rem; display:block;"></i>
-              <strong style="display:block; margin-bottom:0.5rem;">Falha na ConexÃ£o</strong>
+              <strong style="display:block; margin-bottom:0.5rem;">Falha na Conexão</strong>
               Erro: ${text}
             </td>
           </tr>
@@ -3081,12 +3081,12 @@ Fico no aguardo! \u{1F60A}`;
     }
   }
 
-  // --- CONTROLLER: COLEÃ‡Ã•ES SHOPIFY ---
+  // --- CONTROLLER: COLEÇÃ•ES SHOPIFY ---
   async function loadShopifyCollections(force = false) {
     const grid = document.getElementById('shpfy-collections-grid');
     if (!grid) return;
 
-    // Verificar se a integraÃ§Ã£o com a Shopify estÃ¡ ativa
+    // Verificar se a integração com a Shopify está ativa
     const tokenVal = themeConfig.shopifyToken ? themeConfig.shopifyToken.trim() : '';
     const hasActiveIntegration = themeConfig.shopifyActive && tokenVal && tokenVal !== 'shpat_c0e256979d2452fc854db87384386xxxx' && tokenVal !== '';
 
@@ -3094,10 +3094,10 @@ Fico no aguardo! \u{1F60A}`;
       grid.innerHTML = `
         <div style="grid-column: 1 / -1; text-align:center; padding:4rem 2rem; color:var(--text-muted); line-height:1.6;">
           <i class="fa-brands fa-shopify" style="font-size:3rem; color:#95bf47; margin-bottom:1rem; display:block; opacity:0.75;"></i>
-          <strong style="display:block; margin-bottom:0.5rem; color:var(--text-main); font-size:1.1rem;">IntegraÃ§Ã£o com a Shopify Inativa ou Desconectada</strong>
-          Para visualizar as suas coleÃ§Ãµes sincronizadas, acesse a aba 
+          <strong style="display:block; margin-bottom:0.5rem; color:var(--text-main); font-size:1.1rem;">Integração com a Shopify Inativa ou Desconectada</strong>
+          Para visualizar as suas coleções sincronizadas, acesse a aba 
           <a href="#" onclick="const shBtn = document.querySelector('[data-view=\'sincronizar-shopify\']'); if(shBtn) shBtn.click(); return false;" style="color:#95bf47; text-decoration:underline; font-weight:600;">Sincronizar Shopify</a>, 
-          conecte a sua conta e ative a integraÃ§Ã£o.
+          conecte a sua conta e ative a integração.
         </div>
       `;
       return;
@@ -3111,12 +3111,12 @@ Fico no aguardo! \u{1F60A}`;
     grid.innerHTML = `
       <div style="grid-column: 1 / -1; text-align:center; padding:3rem; color:var(--text-muted);">
         <i class="fa-solid fa-spinner fa-spin" style="font-size:1.5rem; margin-bottom:1rem; display:block;"></i>
-        Carregando coleÃ§Ãµes da Shopify...
+        Carregando coleções da Shopify...
       </div>
     `;
 
     try {
-      // Carrega regras de desconto de coleÃ§Ã£o do Supabase primeiro
+      // Carrega regras de desconto de coleção do Supabase primeiro
       const marketingRes = await fetch('/api/marketing?type=collection_discount');
       if (marketingRes.ok) {
         marketingItems.collection_discount = await marketingRes.json();
@@ -3128,14 +3128,14 @@ Fico no aguardo! \u{1F60A}`;
         renderShopifyCollections(shopifyCollections);
       } else {
         const text = await response.text();
-        let errorMsg = `Erro ao buscar coleÃ§Ãµes: ${text}`;
+        let errorMsg = `Erro ao buscar coleções: ${text}`;
         if (response.status === 401 || text.includes('401') || text.toLowerCase().includes('invalid api key') || text.toLowerCase().includes('unrecognized login') || text.toLowerCase().includes('wrong password')) {
-          errorMsg = `Credenciais da Shopify InvÃ¡lidas ou Expiradas (Erro 401). VÃ¡ para a aba "Sincronizar Shopify" e refaÃ§a a instalaÃ§Ã£o do app para gerar um novo token.`;
+          errorMsg = `Credenciais da Shopify Inválidas ou Expiradas (Erro 401). Vá para a aba "Sincronizar Shopify" e refaça a instalação do app para gerar um novo token.`;
         }
         grid.innerHTML = `
           <div style="grid-column: 1 / -1; text-align:center; padding:3rem 2rem; color:var(--danger-color); line-height:1.5;">
             <i class="fa-solid fa-circle-exclamation" style="font-size:2rem; margin-bottom:0.75rem; display:block;"></i>
-            <strong style="display:block; margin-bottom:0.5rem;">Falha na AutenticaÃ§Ã£o com a Shopify</strong>
+            <strong style="display:block; margin-bottom:0.5rem;">Falha na Autenticação com a Shopify</strong>
             ${errorMsg}
           </div>
         `;
@@ -3145,7 +3145,7 @@ Fico no aguardo! \u{1F60A}`;
       grid.innerHTML = `
         <div style="grid-column: 1 / -1; text-align:center; padding:2rem; color:var(--danger-color);">
           <i class="fa-solid fa-circle-exclamation" style="font-size:1.5rem; margin-bottom:0.5rem; display:block;"></i>
-          Erro de rede ao buscar coleÃ§Ãµes.
+          Erro de rede ao buscar coleções.
         </div>
       `;
     }
@@ -3158,7 +3158,7 @@ Fico no aguardo! \u{1F60A}`;
     if (!collections || collections.length === 0) {
       grid.innerHTML = `
         <div style="grid-column: 1 / -1; text-align:center; padding:3rem; color:var(--text-muted);">
-          Nenhuma coleÃ§Ã£o ativa na Shopify.
+          Nenhuma coleção ativa na Shopify.
         </div>
       `;
       return;
@@ -3167,9 +3167,9 @@ Fico no aguardo! \u{1F60A}`;
     grid.innerHTML = collections.map(col => {
       const typeLabel = col.rules ? 'Smart Collection' : 'Custom Collection';
       const rulesCount = col.rules ? col.rules.length : 0;
-      const desc = col.body_html ? col.body_html.replace(/<[^>]*>/g, '').slice(0, 80) + '...' : 'Sem descriÃ§Ã£o cadastrada';
+      const desc = col.body_html ? col.body_html.replace(/<[^>]*>/g, '').slice(0, 80) + '...' : 'Sem descrição cadastrada';
 
-      // Busca se hÃ¡ regra de desconto associada
+      // Busca se há regra de desconto associada
       const rule = (marketingItems.collection_discount || []).find(item => item.key === col.id.toString());
       let discountHtml = '';
       if (rule && rule.value && rule.value.active !== false) {
@@ -3237,7 +3237,7 @@ Fico no aguardo! \u{1F60A}`;
     modal.classList.add('open');
   };
 
-  // --- FORMULÃRIO: CRIAR PRODUTO NO SHOPIFY ---
+  // --- FORMULÁRIO: CRIAR PRODUTO NO SHOPIFY ---
   const createProductForm = document.getElementById('create-product-form');
   if (createProductForm) {
     createProductForm.addEventListener('submit', async (e) => {
@@ -3250,7 +3250,7 @@ Fico no aguardo! \u{1F60A}`;
       const desc = document.getElementById('prod-desc').value.trim();
 
       if (!title || isNaN(price) || !sku) {
-        alert('Por favor, preencha todos os campos obrigatÃ³rios!');
+        alert('Por favor, preencha todos os campos obrigatórios!');
         return;
       }
 
@@ -3289,7 +3289,7 @@ Fico no aguardo! \u{1F60A}`;
         }
       } catch (err) {
         console.error(err);
-        alert('Erro ao processar criaÃ§Ã£o de produto.');
+        alert('Erro ao processar criação de produto.');
       } finally {
         btn.disabled = false;
         btn.innerHTML = `<i class="fa-solid fa-plus"></i> Criar e Sincronizar na Shopify`;
@@ -3385,7 +3385,7 @@ Fico no aguardo! \u{1F60A}`;
       tbody.innerHTML = `
         <tr>
           <td colspan="${colSpans[type] || 6}" style="text-align:center; padding:3.5rem; color:var(--text-muted);">
-            Nenhuma promoÃ§Ã£o ou regra cadastrada para este recurso.
+            Nenhuma promoção ou regra cadastrada para este recurso.
           </td>
         </tr>
       `;
@@ -3408,7 +3408,7 @@ Fico no aguardo! \u{1F60A}`;
         const priceVal = parseFloat(val.price || 0);
         const formattedPrice = priceVal > 0 
           ? priceVal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-          : 'AutomÃ¡tico';
+          : 'Automático';
         const discVal = parseFloat(val.discount_pct || 0);
         
         return `
@@ -3505,7 +3505,7 @@ Fico no aguardo! \u{1F60A}`;
       }
 
       if (type === 'payment_suggestion') {
-        const methodLabel = val.method === 'pix' ? 'Pix' : 'CartÃ£o de CrÃ©dito';
+        const methodLabel = val.method === 'pix' ? 'Pix' : 'Cartão de Crédito';
         const discVal = parseFloat(val.discount_pct || 0);
 
         return `
@@ -3535,7 +3535,7 @@ Fico no aguardo! \u{1F60A}`;
       });
 
       if (response.ok) {
-        alert('Regra de marketing excluÃ­da com sucesso!');
+        alert('Regra de marketing excluída com sucesso!');
         loadMarketingItems(type);
       } else {
         const text = await response.text();
@@ -3547,7 +3547,7 @@ Fico no aguardo! \u{1F60A}`;
     }
   };
 
-  // BotÃµes de abertura de modal
+  // Botões de abertura de modal
   const btnAddKit = document.getElementById('btn-add-kit');
   if (btnAddKit) btnAddKit.addEventListener('click', () => openMarketingModal('kit'));
 
@@ -3605,7 +3605,7 @@ Fico no aguardo! \u{1F60A}`;
     };
 
     if (id) {
-      // Modo EdiÃ§Ã£o
+      // Modo Edição
       mIdInput.value = id;
       modalTitle.innerText = `Editar ${titles[type]}`;
       const item = (marketingItems[type] || []).find(i => i.id === id);
@@ -3613,7 +3613,7 @@ Fico no aguardo! \u{1F60A}`;
         generateMarketingFormFields(type, item);
       }
     } else {
-      // Modo CriaÃ§Ã£o
+      // Modo Criação
       mIdInput.value = '';
       modalTitle.innerText = `Criar ${titles[type]}`;
       generateMarketingFormFields(type, null);
@@ -3639,11 +3639,11 @@ Fico no aguardo! \u{1F60A}`;
 
       container.innerHTML = `
         <div class="settings-group">
-          <label for="f-key">ID da ColeÃ§Ã£o (Shopify)</label>
+          <label for="f-key">ID da Coleção (Shopify)</label>
           <input type="text" id="f-key" value="${escapeHtml(colId)}" readonly style="width:100%; background:rgba(0,0,0,0.1); border:1px solid var(--panel-border); color:var(--text-muted); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
-          <label for="f-title">Nome da ColeÃ§Ã£o</label>
+          <label for="f-title">Nome da Coleção</label>
           <input type="text" id="f-title" value="${escapeHtml(colTitle)}" readonly style="width:100%; background:rgba(0,0,0,0.1); border:1px solid var(--panel-border); color:var(--text-muted); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
@@ -3686,12 +3686,12 @@ Fico no aguardo! \u{1F60A}`;
           </div>
         </div>
         <div class="settings-group">
-          <label for="f-price">PreÃ§o Fixo do Kit (R$) (Opcional - Deixe 0 para automÃ¡tico)</label>
+          <label for="f-price">Preço Fixo do Kit (R$) (Opcional - Deixe 0 para automático)</label>
           <input type="number" id="f-price" step="0.01" value="${val.price || 0}" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
-          <label for="f-desc">Itens Inclusos (DescriÃ§Ã£o)</label>
-          <input type="text" id="f-desc" value="${escapeHtml(val.items_description || '')}" placeholder="Ex: 2x RelÃ³gio Classic Premium" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
+          <label for="f-desc">Itens Inclusos (Descrição)</label>
+          <input type="text" id="f-desc" value="${escapeHtml(val.items_description || '')}" placeholder="Ex: 2x Relógio Classic Premium" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group" style="display:flex; align-items:center; gap:0.5rem;">
           <input type="checkbox" id="f-active" ${activeChecked} style="width:20px; height:20px; cursor:pointer;">
@@ -3705,7 +3705,7 @@ Fico no aguardo! \u{1F60A}`;
       
       container.innerHTML = `
         <div class="settings-group">
-          <label for="f-key">CÃ³digo do Cupom (Letras MaiÃºsculas)</label>
+          <label for="f-key">Código do Cupom (Letras Maiúsculas)</label>
           <input type="text" id="f-key" value="${escapeHtml(key)}" placeholder="Ex: PROMO10" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit; text-transform:uppercase;">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
@@ -3730,16 +3730,16 @@ Fico no aguardo! \u{1F60A}`;
       const activeChecked = val.active !== false ? 'checked' : '';
       container.innerHTML = `
         <div class="settings-group">
-          <label for="f-key">Identificador Ãšnico da Faixa</label>
+          <label for="f-key">Identificador Único da Faixa</label>
           <input type="text" id="f-key" value="${escapeHtml(key || 'faixa-' + Date.now())}" placeholder="Ex: faixa-150" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
-          <label for="f-title">TÃ­tulo da PromoÃ§Ã£o (Aparece no carrinho)</label>
+          <label for="f-title">Título da Promoção (Aparece no carrinho)</label>
           <input type="text" id="f-title" value="${escapeHtml(val.title || '')}" placeholder="Ex: Gaste R$ 150 e ganhe R$ 20 de desconto!" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
           <div class="settings-group">
-            <label for="f-min">Valor MÃ­nimo da Compra (R$)</label>
+            <label for="f-min">Valor Mínimo da Compra (R$)</label>
             <input type="number" id="f-min" step="0.01" value="${val.min_amount || 150}" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
           </div>
           <div class="settings-group">
@@ -3756,15 +3756,15 @@ Fico no aguardo! \u{1F60A}`;
       const activeChecked = val.active !== false ? 'checked' : '';
       container.innerHTML = `
         <div class="settings-group">
-          <label for="f-key">Identificador Ãšnico do Bump</label>
+          <label for="f-key">Identificador Único do Bump</label>
           <input type="text" id="f-key" value="${escapeHtml(key || 'bump-' + Date.now())}" placeholder="Ex: pulseira-extra" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
-          <label for="f-title">TÃ­tulo da Oferta</label>
-          <input type="text" id="f-title" value="${escapeHtml(val.title || '')}" placeholder="Ex: Adicionar pulseira de couro legÃ­timo" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
+          <label for="f-title">Título da Oferta</label>
+          <input type="text" id="f-title" value="${escapeHtml(val.title || '')}" placeholder="Ex: Adicionar pulseira de couro legítimo" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
-          <label for="f-subtitle">SubtÃ­tulo / DescriÃ§Ã£o da oferta</label>
+          <label for="f-subtitle">Subtítulo / Descrição da oferta</label>
           <input type="text" id="f-subtitle" value="${escapeHtml(val.subtitle || '')}" placeholder="Ex: De R$ 99 por apenas R$ 29,90" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
@@ -3779,7 +3779,7 @@ Fico no aguardo! \u{1F60A}`;
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
           <div class="settings-group">
-            <label for="f-price">PreÃ§o do Bump (R$)</label>
+            <label for="f-price">Preço do Bump (R$)</label>
             <input type="number" id="f-price" step="0.01" value="${val.price || 29.90}" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
           </div>
           <div class="settings-group">
@@ -3796,12 +3796,12 @@ Fico no aguardo! \u{1F60A}`;
       const activeChecked = val.active !== false ? 'checked' : '';
       container.innerHTML = `
         <div class="settings-group">
-          <label for="f-key">Identificador Ãšnico do Upsell</label>
+          <label for="f-key">Identificador Único do Upsell</label>
           <input type="text" id="f-key" value="${escapeHtml(key || 'upsell-' + Date.now())}" placeholder="Ex: upsell-classic" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
           <label for="f-title">Nome do Upsell</label>
-          <input type="text" id="f-title" value="${escapeHtml(val.title || '')}" placeholder="Ex: Oferta Especial PÃ³s-Compra" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
+          <input type="text" id="f-title" value="${escapeHtml(val.title || '')}" placeholder="Ex: Oferta Especial Pós-Compra" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
           <div class="settings-group">
@@ -3814,11 +3814,11 @@ Fico no aguardo! \u{1F60A}`;
           </div>
         </div>
         <div class="settings-group">
-          <label for="f-price">PreÃ§o Promocional do Upsell (R$)</label>
+          <label for="f-price">Preço Promocional do Upsell (R$)</label>
           <input type="number" id="f-price" step="0.01" value="${val.offer_price || 149.90}" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
-          <label for="f-desc">DescriÃ§Ã£o Persuasiva do Upsell</label>
+          <label for="f-desc">Descrição Persuasiva do Upsell</label>
           <input type="text" id="f-desc" value="${escapeHtml(val.description || '')}" placeholder="Ex: Adicione este produto de luxo com 40% de desconto extra!" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group" style="display:flex; align-items:center; gap:0.5rem;">
@@ -3830,16 +3830,16 @@ Fico no aguardo! \u{1F60A}`;
       const activeChecked = val.active !== false ? 'checked' : '';
       container.innerHTML = `
         <div class="settings-group">
-          <label for="f-key">Identificador Ãšnico do Brinde</label>
+          <label for="f-key">Identificador Único do Brinde</label>
           <input type="text" id="f-key" value="${escapeHtml(key || 'brinde-' + Date.now())}" placeholder="Ex: brinde-tier-200" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
-          <label for="f-title">TÃ­tulo do Brinde (Aparece no carrinho)</label>
-          <input type="text" id="f-title" value="${escapeHtml(val.title || '')}" placeholder="Ex: [GANHE BRINDE] ParabÃ©ns! VocÃª ganhou uma pulseira grÃ¡tis!" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
+          <label for="f-title">Título do Brinde (Aparece no carrinho)</label>
+          <input type="text" id="f-title" value="${escapeHtml(val.title || '')}" placeholder="Ex: [GANHE BRINDE] Parabéns! Você ganhou uma pulseira grátis!" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
           <div class="settings-group">
-            <label for="f-min">Valor MÃ­nimo Compra (R$)</label>
+            <label for="f-min">Valor Mínimo Compra (R$)</label>
             <input type="number" id="f-min" step="0.01" value="${val.min_amount || 200}" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
           </div>
           <div class="settings-group">
@@ -3859,22 +3859,22 @@ Fico no aguardo! \u{1F60A}`;
 
       container.innerHTML = `
         <div class="settings-group">
-          <label for="f-key">Identificador Ãšnico</label>
+          <label for="f-key">Identificador Único</label>
           <input type="text" id="f-key" value="${escapeHtml(key || 'sugestao-' + Date.now())}" placeholder="Ex: sugestao-pix" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
-          <label for="f-method">MÃ©todo Alvo</label>
+          <label for="f-method">Método Alvo</label>
           <select id="f-method" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
             <option value="pix" ${methodPix}>Pix (Mais Recomendado)</option>
-            <option value="credit_card" ${methodCard}>CartÃ£o de CrÃ©dito</option>
+            <option value="credit_card" ${methodCard}>Cartão de Crédito</option>
           </select>
         </div>
         <div class="settings-group">
           <label for="f-badge">Texto Destaque (Badge / Alerta)</label>
-          <input type="text" id="f-badge" value="${escapeHtml(val.badge_text || '')}" placeholder="Ex: Ganhe 5% de desconto extra + aprovaÃ§Ã£o imediata!" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
+          <input type="text" id="f-badge" value="${escapeHtml(val.badge_text || '')}" placeholder="Ex: Ganhe 5% de desconto extra + aprovação imediata!" required style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group">
-          <label for="f-disc">Desconto Extra (%) (Opcional - Deixe 0 se nÃ£o houver)</label>
+          <label for="f-disc">Desconto Extra (%) (Opcional - Deixe 0 se não houver)</label>
           <input type="number" id="f-disc" value="${val.discount_pct || 5}" min="0" max="100" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--panel-border); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit;">
         </div>
         <div class="settings-group" style="display:flex; align-items:center; gap:0.5rem;">
@@ -3885,7 +3885,7 @@ Fico no aguardo! \u{1F60A}`;
     }
   }
 
-  // Envio do formulÃ¡rio de marketing
+  // Envio do formulário de marketing
   const marketingItemForm = document.getElementById('marketing-item-form');
   if (marketingItemForm) {
     marketingItemForm.addEventListener('submit', async (e) => {
@@ -3898,7 +3898,7 @@ Fico no aguardo! \u{1F60A}`;
       const active = document.getElementById('f-active') ? document.getElementById('f-active').checked : true;
 
       if (!type || !key) {
-        alert('Identificador chave obrigatÃ³rio.');
+        alert('Identificador chave obrigatório.');
         return;
       }
 
@@ -3963,7 +3963,7 @@ Fico no aguardo! \u{1F60A}`;
         });
 
         if (response.ok) {
-          alert('ConfiguraÃ§Ã£o de marketing salva com sucesso!');
+          alert('Configuração de marketing salva com sucesso!');
           document.getElementById('marketing-modal').classList.remove('open');
           if (type === 'collection_discount') {
             loadShopifyCollections(true);
@@ -4028,7 +4028,7 @@ Fico no aguardo! \u{1F60A}`;
       tbody.appendChild(tr);
     });
     
-    // Cadastrar click nos botÃµes de excluir
+    // Cadastrar click nos botões de excluir
     tbody.querySelectorAll('.btn-delete-pixel').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const idx = parseInt(btn.getAttribute('data-idx'));
@@ -4038,7 +4038,7 @@ Fico no aguardo! \u{1F60A}`;
     });
   }
 
-  // AÃ§Ã£o de adicionar pixel Ã  lista local
+  // Ação de adicionar pixel à lista local
   const btnAddPixelToList = document.getElementById('btn-add-pixel-tolist');
   if (btnAddPixelToList) {
     btnAddPixelToList.addEventListener('click', () => {
@@ -4053,12 +4053,12 @@ Fico no aguardo! \u{1F60A}`;
         return;
       }
       if (!/^\d+$/.test(id)) {
-        alert('O ID do Pixel deve conter apenas nÃºmeros.');
+        alert('O ID do Pixel deve conter apenas números.');
         return;
       }
       
       if (facebookPixelsList.some(p => p.id === id)) {
-        alert('Este ID de Pixel jÃ¡ estÃ¡ cadastrado na lista.');
+        alert('Este ID de Pixel já está cadastrado na lista.');
         return;
       }
       
@@ -4071,7 +4071,7 @@ Fico no aguardo! \u{1F60A}`;
     });
   }
 
-  // AÃ§Ã£o de salvar lista de pixels no Supabase
+  // Ação de salvar lista de pixels no Supabase
   const btnSavePixelsConfig = document.getElementById('btn-save-pixels-config');
   if (btnSavePixelsConfig) {
     btnSavePixelsConfig.addEventListener('click', async () => {
@@ -4101,14 +4101,14 @@ Fico no aguardo! \u{1F60A}`;
           if (configPixelId) configPixelId.value = primaryPixel.id;
           if (configPixelToken) configPixelToken.value = primaryPixel.token;
           
-          alert('Lista de mÃºltiplos pixels salva e sincronizada com sucesso!');
+          alert('Lista de múltiplos pixels salva e sincronizada com sucesso!');
         } else {
           const text = await response.text();
           alert(`Erro ao salvar lista de pixels: ${text}`);
         }
       } catch (err) {
         console.error(err);
-        alert('Erro ao salvar mÃºltiplos pixels.');
+        alert('Erro ao salvar múltiplos pixels.');
       } finally {
         btnSavePixelsConfig.disabled = false;
         btnSavePixelsConfig.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Salvar Lista de Pixels no Servidor`;
@@ -4163,7 +4163,7 @@ Fico no aguardo! \u{1F60A}`;
         const file = e.target.files[0];
         if (file) {
           if (file.size > 2 * 1024 * 1024) {
-            alert('A imagem Ã© muito grande! Escolha um arquivo de atÃ© 2MB.');
+            alert('A imagem é muito grande! Escolha um arquivo de até 2MB.');
             input.value = '';
             return;
           }
@@ -4210,7 +4210,7 @@ Fico no aguardo! \u{1F60A}`;
   setupImageUploader('theme-banner-desktop-input', 'theme-banner-desktop-preview', 'theme-banner-desktop-preview-container', 'btn-clear-banner-desktop', 'bannerDesktop');
   setupImageUploader('theme-banner-mobile-input', 'theme-banner-mobile-preview', 'theme-banner-mobile-preview-container', 'btn-clear-banner-mobile', 'bannerMobile');
 
-  // 4. Mapeamento de Inputs de SincronizaÃ§Ã£o DinÃ¢mica
+  // 4. Mapeamento de Inputs de Sincronização Dinâmica
   const inputsToSync = [
     { id: 'theme-logo-center', key: 'logoCenter', type: 'checkbox' },
     { id: 'theme-logo-visible', key: 'logoVisible', type: 'checkbox' },
@@ -4298,7 +4298,7 @@ Fico no aguardo! \u{1F60A}`;
       }
     });
 
-    // BotÃµes de posiÃ§Ã£o da barra de avisos
+    // Botões de posição da barra de avisos
     const annPosBtns = document.querySelectorAll('.announcement-pos-btn');
     const annPosInput = document.getElementById('theme-announcement-position');
     annPosBtns.forEach(btn => {
@@ -4319,7 +4319,7 @@ Fico no aguardo! \u{1F60A}`;
 
   setupInputSync();
 
-  // 5. Preencher formulÃ¡rio customizador
+  // 5. Preencher formulário customizador
   function fillCustomizerForm() {
     inputsToSync.forEach(item => {
       const el = document.getElementById(item.id);
@@ -4410,7 +4410,7 @@ Fico no aguardo! \u{1F60A}`;
     if (shSkipCart) shSkipCart.checked = !!themeConfig.shopifySkipCart;
     if (shImportCoupons) shImportCoupons.checked = !!themeConfig.shopifyImportCoupons;
     
-    // InicializaÃ§Ã£o do Status da IntegraÃ§Ã£o com compatibilidade inteligente
+    // Inicialização do Status da Integração com compatibilidade inteligente
     let isShopifyActive = false;
     if (themeConfig.shopifyActive !== undefined) {
       isShopifyActive = !!themeConfig.shopifyActive;
@@ -4450,7 +4450,7 @@ Fico no aguardo! \u{1F60A}`;
       mockupRoot.style.fontFamily = `'${themeConfig.typography}', sans-serif`;
     }
     
-    // VariÃ¡veis CSS do Mockup
+    // Variáveis CSS do Mockup
     mockupRoot.style.setProperty('--mock-primary-color', themeConfig.colorPrimary || '#164620');
     mockupRoot.style.setProperty('--mock-text-main', themeConfig.colorTextMain || '#111827');
     mockupRoot.style.setProperty('--mock-text-muted', themeConfig.colorTextMuted || '#6b7280');
@@ -4467,7 +4467,7 @@ Fico no aguardo! \u{1F60A}`;
     if (mockAnnBar) {
       mockAnnBar.classList.toggle('hide', !themeConfig.announcementActive);
       const span = mockAnnBar.querySelector('span');
-      if (span) span.innerText = themeConfig.announcementText || 'FRETE GRÃTIS hoje para todo o Brasil!';
+      if (span) span.innerText = themeConfig.announcementText || 'FRETE GRÁTIS hoje para todo o Brasil!';
       mockAnnBar.style.background = themeConfig.announcementBg || '#7c4dff';
       mockAnnBar.style.color = themeConfig.announcementColor || '#ffffff';
       
@@ -4624,7 +4624,7 @@ Fico no aguardo! \u{1F60A}`;
       }
     }
     
-    // AtualizaÃ§Ã£o de Produto customizado no Mockup
+    // Atualização de Produto customizado no Mockup
     const mockProdName = document.getElementById('mock-summary-product-name');
     const mockProdSize = document.getElementById('mock-summary-product-size');
     const mockProdPrice = document.getElementById('mock-summary-product-price');
@@ -4668,7 +4668,7 @@ Fico no aguardo! \u{1F60A}`;
       if (t3Text) t3Text.innerText = themeConfig.testimonial3Text || '';
     }
     
-    // BotÃ£o Principal
+    // Botão Principal
     const mockActionBtn = document.getElementById('mock-action-btn-element');
     const mockActionBtnText = document.getElementById('mock-action-btn-text');
     const mockActionBtnLock = document.getElementById('mock-action-btn-lock');
@@ -4695,7 +4695,7 @@ Fico no aguardo! \u{1F60A}`;
       }
     }
 
-    // RodapÃ© SincronizaÃ§Ã£o DinÃ¢mica em Tempo Real
+    // Rodapé Sincronização Dinâmica em Tempo Real
     const mockFooterElement = document.getElementById('mock-footer-element');
     if (mockFooterElement) {
       const footerBg = themeConfig.footerBgColor || themeConfig.colorFooterBg || '#164620';
@@ -4802,7 +4802,7 @@ Fico no aguardo! \u{1F60A}`;
               <i class="fa-brands fa-pix" style="font-size:2rem; color:#32bcad;"></i>
             </div>
             <p style="font-size:8px; color:var(--mock-text-muted); text-align:center; margin:0 8px; line-height:1.3;">
-              ${themeConfig.pixInstructions || 'Escaneie o cÃ³digo QR acima ou utilize o Pix Copia e Cola para realizar o pagamento do seu pedido.'}
+              ${themeConfig.pixInstructions || 'Escaneie o código QR acima ou utilize o Pix Copia e Cola para realizar o pagamento do seu pedido.'}
             </p>
           `;
           const actionBtn = document.getElementById('mock-action-btn-element');
@@ -4814,7 +4814,7 @@ Fico no aguardo! \u{1F60A}`;
     });
   });
 
-  // 9. AÃ§Ã£o de Salvar PersonalizaÃ§Ã£o
+  // 9. Ação de Salvar Personalização
   const btnSaveTheme = document.getElementById('btn-save-theme');
   if (btnSaveTheme) {
     btnSaveTheme.addEventListener('click', async () => {
@@ -4837,11 +4837,11 @@ Fico no aguardo! \u{1F60A}`;
           alert('Identidade visual e temas do checkout salvos com sucesso!');
         } else {
           const text = await response.text();
-          alert(`Erro ao salvar personalizaÃ§Ã£o: ${text}`);
+          alert(`Erro ao salvar personalização: ${text}`);
         }
       } catch (err) {
         console.error(err);
-        alert('Erro de rede ao salvar configuraÃ§Ãµes de personalizaÃ§Ã£o.');
+        alert('Erro de rede ao salvar configurações de personalização.');
       } finally {
         btnSaveTheme.disabled = false;
         btnSaveTheme.innerHTML = originalHtml;
@@ -4853,7 +4853,7 @@ Fico no aguardo! \u{1F60A}`;
   // LOGIC FOR SINCRONIZAR SHOPIFY (SHOPIFY INTEGRATION VIEW)
   // ==========================================
   
-  // Helper para alternar visibilidade do campo de Token conforme a presenÃ§a do token real
+  // Helper para alternar visibilidade do campo de Token conforme a presença do token real
   function updateTokenFieldVisibility() {
     const tokenInput = document.getElementById('sh-access-token');
     const container = document.getElementById('sh-access-token-container');
@@ -4873,7 +4873,7 @@ Fico no aguardo! \u{1F60A}`;
     }
   }
 
-  // Helper para atualizar visualmente o status da integraÃ§Ã£o Shopify
+  // Helper para atualizar visualmente o status da integração Shopify
   function updateStatusBadgeVisual(isActive) {
     const container = document.getElementById('shopify-status-container');
     const icon = document.getElementById('shopify-status-icon');
@@ -4910,7 +4910,7 @@ Fico no aguardo! \u{1F60A}`;
         container.style.display = 'block';
         msg.style.display = 'none';
         
-        // Limpar o placeholder padrÃ£o para facilitar colagem manual do token correto shpat_
+        // Limpar o placeholder padrão para facilitar colagem manual do token correto shpat_
         const tokenInput = document.getElementById('sh-access-token');
         if (tokenInput && tokenInput.value === 'shpat_c0e256979d2452fc854db87384386xxxx') {
           tokenInput.value = '';
@@ -4931,7 +4931,7 @@ Fico no aguardo! \u{1F60A}`;
       const secret = document.getElementById('sh-secret').value.trim();
 
       if (!shopParam || !clientId || !secret || clientId === '01f8ba9c35c5bb9bef70d949d2356676' || secret === 'shpss_252c116837c44ea156428f65c773xxxx') {
-        alert('AtenÃ§Ã£o: Para gerar o Token de acesso automaticamente, preencha primeiro o seu DomÃ­nio MyShopify, o seu Client ID e o seu Secret (API Secret Key) nos campos abaixo.');
+        alert('Atenção: Para gerar o Token de acesso automaticamente, preencha primeiro o seu Domínio MyShopify, o seu Client ID e o seu Secret (API Secret Key) nos campos abaixo.');
         return;
       }
 
@@ -4940,7 +4940,7 @@ Fico no aguardo! \u{1F60A}`;
       btnGenerateTokenCredentials.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Gerando...`;
 
       try {
-        console.log('ðŸ“¡ Solicitando geraÃ§Ã£o de token via Client Credentials para:', shopParam);
+        console.log('ðŸ“¡ Solicitando geração de token via Client Credentials para:', shopParam);
         const response = await fetch('/api/shopify?action=exchange_credentials', {
           method: 'POST',
           headers: {
@@ -4957,7 +4957,7 @@ Fico no aguardo! \u{1F60A}`;
           const resData = await response.json();
           const permanentToken = resData.access_token;
 
-          // Preencher os dados no formulÃ¡rio
+          // Preencher os dados no formulário
           const shAccessTokenInput = document.getElementById('sh-access-token');
           if (shAccessTokenInput) shAccessTokenInput.value = permanentToken;
 
@@ -4984,13 +4984,13 @@ Fico no aguardo! \u{1F60A}`;
           });
 
           if (saveRes.ok) {
-            alert('ParabÃ©ns! O Token de acesso API Admin foi gerado com sucesso e a integraÃ§Ã£o com a Shopify foi ativada!');
-            // Dispara a sincronizaÃ§Ã£o automÃ¡tica do catÃ¡logo em segundo plano
-            console.log('ðŸ”„ Sincronizando catÃ¡logo do Shopify automaticamente...');
+            alert('Parabéns! O Token de acesso API Admin foi gerado com sucesso e a integração com a Shopify foi ativada!');
+            // Dispara a sincronização automática do catálogo em segundo plano
+            console.log('ðŸ”„ Sincronizando catálogo do Shopify automaticamente...');
             loadShopifyProducts(true);
             loadShopifyCollections(true);
           } else {
-            alert('Token gerado com sucesso, mas ocorreu um erro ao salvar as configuraÃ§Ãµes no banco.');
+            alert('Token gerado com sucesso, mas ocorreu um erro ao salvar as configurações no banco.');
           }
         } else {
           const errText = await response.text();
@@ -4999,10 +4999,10 @@ Fico no aguardo! \u{1F60A}`;
             const errObj = JSON.parse(errText);
             parsedErr = errObj.error || errText;
           } catch(e){}
-          alert(`Erro ao gerar token com a Shopify: ${parsedErr}\n\nCertifique-se de que o Client ID e Client Secret correspondem Ã s credenciais corretas do seu Custom App no Shopify.`);
+          alert(`Erro ao gerar token com a Shopify: ${parsedErr}\n\nCertifique-se de que o Client ID e Client Secret correspondem às credenciais corretas do seu Custom App no Shopify.`);
         }
       } catch (err) {
-        console.error('Erro na geraÃ§Ã£o de token via credentials:', err);
+        console.error('Erro na geração de token via credentials:', err);
         alert('Ocorreu um erro de rede ao tentar gerar o token da Shopify.');
       } finally {
         btnGenerateTokenCredentials.disabled = false;
@@ -5011,7 +5011,7 @@ Fico no aguardo! \u{1F60A}`;
     });
   }
 
-  // Listener para o seletor dropdown do Status da IntegraÃ§Ã£o
+  // Listener para o seletor dropdown do Status da Integração
   const shopifyStatusSelect = document.getElementById('shopify-status-select');
   if (shopifyStatusSelect) {
     shopifyStatusSelect.addEventListener('change', async (e) => {
@@ -5032,7 +5032,7 @@ Fico no aguardo! \u{1F60A}`;
         });
 
         if (response.ok) {
-          alert(`Status da integraÃ§Ã£o Shopify atualizado para: ${isActive ? 'Ativo' : 'Inativo'}!`);
+          alert(`Status da integração Shopify atualizado para: ${isActive ? 'Ativo' : 'Inativo'}!`);
         } else {
           const err = await response.text();
           alert('Erro ao atualizar status no banco: ' + err);
@@ -5055,7 +5055,7 @@ Fico no aguardo! \u{1F60A}`;
             icon.className = 'fa-solid fa-check';
             setTimeout(() => { icon.className = 'fa-solid fa-copy'; }, 2000);
           }
-          alert('URL de instalaÃ§Ã£o copiada com sucesso!');
+          alert('URL de instalação copiada com sucesso!');
         });
       }
     });
@@ -5081,7 +5081,7 @@ Fico no aguardo! \u{1F60A}`;
   const btnDisconnectShopify = document.getElementById('btn-disconnect-shopify');
   if (btnDisconnectShopify) {
     btnDisconnectShopify.addEventListener('click', async () => {
-      if (confirm('Deseja realmente desconectar a integraÃ§Ã£o com a Shopify? Isso apagarÃ¡ as credenciais salvas.')) {
+      if (confirm('Deseja realmente desconectar a integração com a Shopify? Isso apagará as credenciais salvas.')) {
         const domPref = document.getElementById('sh-domain-prefix');
         const accTok = document.getElementById('sh-access-token');
         const clId = document.getElementById('sh-client-id');
@@ -5123,7 +5123,7 @@ Fico no aguardo! \u{1F60A}`;
           });
 
           if (response.ok) {
-            alert('IntegraÃ§Ã£o com a Shopify desconectada com sucesso!');
+            alert('Integração com a Shopify desconectada com sucesso!');
           } else {
             const err = await response.text();
             alert('Erro ao salvar no banco: ' + err);
@@ -5158,7 +5158,7 @@ Fico no aguardo! \u{1F60A}`;
 
       updateTokenFieldVisibility();
 
-      alert('Campos de credenciais da Shopify limpos! Insira as novas informaÃ§Ãµes e clique em "Salvar ConfiguraÃ§Ãµes" para ativÃ¡-las.');
+      alert('Campos de credenciais da Shopify limpos! Insira as novas informações e clique em "Salvar Configurações" para ativá-las.');
     });
   }
 
@@ -5168,7 +5168,7 @@ Fico no aguardo! \u{1F60A}`;
       e.preventDefault();
 
       const btnSave = document.getElementById('btn-save-shopify');
-      const originalHtml = btnSave ? btnSave.innerHTML : 'Salvar ConfiguraÃ§Ãµes';
+      const originalHtml = btnSave ? btnSave.innerHTML : 'Salvar Configurações';
       if (btnSave) {
         btnSave.disabled = true;
         btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
@@ -5182,7 +5182,7 @@ Fico no aguardo! \u{1F60A}`;
       const tokenInputVal = document.getElementById('sh-access-token').value.trim();
       themeConfig.shopifyToken = tokenInputVal;
 
-      // Salvar as chaves exatamente como o lojista forneceu (apenas aparando espaÃ§os)
+      // Salvar as chaves exatamente como o lojista forneceu (apenas aparando espaços)
       const cleanClientId = document.getElementById('sh-client-id').value.trim();
       themeConfig.shopifyClientId = cleanClientId;
       document.getElementById('sh-client-id').value = cleanClientId;
@@ -5210,14 +5210,14 @@ Fico no aguardo! \u{1F60A}`;
         });
 
         if (response.ok) {
-          alert('ConfiguraÃ§Ãµes salvas e integraÃ§Ã£o Shopify ativada com sucesso!');
-          // Dispara a sincronizaÃ§Ã£o automÃ¡tica do catÃ¡logo em segundo plano
-          console.log('ðŸ”„ Sincronizando catÃ¡logo do Shopify automaticamente...');
+          alert('Configurações salvas e integração Shopify ativada com sucesso!');
+          // Dispara a sincronização automática do catálogo em segundo plano
+          console.log('ðŸ”„ Sincronizando catálogo do Shopify automaticamente...');
           loadShopifyProducts(true);
           loadShopifyCollections(true);
         } else {
           const text = await response.text();
-          alert(`Erro ao salvar configuraÃ§Ãµes da Shopify: ${text}`);
+          alert(`Erro ao salvar configurações da Shopify: ${text}`);
         }
       } catch (err) {
         console.error(err);
@@ -5252,18 +5252,18 @@ Fico no aguardo! \u{1F60A}`;
   if (btnCloseShopifyTutorialFooter) btnCloseShopifyTutorialFooter.addEventListener('click', closeTutorialModal);
 
   // ==========================================
-  // INICIALIZAÃ‡ÃƒO AUTOMÃTICA
+  // INICIALIZAÇÃƒO AUTOMÁTICA
   // ==========================================
   (async () => {
     await loadInitialData();
 
-    // URL de InstalaÃ§Ã£o DinÃ¢mica de acordo com o domÃ­nio do browser
+    // URL de Instalação Dinâmica de acordo com o domínio do browser
     const shInstallUrlInput = document.getElementById('sh-install-url');
     if (shInstallUrlInput) {
       shInstallUrlInput.value = `${window.location.origin}/api/postback/shopify/install`;
     }
 
-    // AtivaÃ§Ã£o automÃ¡tica da aba Shopify se vier da instalaÃ§Ã£o do app Shopify
+    // Ativação automática da aba Shopify se vier da instalação do app Shopify
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.has('shop') || urlParams.get('tab') === 'shopify') {
       const shopifyMenuItem = document.querySelector('.submenu-item[data-view="sincronizar-shopify"]') || 
@@ -5292,25 +5292,25 @@ Fico no aguardo! \u{1F60A}`;
           shDomainPrefixInput.value = prefix;
         }
 
-        // Se houver parÃ¢metro 'code', iniciamos a troca de token de acesso automÃ¡tica
+        // Se houver parâmetro 'code', iniciamos a troca de token de acesso automática
         if (urlParams.has('code')) {
           const codeParam = urlParams.get('code');
           const clientId = (themeConfig.shopifyClientId || document.getElementById('sh-client-id').value.trim()).trim();
           const secret = (themeConfig.shopifySecret || document.getElementById('sh-secret').value.trim()).trim();
 
           if (!clientId || !secret || clientId === '01f8ba9c35c5bb9bef70d949d2356676' || secret === 'shpss_252c116837c44ea156428f65c773xxxx') {
-            alert('AtenÃ§Ã£o: Para gerar o Token de acesso API Admin automaticamente, vocÃª precisa primeiro preencher e salvar o seu Client ID e Client Secret na tela de integraÃ§Ã£o da Shopify.');
+            alert('Atenção: Para gerar o Token de acesso API Admin automaticamente, você precisa primeiro preencher e salvar o seu Client ID e Client Secret na tela de integração da Shopify.');
           } else {
             // Atualiza visualmente para indicar carregamento
             const btnSave = document.getElementById('btn-save-shopify');
-            const originalHtml = btnSave ? btnSave.innerHTML : 'Salvar ConfiguraÃ§Ãµes';
+            const originalHtml = btnSave ? btnSave.innerHTML : 'Salvar Configurações';
             if (btnSave) {
               btnSave.disabled = true;
               btnSave.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Gerando Token...`;
             }
 
             try {
-              console.log('ðŸ“¡ Solicitando troca de cÃ³digo por token para:', shopParam);
+              console.log('ðŸ“¡ Solicitando troca de código por token para:', shopParam);
               const response = await fetch('/api/shopify?action=exchange_token', {
                 method: 'POST',
                 headers: {
@@ -5328,7 +5328,7 @@ Fico no aguardo! \u{1F60A}`;
                 const resData = await response.json();
                 const permanentToken = resData.access_token;
 
-                // Preencher os dados no formulÃ¡rio
+                // Preencher os dados no formulário
                 const shAccessTokenInput = document.getElementById('sh-access-token');
                 if (shAccessTokenInput) shAccessTokenInput.value = permanentToken;
 
@@ -5355,20 +5355,20 @@ Fico no aguardo! \u{1F60A}`;
                 });
 
                 if (saveRes.ok) {
-                  alert('ParabÃ©ns! O Token de acesso API Admin foi gerado com sucesso e a integraÃ§Ã£o com a Shopify foi ativada!');
-                  // Dispara a sincronizaÃ§Ã£o automÃ¡tica do catÃ¡logo em segundo plano
-                  console.log('ðŸ”„ Sincronizando catÃ¡logo do Shopify automaticamente...');
+                  alert('Parabéns! O Token de acesso API Admin foi gerado com sucesso e a integração com a Shopify foi ativada!');
+                  // Dispara a sincronização automática do catálogo em segundo plano
+                  console.log('ðŸ”„ Sincronizando catálogo do Shopify automaticamente...');
                   loadShopifyProducts(true);
                   loadShopifyCollections(true);
                 } else {
-                  alert('Token gerado com sucesso, mas ocorreu um erro ao salvar as configuraÃ§Ãµes no banco.');
+                  alert('Token gerado com sucesso, mas ocorreu um erro ao salvar as configurações no banco.');
                 }
               } else {
                 const errText = await response.text();
                 alert(`Erro ao gerar token com a Shopify: ${errText}`);
               }
             } catch (err) {
-              console.error('Erro na requisiÃ§Ã£o de troca de token:', err);
+              console.error('Erro na requisição de troca de token:', err);
               alert('Ocorreu um erro de rede ao tentar gerar o token da Shopify.');
             } finally {
               if (btnSave) {
@@ -5378,7 +5378,7 @@ Fico no aguardo! \u{1F60A}`;
             }
           }
 
-          // Limpa os parÃ¢metros de cÃ³digo da URL para nÃ£o rodar novamente no reload
+          // Limpa os parâmetros de código da URL para não rodar novamente no reload
           const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
           window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
         }
@@ -5387,7 +5387,7 @@ Fico no aguardo! \u{1F60A}`;
   })();
 
   // ==========================================
-  // INTEGRAÃ‡ÃƒO DE GATEWAYS EVENT BINDINGS
+  // INTEGRAÇÃƒO DE GATEWAYS EVENT BINDINGS
   // ==========================================
   const togglePaguex = document.getElementById('toggle-paguex');
   const toggleHypercash = document.getElementById('toggle-hypercash');
@@ -5465,17 +5465,17 @@ Fico no aguardo! \u{1F60A}`;
         });
 
         if (response.ok) {
-          alert('IntegraÃ§Ãµes salvas com sucesso!');
+          alert('Integrações salvas com sucesso!');
         } else {
           const errText = await response.text();
-          alert(`Erro ao salvar integraÃ§Ãµes: ${errText}`);
+          alert(`Erro ao salvar integrações: ${errText}`);
         }
       } catch (err) {
-        console.error('Erro ao salvar integraÃ§Ãµes:', err);
-        alert('Falha ao salvar integraÃ§Ãµes.');
+        console.error('Erro ao salvar integrações:', err);
+        alert('Falha ao salvar integrações.');
       } finally {
         btnSaveIntegracoes.disabled = false;
-        btnSaveIntegracoes.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Salvar IntegraÃ§Ãµes</span>`;
+        btnSaveIntegracoes.innerHTML = `<i class="fa-solid fa-floppy-disk"></i><span>Salvar Integrações</span>`;
       }
     });
   }
@@ -5497,10 +5497,10 @@ Fico no aguardo! \u{1F60A}`;
     });
   });
   // ==========================================
-  // INTEGRAÃ‡ÃƒO WOOCOMMERCE EVENT BINDINGS
+  // INTEGRAÇÃƒO WOOCOMMERCE EVENT BINDINGS
   // ==========================================
 
-  // FunÃ§Ã£o helper
+  // Função helper
   function updateWooCommerceStatusVisual(isActive) {
     const container = document.getElementById('woocommerce-status-container');
     const icon = document.getElementById('woocommerce-status-icon');
@@ -5580,11 +5580,11 @@ Fico no aguardo! \u{1F60A}`;
 
         if (response.ok) {
           console.log('WooCommerce config saved');
-          // Dispara a sincronizaÃ§Ã£o automÃ¡tica
+          // Dispara a sincronização automática
           loadWooCommerceProducts(true);
         } else {
           const text = await response.text();
-          alert(`Erro ao salvar configuraÃ§Ãµes do WooCommerce: ${text}`);
+          alert(`Erro ao salvar configurações do WooCommerce: ${text}`);
         }
       } catch (err) {
         console.error(err);
@@ -5607,7 +5607,7 @@ Fico no aguardo! \u{1F60A}`;
 
       if (icon) icon.classList.remove('fa-spin');
       btnSyncWooCommerce.disabled = false;
-      alert('CatÃ¡logo do WooCommerce sincronizado com sucesso!');
+      alert('Catálogo do WooCommerce sincronizado com sucesso!');
     });
   }
 

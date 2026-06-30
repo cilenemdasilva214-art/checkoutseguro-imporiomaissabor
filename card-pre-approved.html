@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pagamento Pré-Aprovado | Nacional Brasil</title>
+  <title>Pagamento Pr├®-Aprovado | Nacional Brasil</title>
   <!-- Google Fonts: Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- FontAwesome para ícones premium -->
+  <!-- FontAwesome para ├¡cones premium -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
@@ -111,7 +111,7 @@
       font-size: 12px;
     }
 
-    /* Título e Texto */
+    /* T├¡tulo e Texto */
     h1 {
       font-size: 26px;
       font-weight: 800;
@@ -127,7 +127,7 @@
       max-width: 440px;
     }
 
-    /* Seções Internas */
+    /* Se├º├Áes Internas */
     .info-section {
       width: 100%;
       background: #f9fafb;
@@ -176,7 +176,7 @@
       font-weight: 600;
     }
 
-    /* Próximos Passos */
+    /* Pr├│ximos Passos */
     .steps-list {
       display: flex;
       flex-direction: column;
@@ -211,7 +211,7 @@
       padding-top: 2px;
     }
 
-    /* Botão de Ação */
+    /* Bot├úo de A├º├úo */
     .btn-action {
       margin-top: 10px;
       width: 100%;
@@ -264,28 +264,28 @@
     <!-- Badge Status -->
     <div class="status-badge">
       <i class="fa-solid fa-circle-check"></i>
-      <span>Pré-Aprovada</span>
+      <span>Pr├®-Aprovada</span>
     </div>
 
-    <!-- Título Principal -->
-    <h1>Pagamento pré-aprovado</h1>
+    <!-- T├¡tulo Principal -->
+    <h1>Pagamento pr├®-aprovado</h1>
     
-    <!-- Descrição -->
+    <!-- Descri├º├úo -->
     <p class="description">
-      Seu pedido foi pré-aprovado com sucesso. Nosso setor financeiro entrará em contato para validar algumas informações e concluir a confirmação final.
+      Seu pedido foi pr├®-aprovado com sucesso. Nosso setor financeiro entrar├í em contato para validar algumas informa├º├Áes e concluir a confirma├º├úo final.
     </p>
 
-    <!-- Resumo da Análise -->
+    <!-- Resumo da An├ílise -->
     <div class="info-section">
-      <h3>Resumo da Análise</h3>
+      <h3>Resumo da An├ílise</h3>
       <div class="summary-table">
         <div class="summary-row">
           <span class="summary-label">Status:</span>
-          <span class="summary-value" style="color: var(--success-color);">Pré-aprovado</span>
+          <span class="summary-value" style="color: var(--success-color);">Pr├®-aprovado</span>
         </div>
         <div class="summary-row">
-          <span class="summary-label">Método:</span>
-          <span class="summary-value">Cartão de crédito</span>
+          <span class="summary-label">M├®todo:</span>
+          <span class="summary-value">Cart├úo de cr├®dito</span>
         </div>
         <div class="summary-row">
           <span class="summary-label">Valor:</span>
@@ -298,34 +298,34 @@
       </div>
     </div>
 
-    <!-- Próximos Passos -->
+    <!-- Pr├│ximos Passos -->
     <div class="info-section">
-      <h3>Próximos Passos</h3>
+      <h3>Pr├│ximos Passos</h3>
       <div class="steps-list">
         <div class="step-item">
           <div class="step-number">1</div>
-          <div class="step-text">Validação final pelo setor financeiro</div>
+          <div class="step-text">Valida├º├úo final pelo setor financeiro</div>
         </div>
         <div class="step-item">
           <div class="step-number">2</div>
-          <div class="step-text">Contato para confirmação de dados, se necessário</div>
+          <div class="step-text">Contato para confirma├º├úo de dados, se necess├írio</div>
         </div>
         <div class="step-item">
           <div class="step-number">3</div>
-          <div class="step-text">Liberação definitiva do pedido</div>
+          <div class="step-text">Libera├º├úo definitiva do pedido</div>
         </div>
       </div>
     </div>
 
-    <!-- Botão de Voltar -->
-    <a href="https://emporiomaissaborr.com/" class="btn-action" id="btn-return">
+    <!-- Bot├úo de Voltar -->
+    <a href="/" class="btn-action" id="btn-return">
       Voltar para a loja
     </a>
 
   </div>
 
   <script>
-    // Recuperar e injetar dados dinâmicos da URL
+    // Recuperar e injetar dados din├ómicos da URL
     document.addEventListener('DOMContentLoaded', () => {
       const urlParams = new URLSearchParams(window.location.search);
       const amountParam = urlParams.get('amount');
@@ -355,13 +355,13 @@
         document.getElementById('order-date').textContent = formattedDate;
       }
 
-      // Configurar o redirecionamento do botão de retorno
+      // Configurar o redirecionamento do bot├úo de retorno
       const btnReturn = document.getElementById('btn-return');
       if (storeParam) {
         btnReturn.href = decodeURIComponent(storeParam);
       } else {
-        // Redireciona para a loja
-        btnReturn.href = 'https://emporiomaissaborr.com/';
+        // Redireciona para o checkout base
+        btnReturn.href = '/';
       }
     });
   </script>
