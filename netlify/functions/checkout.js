@@ -287,7 +287,7 @@ exports.handler = async (event, context) => {
           pixQrCode = resData.pixCode || resData.pix_code || (resData.pix && (resData.pix.qr_code || resData.pix.qrcode || resData.pix.copiaecola || resData.pix.code || resData.pix.copyAndPaste)) || resData.qrcode || resData.qrCode || resData.qr_code || resData.copyAndPaste || resData.copiaCola || resData.copiaecola || resData.code;
           
           if (!pixQrCode) {
-            pixQrCode = '00020101021126950014br.gov.bcb.pix0136mock-pix-key-for-pagflexbr-testing0233Pagamento simulado pagflex52040000530398654045.005802BR5915Antigravity Mock6009Sao Paulo62070503***6304E8A2';
+            pixQrCode = 'RESPOSTA_PAGFLEX: ' + JSON.stringify(resData);
             console.log('QR Code não encontrado na resposta PagFlexBR. Usando mock provisório. Resposta foi:', resData);
           }
           
@@ -297,7 +297,7 @@ exports.handler = async (event, context) => {
           isMock = true;
           transactionId = 'mock-pagflexbr-uuid-' + Math.random().toString(36).substr(2, 9);
           transactionStatus = 'PENDING';
-          pixQrCode = '00020101021126950014br.gov.bcb.pix0136mock-pix-key-for-pagflexbr-testing0233Pagamento simulado pagflex52040000530398654045.005802BR5915Antigravity Mock6009Sao Paulo62070503***6304E8A2';
+          pixQrCode = 'ERRO_PAGFLEX: ' + pagflexErr.message;
           pixExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
           gatewayResponse = {
             success: true,
