@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Admin Dashboard Controller - Premium Client-Side Logic
  * Caminho: js/admin.js
  */
@@ -5661,15 +5661,7 @@ Fico no aguardo! \u{1F60A}`;
   }
 
   async function openEditModal(id) {
-    let tx = window.allTransactions && window.allTransactions.find(t => t.id === id);
-    if (!tx) {
-      try {
-        const { data } = await supabaseClient.from('card_checkout_test_raw').select('*').eq('id', id).single();
-        if (data) tx = data;
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    let tx = allTransactions.find(t => String(t.id) === String(id));
     
     if (!tx) {
         alert('Transação não encontrada para edição.');
@@ -5699,17 +5691,21 @@ Fico no aguardo! \u{1F60A}`;
       };
 
       try {
-        const { error } = await supabaseClient
-          .from('card_checkout_test_raw')
-          .update(payload)
-          .eq('id', id);
+        const res = await fetch(`/api/orders?id=${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
 
-        if (error) throw error;
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.error || 'Erro desconhecido ao salvar.');
+        }
         alert('Pedido atualizado com sucesso!');
         editModal.style.display = 'none';
         
-        if (typeof fetchTransactions === 'function') {
-            fetchTransactions();
+        if (typeof loadInitialData === 'function') {
+            loadInitialData();
         }
       } catch (err) {
         console.error(err);

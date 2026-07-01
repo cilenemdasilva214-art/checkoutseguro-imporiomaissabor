@@ -9,17 +9,17 @@ exports.handler = async (event, context) => {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'GET, DELETE, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, DELETE, PATCH, OPTIONS',
       },
       body: JSON.stringify({ message: 'Successful preflight' }),
     };
   }
 
-  if (event.httpMethod !== 'GET' && event.httpMethod !== 'DELETE') {
+  if (event.httpMethod !== 'GET' && event.httpMethod !== 'DELETE' && event.httpMethod !== 'PATCH') {
     return {
       statusCode: 405,
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Método não permitido. Use GET ou DELETE.' }),
+      body: JSON.stringify({ error: 'Método não permitido. Use GET, DELETE ou PATCH.' }),
     };
   }
 
@@ -72,6 +72,51 @@ exports.handler = async (event, context) => {
       };
     } catch (error) {
       console.error('❌ Erro no DELETE de orders:', error);
+      return {
+        statusCode: 500,
+        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: false, error: error.message }),
+      };
+    }
+  }
+
+  if (event.httpMethod === 'PATCH') {
+    const idToUpdate = event.queryStringParameters ? event.queryStringParameters.id : null;
+    if (!idToUpdate) {
+      return {
+        statusCode: 400,
+        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'ID é obrigatório para atualização' }),
+      };
+    }
+
+    const targetUrl = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/card_checkout_test_raw?id=eq.${idToUpdate}`;
+    const payload = event.body;
+
+    try {
+      const response = await fetch(targetUrl, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: payload
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`Erro ao atualizar pedido no Supabase: ${response.status} - ${errText}`);
+      }
+
+      return {
+        statusCode: 200,
+        headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: true, message: 'Atualizado com sucesso' }),
+      };
+    } catch (error) {
+      console.error('❌ Erro no PATCH de orders:', error);
       return {
         statusCode: 500,
         headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
