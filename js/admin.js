@@ -1086,8 +1086,7 @@ Fico no aguardo! \u{1F60A}`;
 
     // 8. RENDERIZAR TABELA DE VENDAS COM CARTÃƒO DE CRÃ‰DITO
     const successfulCardSales = ordersList.filter(tx => tx.status && (
-      tx.status.toUpperCase() === 'PAID' || 
-      tx.status.toUpperCase() === 'PRE-APPROVED'
+      tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'APPROVED' || tx.status.toUpperCase() === 'PRE-APPROVED'
     ) && (!tx.payment_method || tx.payment_method.toLowerCase() !== 'pix'));
     renderVendasTable(successfulCardSales);
 
@@ -1115,7 +1114,7 @@ Fico no aguardo! \u{1F60A}`;
     footerSalesDesc.innerText = `${totalOrdersCount} ${totalOrdersCount === 1 ? 'Pedido realizado' : 'Pedidos realizados'}`;
 
     // Lucro Líquido: Somatório de PAID e PRE-APPROVED
-    const paidOrders = orders.filter(tx => tx.status && (tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'PRE-APPROVED'));
+    const paidOrders = orders.filter(tx => tx.status && (tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'APPROVED' || tx.status.toUpperCase() === 'PRE-APPROVED'));
     const netProfitSum = paidOrders.reduce((sum, tx) => sum + (parseFloat(tx.amount) || 0), 0);
     metricNetProfit.innerText = netProfitSum.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     footerProfitDesc.innerText = `${paidOrders.length} ${paidOrders.length === 1 ? 'Pedido pago' : 'Pedidos pagos / pré-aprovados'}`;
@@ -1163,8 +1162,7 @@ Fico no aguardo! \u{1F60A}`;
     // 5. Comprou (Todos os pedidos com status PAID, PRE-APPROVED ou PENDING)
     const purchasedCount = transactions.filter(tx => 
       tx.status && (
-        tx.status.toUpperCase() === 'PAID' || 
-        tx.status.toUpperCase() === 'PRE-APPROVED' || 
+        tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'APPROVED' || tx.status.toUpperCase() === 'PRE-APPROVED' || 
         tx.status.toUpperCase() === 'PENDING'
       )
     ).length;
@@ -1204,8 +1202,8 @@ Fico no aguardo! \u{1F60A}`;
   // Render da seção Conversão de Pix
   function renderPixConversion(orders) {
     const pixOrders = orders.filter(tx => tx.payment_method && tx.payment_method.toLowerCase() === 'pix');
-    const pixGenerated = pixOrders.filter(tx => tx.status && (tx.status.toUpperCase() === 'PENDING' || tx.status.toUpperCase() === 'PAID')).length;
-    const pixPaid = pixOrders.filter(tx => tx.status && tx.status.toUpperCase() === 'PAID').length;
+    const pixGenerated = pixOrders.filter(tx => tx.status && (tx.status.toUpperCase() === 'PENDING' || tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'APPROVED')).length;
+    const pixPaid = pixOrders.filter(tx => tx.status && tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'APPROVED').length;
 
     pixGeneratedVal.innerText = pixGenerated.toLocaleString('pt-BR');
     pixPaidVal.innerText = pixPaid.toLocaleString('pt-BR');
@@ -1459,7 +1457,7 @@ Fico no aguardo! \u{1F60A}`;
         let statusClass = 'draft';
         let statusText = 'Rascunho';
         const uStatus = tx.status ? tx.status.toUpperCase() : '';
-        if (uStatus === 'PAID') {
+        if (uStatus === 'PAID' || uStatus === 'APPROVED') {
           statusClass = 'paid';
           statusText = 'Pago';
         } else if (uStatus === 'PRE-APPROVED') {
@@ -1729,7 +1727,7 @@ Fico no aguardo! \u{1F60A}`;
         let statusClass = 'pending';
         let statusText = 'Pendente';
         const uStatus = order.status ? order.status.toUpperCase() : '';
-        if (uStatus === 'PAID') {
+        if (uStatus === 'PAID' || uStatus === 'APPROVED') {
           statusClass = 'paid';
           statusText = 'Pago';
         } else if (uStatus === 'PRE-APPROVED') {
@@ -1884,7 +1882,7 @@ Fico no aguardo! \u{1F60A}`;
         let statusClass = 'pending';
         let statusText = 'Pendente';
         const uStatus = order.status ? order.status.toUpperCase() : '';
-        if (uStatus === 'PAID') {
+        if (uStatus === 'PAID' || uStatus === 'APPROVED') {
           statusClass = 'paid';
           statusText = 'Pago';
         }
@@ -2085,7 +2083,7 @@ Fico no aguardo! \u{1F60A}`;
         let statusClass = 'pending';
         let statusText = 'Pendente';
         const uStatus = order.status ? order.status.toUpperCase() : '';
-        if (uStatus === 'PAID') {
+        if (uStatus === 'PAID' || uStatus === 'APPROVED') {
           statusClass = 'paid';
           statusText = 'Pago';
         } else if (uStatus === 'PRE-APPROVED') {
@@ -2206,7 +2204,7 @@ Fico no aguardo! \u{1F60A}`;
       if (tx.city && client.city === '-') client.city = tx.city;
       if (tx.state && client.state === '-') client.state = tx.state;
 
-      const isPaid = tx.status && (tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'PRE-APPROVED');
+      const isPaid = tx.status && (tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'APPROVED' || tx.status.toUpperCase() === 'PRE-APPROVED');
       if (isPaid) {
         client.successfulPurchases++;
         client.totalSpent += parseFloat(tx.amount) || 0.0;
