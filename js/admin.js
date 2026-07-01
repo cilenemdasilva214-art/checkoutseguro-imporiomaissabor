@@ -5651,14 +5651,22 @@ Fico no aguardo! \u{1F60A}`;
   }
 
   function addEditButtonListeners() {
-    const editButtons = document.querySelectorAll('.btn-edit-trigger');
-    editButtons.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.currentTarget.getAttribute('data-id');
-        openEditModal(id);
-      });
-    });
+    // A delegação de eventos foi movida para fora para evitar múltiplos bindings.
+    // Esta função agora é mantida vazia para não quebrar chamadas existentes no código.
   }
+
+  // DELEGAÇÃO DE EVENTOS PARA BOTÕES DE EDITAR
+  document.addEventListener('click', (e) => {
+    // Verifica se o clique foi em um botão de editar ou em um ícone dentro dele
+    const btn = e.target.closest('.btn-edit-trigger');
+    if (btn) {
+      e.preventDefault();
+      const id = btn.getAttribute('data-id');
+      if (id) {
+        openEditModal(id);
+      }
+    }
+  });
 
   async function openEditModal(id) {
     const editModal = document.getElementById('edit-order-modal');
@@ -5670,7 +5678,7 @@ Fico no aguardo! \u{1F60A}`;
     let tx = allTransactions.find(t => String(t.id) === String(id));
     
     if (!tx) {
-        alert('Transação não encontrada para edição.');
+        alert('Transação não encontrada para edição (ID pesquisado: ' + id + ').');
         return;
     }
 
