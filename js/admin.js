@@ -5661,6 +5661,12 @@ Fico no aguardo! \u{1F60A}`;
   }
 
   async function openEditModal(id) {
+    const editModal = document.getElementById('edit-order-modal');
+    if (!editModal) {
+      alert('⚠️ Atualização detectada!\n\nSeu navegador está usando uma versão antiga (em cache) do Painel.\nPor favor, recarregue a página (F5 ou Ctrl+R) para que o novo recurso de edição funcione.');
+      return;
+    }
+
     let tx = allTransactions.find(t => String(t.id) === String(id));
     
     if (!tx) {
@@ -5668,12 +5674,17 @@ Fico no aguardo! \u{1F60A}`;
         return;
     }
 
-    document.getElementById('edit-order-id').value = tx.id;
-    document.getElementById('edit-customer-name').value = tx.customer_name || '';
-    document.getElementById('edit-customer-email').value = tx.customer_email || '';
-    document.getElementById('edit-customer-phone').value = tx.customer_phone || '';
-    document.getElementById('edit-order-amount').value = tx.amount || '0.00';
-    document.getElementById('edit-order-status').value = tx.status || 'draft';
+    const setVal = (elemId, val) => {
+      const el = document.getElementById(elemId);
+      if (el) el.value = val;
+    };
+
+    setVal('edit-order-id', tx.id);
+    setVal('edit-customer-name', tx.customer_name || '');
+    setVal('edit-customer-email', tx.customer_email || '');
+    setVal('edit-customer-phone', tx.customer_phone || '');
+    setVal('edit-order-amount', tx.amount || '0.00');
+    setVal('edit-order-status', tx.status || 'draft');
 
     editModal.style.display = 'flex';
   }
@@ -5702,7 +5713,8 @@ Fico no aguardo! \u{1F60A}`;
           throw new Error(errData.error || 'Erro desconhecido ao salvar.');
         }
         alert('Pedido atualizado com sucesso!');
-        editModal.style.display = 'none';
+        const editModal = document.getElementById('edit-order-modal');
+        if (editModal) editModal.style.display = 'none';
         
         if (typeof loadInitialData === 'function') {
             loadInitialData();
