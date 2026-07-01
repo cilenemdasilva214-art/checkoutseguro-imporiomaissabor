@@ -5646,7 +5646,7 @@ Fico no aguardo! \u{1F60A}`;
 
   if (btnCloseEditModal) {
     btnCloseEditModal.addEventListener('click', () => {
-      editModal.style.display = 'none';
+      editModal.classList.remove('open');
     });
   }
 
@@ -5694,7 +5694,7 @@ Fico no aguardo! \u{1F60A}`;
     setVal('edit-order-amount', tx.amount || '0.00');
     setVal('edit-order-status', tx.status || 'draft');
 
-    editModal.style.display = 'flex';
+    editModal.classList.add('open');
   }
 
   if (editForm) {
@@ -5722,7 +5722,7 @@ Fico no aguardo! \u{1F60A}`;
         }
         alert('Pedido atualizado com sucesso!');
         const editModal = document.getElementById('edit-order-modal');
-        if (editModal) editModal.style.display = 'none';
+        if (editModal) editModal.classList.remove('open');
         
         if (typeof loadInitialData === 'function') {
             loadInitialData();
