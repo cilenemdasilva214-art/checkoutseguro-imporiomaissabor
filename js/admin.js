@@ -1368,10 +1368,10 @@ Fico no aguardo! \u{1F60A}`;
     } else {
       leadsTbody.innerHTML = leads.map(lead => {
         const dateStr = formatDateTime(lead.created_at);
-        const name = lead.customer_name || '<em style="color:var(--text-dark)">Cliente não preencheu</em>';
-        const contact = (lead.customer_email || lead.customer_phone) 
+        const name = escapeHtml(lead.customer_name) || '<em style="color:var(--text-dark)">Cliente não preencheu</em>';
+        const contact = (escapeHtml(lead.customer_email) || lead.customer_phone) 
           ? `<div style="display:flex;flex-direction:column;gap:0.15rem;font-size:0.8rem;">
-              <span>${lead.customer_email || '-'}</span>
+              <span>${escapeHtml(lead.customer_email) || '-'}</span>
               <span style="color:var(--text-muted);">${lead.customer_phone || '-'}</span>
              </div>`
           : '<em style="color:var(--text-dark)">Contato não informado</em>';
@@ -1712,7 +1712,7 @@ Fico no aguardo! \u{1F60A}`;
     } else {
       vendasTbody.innerHTML = orders.map(order => {
         const dateStr = formatDateTime(order.created_at);
-        const name = order.customer_name || 'Sem Nome';
+        const name = escapeHtml(order.customer_name || 'Sem Nome');
         
         // Método de pagamento badge
         let methodBadge = 'Cartão';
@@ -1872,7 +1872,7 @@ Fico no aguardo! \u{1F60A}`;
     } else {
       vendasPixTbody.innerHTML = orders.map(order => {
         const dateStr = formatDateTime(order.created_at);
-        const name = order.customer_name || 'Sem Nome';
+        const name = escapeHtml(order.customer_name || 'Sem Nome');
         
         // Método de pagamento badge
         const methodBadge = '<i class="fa-brands fa-pix" style="color:var(--success-color);font-size:0.8rem;margin-right:0.25rem;"></i> Pix';
@@ -2003,7 +2003,7 @@ Fico no aguardo! \u{1F60A}`;
     } else {
       recusadasTbody.innerHTML = orders.map(order => {
         const dateStr = formatDateTime(order.created_at);
-        const name = order.customer_name || 'Sem Nome';
+        const name = escapeHtml(order.customer_name || 'Sem Nome');
         
         // Método de pagamento badge
         let methodBadge = 'Cartão';
@@ -2179,7 +2179,7 @@ Fico no aguardo! \u{1F60A}`;
 
       if (!clientsMap[key]) {
         clientsMap[key] = {
-          name: tx.customer_name || 'Sem Nome',
+          name: escapeHtml(tx.customer_name || 'Sem Nome'),
           cpf: tx.customer_cpf || '-',
           email: tx.customer_email || '-',
           phone: tx.customer_phone || '-',
@@ -2197,8 +2197,8 @@ Fico no aguardo! \u{1F60A}`;
       client.sessionsCount++;
       client.transactions.push(tx);
 
-      if (tx.customer_name && (!client.name || client.name === 'Sem Nome')) {
-        client.name = tx.customer_name;
+      if (tx.customer_name && (!escapeHtml(client.name) || escapeHtml(client.name) === 'Sem Nome')) {
+        escapeHtml(client.name) = tx.customer_name;
       }
       if (tx.city && client.city === '-') client.city = tx.city;
       if (tx.state && client.state === '-') client.state = tx.state;
@@ -2236,7 +2236,7 @@ Fico no aguardo! \u{1F60A}`;
     } else {
       clientesTbody.innerHTML = clientsList.map(client => {
         const contact = `<div style="display:flex;flex-direction:column;gap:0.15rem;font-size:0.8rem;">
-                          <span>${client.email !== '-' ? client.email : '<span style="color:var(--text-dark)">-</span>'}</span>
+                          <span>${escapeHtml(client.email) !== '-' ? escapeHtml(client.email) : '<span style="color:var(--text-dark)">-</span>'}</span>
                           <span style="color:var(--text-muted);">${client.phone !== '-' ? client.phone : '<span style="color:var(--text-dark)">-</span>'}</span>
                          </div>`;
         const location = (client.city !== '-' || client.state !== '-')
@@ -2264,12 +2264,12 @@ Fico no aguardo! \u{1F60A}`;
              </a>`
           : '';
 
-        const copyData = `Copiar: Nome: ${client.name}, CPF: ${client.cpf}, Fone: ${client.phone}, Email: ${client.email}`;
+        const copyData = `Copiar: Nome: ${escapeHtml(client.name)}, CPF: ${client.cpf}, Fone: ${client.phone}, Email: ${escapeHtml(client.email)}`;
 
         return `
           <tr>
             <td>
-              <div style="font-weight:600;color:var(--text-main);">${client.name}</div>
+              <div style="font-weight:600;color:var(--text-main);">${escapeHtml(client.name)}</div>
               <div style="font-size:0.75rem;color:var(--text-muted);font-family:'Space Mono';">${client.cpf !== '-' ? 'CPF: ' + client.cpf : ''}</div>
             </td>
             <td>${contact}</td>

@@ -1,4 +1,4 @@
-﻿const { createClient } = require('@supabase/supabase-js');
+const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://lqwexpieqikhudcsnzdg.supabase.co';
@@ -42,6 +42,8 @@ exports.handler = async (event, context) => {
         body: JSON.stringify({ success: true, token })
       };
     } else {
+      // Anti Brute-Force Delay (2.5 seconds)
+      await new Promise(resolve => setTimeout(resolve, 2500));
       return {
         statusCode: 401,
         body: JSON.stringify({ success: false, message: 'Invalid credentials' })
