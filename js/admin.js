@@ -361,9 +361,17 @@ Fico no aguardo! \u{1F60A}`;
   // ==========================================
   // 1. TELA DE SEGURANÇA (LOGIN LOCK SCREEN)
   // ==========================================
-  let adminUsername = 'admin';
-  let adminPassword = '123456789';
+  
+  
 
+  async function fetchWithAuth(url, options = {}) {
+  const token = safeStorage.getItem('admin_token');
+  if (token) {
+    options.headers = options.headers || {};
+    options.headers['Authorization'] = 'Bearer ' + token;
+  }
+  return fetch(url, options);
+}
   function checkAuthentication() {
     // Se a URL tiver code e shop (redirecionamento da instalação da Shopify), auto-autentica o usuário para pular a tela de login
     const urlParams = new URLSearchParams(window.location.search);
@@ -398,7 +406,7 @@ Fico no aguardo! \u{1F60A}`;
 
   async function checkGlobalLogout() {
     try {
-      const response = await fetch('/api/config');
+      const response = await fetchWithAuth('/api/config');
       if (response.ok) {
         const data = await response.json();
         const globalLogout = data.global_admin_logout_time;
@@ -417,18 +425,42 @@ Fico no aguardo! \u{1F60A}`;
     }
   }
 
-  function handleAuthentication() {
+  async function handleAuthentication() {
     const typedUser = loginUsernameInput ? loginUsernameInput.value.trim() : '';
     const typedPass = loginPasswordInput ? loginPasswordInput.value : '';
 
-    if (typedUser === adminUsername && typedPass === adminPassword) {
-      safeStorage.setItem('admin_authenticated', 'true');
-      safeStorage.setItem('admin_login_time', Date.now().toString());
-      if (lockScreen) lockScreen.classList.add('hide');
-      if (loginUsernameInput) loginUsernameInput.value = '';
-      if (loginPasswordInput) loginPasswordInput.value = '';
-    } else {
-      // Efeito visual de falha (Shaking + borda vermelha temporária nos inputs)
+    try {
+      const btnIcon = btnLoginSubmit.innerHTML;
+      btnLoginSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Autenticando...';
+      btnLoginSubmit.disabled = true;
+
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: typedUser, password: typedPass })
+      });
+
+      btnLoginSubmit.innerHTML = btnIcon;
+      btnLoginSubmit.disabled = false;
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.token) {
+          safeStorage.setItem('admin_token', data.token);
+          safeStorage.setItem('admin_authenticated', 'true');
+          safeStorage.setItem('admin_login_time', Date.now().toString());
+          if (lockScreen) lockScreen.classList.add('hide');
+          if (loginUsernameInput) loginUsernameInput.value = '';
+          if (loginPasswordInput) loginPasswordInput.value = '';
+          
+          if (typeof loadInitialData === 'function') {
+            loadInitialData();
+          }
+          return;
+        }
+      }
+      throw new Error('Credenciais invalidas');
+    } catch (e) {
       const shakeTargets = [loginUsernameInput, loginPasswordInput];
       shakeTargets.forEach(el => {
         if (el) {
@@ -437,7 +469,6 @@ Fico no aguardo! \u{1F60A}`;
           el.classList.add('shake-animation');
         }
       });
-      
       setTimeout(() => {
         shakeTargets.forEach(el => {
           if (el) {
@@ -447,7 +478,6 @@ Fico no aguardo! \u{1F60A}`;
           }
         });
       }, 500);
-      
       alert('Usuário ou senha incorretos! Tente novamente.');
       if (loginPasswordInput) {
         loginPasswordInput.value = '';
@@ -455,7 +485,6 @@ Fico no aguardo! \u{1F60A}`;
       }
     }
   }
-
   // Bind dos eventos de segurança
   if (btnLoginSubmit) btnLoginSubmit.addEventListener('click', handleAuthentication);
   [loginUsernameInput, loginPasswordInput].forEach(input => {
@@ -742,7 +771,8 @@ Fico no aguardo! \u{1F60A}`;
   // ==========================================
   // 4. CHAMADAS À API (FETCH DATA & CONFIGS)
   // ==========================================
-  async function loadInitialData() {
+  async function loadInitialData() {    if (safeStorage.getItem('admin_authenticated') !== 'true') return;
+
     try {
       // Exibe indicadores de carregamento nas tabelas se existirem
       const loaders = document.querySelectorAll('tbody');
@@ -754,8 +784,8 @@ Fico no aguardo! \u{1F60A}`;
 
       // 1. Carregar Configurações Globais e Pedidos PARALELAMENTE para ficar muito mais rápido
       const [configRes, ordersRes] = await Promise.all([
-        fetch('/api/config'),
-        fetch('/api/orders?limit=100')
+        fetchWithAuth('/api/config'),
+        fetchWithAuth('/api/orders?limit=100')
       ]);
 
       // --- PROCESSAR CONFIGURAÇÃ•ES ---
@@ -779,8 +809,8 @@ Fico no aguardo! \u{1F60A}`;
         }
 
         adsExpenseRate = parseFloat(configData.ads_expense) || 0.0;
-        adminUsername = configData.admin_username || 'admin';
-        adminPassword = configData.admin_password || '123456789';
+        
+        
 
         // Preencher inputs do form
         if (configPageTitle) configPageTitle.value = configData.checkout_page_title || 'Checkout Seguro';
@@ -816,8 +846,8 @@ Fico no aguardo! \u{1F60A}`;
         // Preencher inputs de credenciais admin no form de Configurações
         const configAdminUsername = document.getElementById('config-admin-username');
         const configAdminPassword = document.getElementById('config-admin-password');
-        if (configAdminUsername) configAdminUsername.value = adminUsername;
-        if (configAdminPassword) configAdminPassword.value = adminPassword;
+        
+        
 
         // Carregar configurações de WhatsApp do banco
         if (configData.checkout_wa_store_name) {
@@ -909,36 +939,7 @@ Fico no aguardo! \u{1F60A}`;
       renderData();
 
       // 3. Atualização em Tempo Real (Supabase Realtime)
-      if (window.supabase) {
-        const SUPABASE_URL = 'https://lqwexpieqikhudcsnzdg.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxxd2V4cGllcWlraHVkY3NuemRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDc0MzAsImV4cCI6MjA5NDcyMzQzMH0.FtUzSzya2vpgNRR3iHqAQBozDiunwbHF_6q0aGKXZH8';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        supabaseClient.channel('admin-dashboard')
-          .on('postgres_changes', { event: '*', schema: 'public', table: 'card_checkout_test_raw' }, payload => {
-            console.log('ðŸ”„ Atualização em tempo real recebida!', payload);
-            
-            if (payload.eventType === 'INSERT') {
-              allTransactions.unshift(payload.new);
-            } else if (payload.eventType === 'UPDATE') {
-              const index = allTransactions.findIndex(tx => tx.id === payload.new.id);
-              if (index !== -1) {
-                allTransactions[index] = payload.new;
-              } else {
-                allTransactions.unshift(payload.new);
-              }
-            }
-            
-            // Re-renderiza o painel com os dados novos
-            renderData();
-          })
-          .subscribe();
-      }
-
-    } catch (err) {
-      console.error('Erro ao buscar dados do painel:', err);
-    }
-  }
+      
 
   function populateDomainFilter(transactions) {
     if (!domainFilterSelect) return;
@@ -2490,7 +2491,7 @@ Fico no aguardo! \u{1F60A}`;
       btnForceLogoutAll.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Desconectando...</span>`;
       
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ global_admin_logout_time: Date.now().toString() })
@@ -2538,7 +2539,7 @@ Fico no aguardo! \u{1F60A}`;
     btnSaveSettings.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Salvando...</span>`;
 
     try {
-      const response = await fetch('/api/config', {
+      const response = await fetchWithAuth('/api/config', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -2596,7 +2597,7 @@ Fico no aguardo! \u{1F60A}`;
       btnSaveCredentials.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Salvando...</span>`;
 
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -2609,8 +2610,8 @@ Fico no aguardo! \u{1F60A}`;
 
         if (response.ok) {
           alert('Credenciais administrativas atualizadas com sucesso!');
-          adminUsername = newUsername;
-          adminPassword = newPassword;
+          
+          
         } else {
           const text = await response.text();
           alert(`Erro ao salvar credenciais: ${text}`);
@@ -2642,7 +2643,7 @@ Fico no aguardo! \u{1F60A}`;
       btnSaveShipping.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Salvando...</span>`;
 
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -2685,7 +2686,7 @@ Fico no aguardo! \u{1F60A}`;
       btnSaveDiscount.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Salvando...</span>`;
 
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -2733,7 +2734,7 @@ Fico no aguardo! \u{1F60A}`;
       btnSaveWa.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
       
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -2913,7 +2914,7 @@ Fico no aguardo! \u{1F60A}`;
     `;
 
     try {
-      const response = await fetch('/api/shopify?action=products');
+      const response = await fetchWithAuth('/api/shopify?action=products');
       if (response.ok) {
         shopifyProducts = await response.json();
         renderShopifyProducts(shopifyProducts);
@@ -3033,7 +3034,7 @@ Fico no aguardo! \u{1F60A}`;
     `;
 
     try {
-      const response = await fetch('/api/woocommerce?action=products');
+      const response = await fetchWithAuth('/api/woocommerce?action=products');
       if (response.ok) {
         const products = await response.json();
         
@@ -3137,12 +3138,12 @@ Fico no aguardo! \u{1F60A}`;
 
     try {
       // Carrega regras de desconto de coleção do Supabase primeiro
-      const marketingRes = await fetch('/api/marketing?type=collection_discount');
+      const marketingRes = await fetchWithAuth('/api/marketing?type=collection_discount');
       if (marketingRes.ok) {
         marketingItems.collection_discount = await marketingRes.json();
       }
 
-      const response = await fetch('/api/shopify?action=collections');
+      const response = await fetchWithAuth('/api/shopify?action=collections');
       if (response.ok) {
         shopifyCollections = await response.json();
         renderShopifyCollections(shopifyCollections);
@@ -3278,7 +3279,7 @@ Fico no aguardo! \u{1F60A}`;
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Criando produto na Shopify...`;
 
       try {
-        const response = await fetch('/api/shopify?action=createProduct', {
+        const response = await fetchWithAuth('/api/shopify?action=createProduct', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -3974,7 +3975,7 @@ Fico no aguardo! \u{1F60A}`;
           payload.id = id;
         }
 
-        const response = await fetch('/api/marketing', {
+        const response = await fetchWithAuth('/api/marketing', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -4101,7 +4102,7 @@ Fico no aguardo! \u{1F60A}`;
       const primaryPixel = facebookPixelsList[0] || { id: '', token: '' };
       
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -4843,7 +4844,7 @@ Fico no aguardo! \u{1F60A}`;
       btnSaveTheme.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Salvando...`;
       
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -4961,7 +4962,7 @@ Fico no aguardo! \u{1F60A}`;
 
       try {
         console.log('ðŸ“¡ Solicitando geração de token via Client Credentials para:', shopParam);
-        const response = await fetch('/api/shopify?action=exchange_credentials', {
+        const response = await fetchWithAuth('/api/shopify?action=exchange_credentials', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -4993,7 +4994,7 @@ Fico no aguardo! \u{1F60A}`;
           updateTokenFieldVisibility();
 
           // Salvar tudo de forma definitiva no Supabase
-          const saveRes = await fetch('/api/config', {
+          const saveRes = await fetchWithAuth('/api/config', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -5041,7 +5042,7 @@ Fico no aguardo! \u{1F60A}`;
       updateStatusBadgeVisual(isActive);
 
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -5132,7 +5133,7 @@ Fico no aguardo! \u{1F60A}`;
         btnDisconnectShopify.innerText = 'Salvando...';
 
         try {
-          const response = await fetch('/api/config', {
+          const response = await fetchWithAuth('/api/config', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -5219,7 +5220,7 @@ Fico no aguardo! \u{1F60A}`;
       updateTokenFieldVisibility();
 
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -5331,7 +5332,7 @@ Fico no aguardo! \u{1F60A}`;
 
             try {
               console.log('ðŸ“¡ Solicitando troca de código por token para:', shopParam);
-              const response = await fetch('/api/shopify?action=exchange_token', {
+              const response = await fetchWithAuth('/api/shopify?action=exchange_token', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json'
@@ -5364,7 +5365,7 @@ Fico no aguardo! \u{1F60A}`;
                 updateTokenFieldVisibility();
 
                 // Salvar tudo de forma definitiva no Supabase
-                const saveRes = await fetch('/api/config', {
+                const saveRes = await fetchWithAuth('/api/config', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json'
@@ -5466,7 +5467,7 @@ Fico no aguardo! \u{1F60A}`;
       btnSaveIntegracoes.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Salvando...</span>`;
 
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -5553,7 +5554,7 @@ Fico no aguardo! \u{1F60A}`;
       updateWooCommerceStatusVisual(isActive);
 
       try {
-        await fetch('/api/config', {
+        await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -5589,7 +5590,7 @@ Fico no aguardo! \u{1F60A}`;
       updateWooCommerceStatusVisual(true);
 
       try {
-        const response = await fetch('/api/config', {
+        const response = await fetchWithAuth('/api/config', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -5730,3 +5731,10 @@ Fico no aguardo! \u{1F60A}`;
   }
 
 });
+
+// Polling de 30 segundos para manter dados atualizados sem WebSocket
+setInterval(() => {
+  if (safeStorage.getItem('admin_authenticated') === 'true') {
+    loadInitialData();
+  }
+}, 30000);

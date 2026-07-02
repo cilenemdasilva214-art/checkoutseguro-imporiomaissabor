@@ -1,3 +1,4 @@
+const { verifyToken } = require('./auth-middleware');
 // Netlify Serverless Function: shopify
 // Caminho: netlify/functions/shopify.js
 
@@ -12,6 +13,12 @@ function getNextLink(linkHeader) {
 }
 
 exports.handler = async (event, context) => {
+  if (event.httpMethod !== 'OPTIONS') {
+    if (!verifyToken(event)) {
+      return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
+    }
+  }
+
   // CORS Preflight
   if (event.httpMethod === 'OPTIONS') {
     return {

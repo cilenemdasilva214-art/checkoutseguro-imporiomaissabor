@@ -1,0 +1,56 @@
+﻿const { createClient } = require('@supabase/supabase-js');
+const crypto = require('crypto');
+
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://lqwexpieqikhudcsnzdg.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxxd2V4cGllcWlraHVkY3NuemRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDc0MzAsImV4cCI6MjA5NDcyMzQzMH0.FtUzSzya2vpgNRR3iHqAQBozDiunwbHF_6q0aGKXZH8';
+const SECRET = 'super-secret-checkout-admin-key-2026';
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+exports.handler = async (event, context) => {
+  if (event.httpMethod !== 'POST') {
+    return { statusCode: 405, body: 'Method Not Allowed' };
+  }
+
+  try {
+    const { username, password } = JSON.parse(event.body);
+
+    const { data, error } = await supabase
+      .from('checkout_configs')
+      .select('key, value')
+      .in('key', ['admin_username', 'admin_password']);
+
+    if (error) throw error;
+
+    let dbUser = 'admin';
+    let dbPass = '123456789';
+
+    if (data && data.length > 0) {
+      const u = data.find(d => d.key === 'admin_username');
+      const p = data.find(d => d.key === 'admin_password');
+      if (u) dbUser = u.value;
+      if (p) dbPass = p.value;
+    }
+
+    if (username === dbUser && password === dbPass) {
+      const payload = Buffer.from(JSON.stringify({ user: username, exp: Date.now() + 86400000 })).toString('base64');
+      const signature = crypto.createHmac('sha256', SECRET).update(payload).digest('base64');
+      const token = payload + '.' + signature;
+      
+      return {
+        statusCode: 200,
+        body: JSON.stringify({ success: true, token })
+      };
+    } else {
+      return {
+        statusCode: 401,
+        body: JSON.stringify({ success: false, message: 'Invalid credentials' })
+      };
+    }
+  } catch (err) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ success: false, error: err.message })
+    };
+  }
+};
