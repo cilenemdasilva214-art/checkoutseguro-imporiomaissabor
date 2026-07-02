@@ -880,7 +880,6 @@ Fico no aguardo! \u{1F60A}`;
         const psPubKeyInput = document.getElementById('payshark-public-key');
         const psSecKeyInput = document.getElementById('payshark-secret-key');
         const pfApiInput = document.getElementById('pagflex-api-key');
-        const pfTransferInput = document.getElementById('pagflex-transfer-key');
         const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
 
         if (pPubKeyInput) pPubKeyInput.value = pPublic;
@@ -890,7 +889,6 @@ Fico no aguardo! \u{1F60A}`;
         if (psPubKeyInput) psPubKeyInput.value = psPublic;
         if (psSecKeyInput) psSecKeyInput.value = psSecret;
         if (pfApiInput) pfApiInput.value = pagflexApi;
-        if (pfTransferInput) pfTransferInput.value = pagflexTransfer;
         if (pfWebhookInput) pfWebhookInput.value = pagflexWebhook;
 
         // Se a tabela estiver faltando, exibe aviso amigável
@@ -5426,7 +5424,6 @@ Fico no aguardo! \u{1F60A}`;
   const psPubKeyInput = document.getElementById('payshark-public-key');
   const psSecKeyInput = document.getElementById('payshark-secret-key');
         const pfApiInput = document.getElementById('pagflex-api-key');
-        const pfTransferInput = document.getElementById('pagflex-transfer-key');
         const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
   const btnSaveIntegracoes = document.getElementById('btn-save-integracoes');
 
@@ -5462,7 +5459,7 @@ Fico no aguardo! \u{1F60A}`;
       const psPublic = psPubKeyInput ? psPubKeyInput.value.trim() : '';
       const psSecret = psSecKeyInput ? psSecKeyInput.value.trim() : '';
       const pfApi = pfApiInput ? pfApiInput.value.trim() : '';
-      const pfTransfer = pfTransferInput ? pfTransferInput.value.trim() : '';
+      const pfTransfer = ''; // Removed from UI
       const pfWebhook = pfWebhookInput ? pfWebhookInput.value.trim() : '';
 
       btnSaveIntegracoes.disabled = true;
