@@ -1,6 +1,31 @@
 // Netlify Serverless Function: checkout
 // Caminho: netlify/functions/checkout.js
 
+async function validatePricesWithShopify(items, storeDomain, accessToken) {
+  if (!storeDomain || !accessToken) return items; // Fallback se não tiver config
+  
+  let validItems = [];
+  for (let item of items) {
+    if (item.shopify_variant_id) {
+       try {
+         const url = `https://${storeDomain}/admin/api/2024-01/variants/${item.shopify_variant_id}.json`;
+         const response = await fetch(url, {
+           headers: { 'X-Shopify-Access-Token': accessToken, 'Content-Type': 'application/json' }
+         });
+         if (response.ok) {
+           const variantData = await response.json();
+           item.price = parseFloat(variantData.variant.price);
+           console.log(`Preço real buscado na Shopify para variante ${item.shopify_variant_id}: ${item.price}`);
+         }
+       } catch (e) {
+         console.error('Erro ao validar preço na Shopify', e);
+       }
+    }
+    validItems.push(item);
+  }
+  return validItems;
+}
+
 exports.handler = async (event, context) => {
   // Tratar requisições do tipo OPTIONS (CORS preflight)
   if (event.httpMethod === 'OPTIONS') {
@@ -29,6 +54,30 @@ exports.handler = async (event, context) => {
 
   try {
     const data = JSON.parse(event.body || '{}');
+    
+    // ANTI-FRAUD: Validate prices via Shopify
+    const { storeDomain, accessToken } = await resolveShopifyCredentials();
+    let itemsArr = Array.isArray(data.items) ? data.items : [];
+    
+    if (itemsArr.length > 0) {
+      itemsArr = await validatePricesWithShopify(itemsArr, storeDomain, accessToken);
+      data.items = itemsArr;
+      
+      let realItemsTotal = itemsArr.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity)), 0);
+      let shippingPrice = parseFloat(data.shipping_price) || 0;
+      let couponDiscount = parseFloat(data.coupon_discount) || 0;
+      
+      let realTotal = realItemsTotal + shippingPrice - couponDiscount;
+      if (realTotal < 0) realTotal = 0;
+      
+      let frontendAmount = parseFloat(data.amount) || 0;
+      
+      // Override the total amount if there is a mismatch
+      if (Math.abs(realTotal - frontendAmount) > 0.02) { 
+          console.warn(`ANTI-FRAUD: Discrepância de preço detectada! Frontend enviou ${frontendAmount}, mas o valor real é ${realTotal}`);
+          data.amount = realTotal;
+      }
+    }
 
     // Validações básicas de segurança baseado no método de pagamento
     const paymentMethod = data.payment_method || 'card';
