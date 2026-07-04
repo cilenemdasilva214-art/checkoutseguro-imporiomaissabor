@@ -1,5 +1,5 @@
-﻿const crypto = require('crypto');
-const SECRET = 'super-secret-checkout-admin-key-2026';
+const crypto = require('crypto');
+const SECRET = process.env.JWT_SECRET || 'super-secret-checkout-admin-key-2026';
 
 exports.verifyToken = (event) => {
   const authHeader = event.headers.authorization || event.headers.Authorization;
