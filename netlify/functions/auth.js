@@ -1,9 +1,9 @@
 const { createClient } = require('@supabase/supabase-js');
 const crypto = require('crypto');
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://lqwexpieqikhudcsnzdg.supabase.co';
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxxd2V4cGllcWlraHVkY3NuemRnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkxNDc0MzAsImV4cCI6MjA5NDcyMzQzMH0.FtUzSzya2vpgNRR3iHqAQBozDiunwbHF_6q0aGKXZH8';
-const SECRET = 'super-secret-checkout-admin-key-2026';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://nzxwrhmvnipbhyykmtax.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_0ZhwMi7CJSgZdS2MOchsLg_opwVEz3g';
+const SECRET = process.env.JWT_SECRET || 'super-secret-checkout-admin-key-2026';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
