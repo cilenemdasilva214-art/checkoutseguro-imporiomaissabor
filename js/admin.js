@@ -938,6 +938,11 @@ Fico no aguardo! \u{1F60A}`;
       // Renderiza as telas iniciais
       renderData();
 
+    } catch (err) {
+      console.error("Erro ao carregar dados iniciais:", err);
+    }
+  }
+
       // 3. Atualização em Tempo Real (Supabase Realtime)
       
 
@@ -2197,8 +2202,8 @@ Fico no aguardo! \u{1F60A}`;
       client.sessionsCount++;
       client.transactions.push(tx);
 
-      if (tx.customer_name && (!escapeHtml(client.name) || escapeHtml(client.name) === 'Sem Nome')) {
-        escapeHtml(client.name) = tx.customer_name;
+      if (tx.customer_name && (!client.name || client.name === 'Sem Nome')) {
+        client.name = tx.customer_name;
       }
       if (tx.city && client.city === '-') client.city = tx.city;
       if (tx.state && client.state === '-') client.state = tx.state;
