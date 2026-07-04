@@ -3,8 +3,9 @@ const { verifyToken } = require('./auth-middleware');
 // Caminho: netlify/functions/config.js
 
 exports.handler = async (event, context) => {
-  if (event.httpMethod !== 'OPTIONS') {
-    if (!verifyToken(event)) {
+  const isAdmin = !!verifyToken(event);
+  if (event.httpMethod !== 'OPTIONS' && event.httpMethod !== 'GET') {
+    if (!isAdmin) {
       return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
   }
@@ -137,6 +138,16 @@ exports.handler = async (event, context) => {
         if (c.key === 'pagflex_transfer_key') result.pagflex_transfer_key = c.value;
         if (c.key === 'pagflex_webhook_secret') result.pagflex_webhook_secret = c.value;
       });
+
+      if (!isAdmin) {
+        delete result.admin_username;
+        delete result.admin_password;
+        delete result.paguex_secret_key;
+        delete result.hypercash_secret_key;
+        delete result.payshark_secret_key;
+        delete result.pagflex_transfer_key;
+        delete result.pagflex_webhook_secret;
+      }
 
       return {
         statusCode: 200,
