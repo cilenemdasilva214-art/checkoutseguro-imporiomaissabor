@@ -2809,13 +2809,17 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
             const urlParams = new URLSearchParams(window.location.search);
             let storeParam = urlParams.get('store_url') || sessionStorage.getItem('checkout_origin');
             
-            if (!storeParam || storeParam === 'null' || storeParam === 'undefined') {
-              if (window._currentThemeConfig && window._currentThemeConfig.shopifyDomain) {
+            if (!storeParam || storeParam === 'null' || storeParam === 'undefined' || storeParam === 'woocommerce') {
+              if (window._currentThemeConfig && window._currentThemeConfig.wooCommerceDomain) {
+                storeParam = 'https://' + window._currentThemeConfig.wooCommerceDomain.trim();
+              } else if (window._currentThemeConfig && window._currentThemeConfig.shopifyDomain) {
                 let domain = window._currentThemeConfig.shopifyDomain.trim();
                 if (!domain.includes('.')) {
                   domain = domain + '.myshopify.com';
                 }
                 storeParam = 'https://' + domain;
+              } else {
+                storeParam = '';
               }
             }
             
