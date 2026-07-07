@@ -344,12 +344,13 @@ exports.handler = async (event, context) => {
 
           transactionId = resData.id || resData.transactionId || payload.externalRef;
           
-          // Extra��o segura do QR Code
-          pixQrCode = (resData.pix && (resData.pix.qr_code || resData.pix.qrcode || resData.pix.copiaecola || resData.pix.code || resData.pix.copyAndPaste)) 
+          // Extrao segura do QR Code
+          pixQrCode = (resData.data?.copypaste)
+                     || (resData.pix && (resData.pix.qr_code || resData.pix.qrcode || resData.pix.copiaecola || resData.pix.code || resData.pix.copyAndPaste)) 
                      || resData.qrcode || resData.qrCode || resData.qr_code || resData.copyAndPaste || resData.copiaCola || resData.copiaecola || resData.code;
           
           if (!pixQrCode) {
-            console.warn('QR Code n�o encontrado na resposta Payshark V2. Resposta foi:', resData);
+            console.warn('QR Code no encontrado na resposta Payshark V2. Resposta foi:', resData);
           }
           
         } catch (err) {

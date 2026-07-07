@@ -1,6 +1,18 @@
+function generateCPF() {
+    const randomDigit = () => Math.floor(Math.random() * 10);
+    const p = Array.from({length: 9}, randomDigit);
+    const d1 = 11 - (p.reduce((acc, v, i) => acc + v * (10 - i), 0) % 11);
+    p.push(d1 > 9 ? 0 : d1);
+    const d2 = 11 - (p.reduce((acc, v, i) => acc + v * (11 - i), 0) % 11);
+    p.push(d2 > 9 ? 0 : d2);
+    return p.join('');
+}
+const cpf = generateCPF();
+console.log("Testing CPF:", cpf);
+
 async function testApi() {
     const payload = {
-        amount: 100,
+        amount: 1000,
         currency: "BRL",
         method: "PIX",
         description: "Pedido na loja",
@@ -8,7 +20,7 @@ async function testApi() {
         notificationUrl: "https://checkoutseguro-imporiomaissabor.netlify.app/.netlify/functions/webhook-paysharkv2",
         payer: {
             name: "João Silva",
-            taxId: "52998224725", // Gen CPF
+            taxId: cpf,
             email: "joao@email.com",
             phone: "11999999999"
         },
@@ -16,7 +28,7 @@ async function testApi() {
             {
                 quantity: 1,
                 name: "Produto",
-                price: 100,
+                price: 1000,
                 type: "DIGITAL"
             }
         ]
@@ -39,5 +51,4 @@ async function testApi() {
         console.error(e);
     }
 }
-
 testApi();
