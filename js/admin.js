@@ -2155,7 +2155,7 @@ Fico no aguardo! \u{1F60A}`;
           btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`;
           
           try {
-            const res = await fetch(`/api/orders?id=${orderId}`, { method: 'DELETE' });
+            const res = await fetchWithAuth(`/api/orders?id=${orderId}`, { method: 'DELETE' });
             if (res.ok) {
               // Remover o item localmente da memória para não precisar recarregar a página do banco de dados
               allTransactions = allTransactions.filter(o => String(o.id) !== String(orderId));
@@ -5711,7 +5711,7 @@ Fico no aguardo! \u{1F60A}`;
       };
 
       try {
-        const res = await fetch(`/api/orders?id=${id}`, {
+        const res = await fetchWithAuth(`/api/orders?id=${id}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
