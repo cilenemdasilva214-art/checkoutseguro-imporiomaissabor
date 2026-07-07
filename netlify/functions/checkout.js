@@ -343,6 +343,9 @@ exports.handler = async (event, context) => {
           }
 
           transactionId = resData.id || resData.transactionId || payload.externalRef;
+          transactionStatus = resData.status || 'PENDING';
+          gatewayResponse = resData;
+          pixExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
           
           // Extrao segura do QR Code
           pixQrCode = (resData.data?.copypaste)
