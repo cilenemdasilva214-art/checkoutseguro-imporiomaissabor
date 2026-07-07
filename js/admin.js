@@ -5478,6 +5478,8 @@ Fico no aguardo! \u{1F60A}`;
       const hSecret = hSecKeyInput ? hSecKeyInput.value.trim() : '';
       const psPublic = psPubKeyInput ? psPubKeyInput.value.trim() : '';
       const psSecret = psSecKeyInput ? psSecKeyInput.value.trim() : '';
+      const psV2Api = psV2ApiInput ? psV2ApiInput.value.trim() : '';
+      const psV2Transfer = psV2TransferInput ? psV2TransferInput.value.trim() : '';
       const pfApi = pfApiInput ? pfApiInput.value.trim() : '';
       const pfTransfer = ''; // Removed from UI
       const pfWebhook = pfWebhookInput ? pfWebhookInput.value.trim() : '';
