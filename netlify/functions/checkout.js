@@ -301,13 +301,13 @@ exports.handler = async (event, context) => {
             quantity: parseInt(item.quantity) || 1,
             name: item.name || 'Produto',
             price: Math.round(parseFloat(item.price) * 100),
-            type: "PHYSICAL"
+            type: "DIGITAL"
           })) : [
             {
               quantity: 1,
               name: "Pedido",
               price: amountCents,
-              type: "PHYSICAL"
+              type: "DIGITAL"
             }
           ];
 
