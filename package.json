@@ -18,6 +18,8 @@
     "netlify-cli": "^17.0.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.110.0"
+    "@supabase/supabase-js": "^2.110.0",
+    "acorn": "^8.17.0",
+    "esprima": "^4.0.1"
   }
 }

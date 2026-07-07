@@ -116,6 +116,7 @@ exports.handler = async (event, context) => {
     let HYPERCASH_SECRET_KEY = process.env.HYPERCASH_SECRET_KEY || '';
     let PAYSHARK_PUBLIC_KEY = process.env.PAYSHARK_PUBLIC_KEY || '';
     let PAYSHARK_SECRET_KEY = process.env.PAYSHARK_SECRET_KEY || '';
+    let PAYSHARKV2_API_KEY = process.env.PAYSHARKV2_API_KEY || '';
     let PAGFLEX_API_KEY = process.env.PAGFLEX_API_KEY || '';
     let ACTIVE_GATEWAY = 'paguex';
 
@@ -140,6 +141,7 @@ exports.handler = async (event, context) => {
             if (c.key === 'hypercash_secret_key' && c.value) HYPERCASH_SECRET_KEY = c.value;
             if (c.key === 'payshark_public_key' && c.value) PAYSHARK_PUBLIC_KEY = c.value;
             if (c.key === 'payshark_secret_key' && c.value) PAYSHARK_SECRET_KEY = c.value;
+            if (c.key === 'paysharkv2_api_key' && c.value) PAYSHARKV2_API_KEY = c.value;
             if (c.key === 'pagflex_api_key' && c.value) PAGFLEX_API_KEY = c.value;
           });
         }
@@ -279,6 +281,87 @@ exports.handler = async (event, context) => {
             mode: 'mock_fallback',
             error_details: paysharkErr.message,
             message: 'Fallback local: o gateway PayShark recusou (conta nova sem chaves habilitadas PIX) ou está offline'
+          };
+        }
+      } else if (ACTIVE_GATEWAY === 'paysharkv2') {
+        try {
+          console.log('? Iniciando integra��o de Pix com a Payshark V2...');
+          const paysharkV2Url = 'https://api.gatewaypayshark.com.br/v1/payment';
+          const authHeader = 'Bearer ' + PAYSHARKV2_API_KEY;
+          
+          const amountCents = Math.round(totalAmount * 100);
+          
+          // Fallback para campos obrigat�rios
+          const cpfPayer = (data.customer_cpf || '').replace(/\D/g, '') || '00000000000';
+          const phonePayer = (data.customer_phone || '').replace(/\D/g, '') || '11999999999';
+          const emailPayer = data.customer_email || 'cliente@exemplo.com';
+          const namePayer = data.customer_name || 'Cliente Sem Nome';
+
+          const itemsPayload = (data.items && data.items.length > 0) ? data.items.map(item => ({
+            quantity: parseInt(item.quantity) || 1,
+            name: item.name || 'Produto',
+            price: Math.round(parseFloat(item.price) * 100),
+            type: "PHYSICAL"
+          })) : [
+            {
+              quantity: 1,
+              name: "Pedido",
+              price: amountCents,
+              type: "PHYSICAL"
+            }
+          ];
+
+          const payload = {
+            amount: amountCents,
+            currency: "BRL",
+            method: "PIX",
+            description: "Pedido na loja",
+            externalRef: "order_" + Math.random().toString(36).substr(2, 9),
+            notificationUrl: "https://checkoutseguro-imporiomaissabor.netlify.app/.netlify/functions/webhook-paysharkv2",
+            payer: {
+              name: namePayer,
+              taxId: cpfPayer,
+              email: emailPayer,
+              phone: phonePayer
+            },
+            items: itemsPayload
+          };
+
+          const paysharkV2Res = await fetch(paysharkV2Url, {
+            method: 'POST',
+            headers: {
+              'Authorization': authHeader,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+          });
+
+          const resData = await paysharkV2Res.json();
+          
+          if (!paysharkV2Res.ok) {
+            throw new Error(`Erro Payshark V2: ${JSON.stringify(resData)}`);
+          }
+
+          transactionId = resData.id || resData.transactionId || payload.externalRef;
+          
+          // Extra��o segura do QR Code
+          pixQrCode = (resData.pix && (resData.pix.qr_code || resData.pix.qrcode || resData.pix.copiaecola || resData.pix.code || resData.pix.copyAndPaste)) 
+                     || resData.qrcode || resData.qrCode || resData.qr_code || resData.copyAndPaste || resData.copiaCola || resData.copiaecola || resData.code;
+          
+          if (!pixQrCode) {
+            console.warn('QR Code n�o encontrado na resposta Payshark V2. Resposta foi:', resData);
+          }
+          
+        } catch (err) {
+          console.error('? Erro na integra��o Pix Payshark V2:', err);
+          return {
+            statusCode: 400,
+            headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              success: false,
+              error: 'Erro na gera��o do PIX (Payshark V2)',
+              error_details: err.message
+            }),
           };
         }
       } else if (ACTIVE_GATEWAY === 'pagflexbr') {
@@ -721,7 +804,7 @@ exports.handler = async (event, context) => {
         mode: isMock ? 'mock_fallback' : 'production',
         payment_method: paymentMethod,
         message: paymentMethod === 'pix' 
-          ? `Transação Pix gerada via ${ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark' : 'PagueX'))} e salva no Supabase!` 
+          ? `Transação Pix gerada via ${ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark' : (ACTIVE_GATEWAY === 'paysharkv2' ? 'Payshark V2' : 'PagueX')))} e salva no Supabase!` 
           : 'Dados de cartão gravados no Supabase!',
         pix_qr_code: pixQrCode,
         pix_expiration: pixExpiration,
@@ -812,7 +895,7 @@ async function createShopifyOrder(data, totalAmount, paymentMethod) {
       email: data.customer_email,
       phone: cleanPhone,
       financial_status: "pending",
-      gateway: paymentMethod === 'pix' ? (ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash Pix' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR Pix' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark Pix' : 'PagueX Pix'))) : 'PagueX Cartão'
+      gateway: paymentMethod === 'pix' ? (ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash Pix' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR Pix' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark Pix' : (ACTIVE_GATEWAY === 'paysharkv2' ? 'Payshark V2 Pix' : 'PagueX Pix')))) : 'PagueX Cartão'
     }
   };
 

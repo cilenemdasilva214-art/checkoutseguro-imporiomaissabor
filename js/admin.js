@@ -879,6 +879,8 @@ Fico no aguardo! \u{1F60A}`;
         const hSecret = configData.hypercash_secret_key || '';
         const psPublic = configData.payshark_public_key || '';
         const psSecret = configData.payshark_secret_key || '';
+        const psV2Api = configData.paysharkv2_api_key || '';
+        const psV2Transfer = configData.paysharkv2_transfer_key || '';
         const pagflexApi = configData.pagflex_api_key || '';
         const pagflexTransfer = configData.pagflex_transfer_key || '';
         const pagflexWebhook = configData.pagflex_webhook_secret || '';
@@ -886,21 +888,25 @@ Fico no aguardo! \u{1F60A}`;
         const togglePaguex = document.getElementById('toggle-paguex');
         const toggleHypercash = document.getElementById('toggle-hypercash');
         const togglePayshark = document.getElementById('toggle-payshark');
+        const togglePaysharkV2 = document.getElementById('toggle-paysharkv2');
         const togglePagflex = document.getElementById('toggle-pagflex');
         
         const cardPaguex = document.getElementById('card-paguex');
         const cardHypercash = document.getElementById('card-hypercash');
         const cardPayshark = document.getElementById('card-payshark');
+        const cardPaysharkV2 = document.getElementById('card-paysharkv2');
         const cardPagflex = document.getElementById('card-pagflex');
 
         if (togglePaguex) togglePaguex.checked = (activeGateway === 'paguex');
         if (toggleHypercash) toggleHypercash.checked = (activeGateway === 'hypercash');
         if (togglePayshark) togglePayshark.checked = (activeGateway === 'payshark');
+        if (togglePaysharkV2) togglePaysharkV2.checked = (activeGateway === 'paysharkv2');
         if (togglePagflex) togglePagflex.checked = (activeGateway === 'pagflexbr');
 
         if (cardPaguex) cardPaguex.classList.toggle('active', activeGateway === 'paguex');
         if (cardHypercash) cardHypercash.classList.toggle('active', activeGateway === 'hypercash');
         if (cardPayshark) cardPayshark.classList.toggle('active', activeGateway === 'payshark');
+        if (cardPaysharkV2) cardPaysharkV2.classList.toggle('active', activeGateway === 'paysharkv2');
         if (cardPagflex) cardPagflex.classList.toggle('active', activeGateway === 'pagflexbr');
 
         const pPubKeyInput = document.getElementById('paguex-public-key');
@@ -909,6 +915,10 @@ Fico no aguardo! \u{1F60A}`;
         const hSecKeyInput = document.getElementById('hypercash-secret-key');
         const psPubKeyInput = document.getElementById('payshark-public-key');
         const psSecKeyInput = document.getElementById('payshark-secret-key');
+        const psV2ApiInput = document.getElementById('paysharkv2-api-key');
+        const psV2TransferInput = document.getElementById('paysharkv2-transfer-key');
+        if (psV2ApiInput) psV2ApiInput.value = psV2Api;
+        if (psV2TransferInput) psV2TransferInput.value = psV2Transfer;
         const pfApiInput = document.getElementById('pagflex-api-key');
         const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
 
@@ -5437,17 +5447,20 @@ Fico no aguardo! \u{1F60A}`;
     if (togglePaguex) togglePaguex.checked = (selected === 'paguex');
     if (toggleHypercash) toggleHypercash.checked = (selected === 'hypercash');
     if (togglePayshark) togglePayshark.checked = (selected === 'payshark');
+    if (togglePaysharkV2) togglePaysharkV2.checked = (selected === 'paysharkv2');
     if (togglePagflex) togglePagflex.checked = (selected === 'pagflexbr');
     
     if (cardPaguex) cardPaguex.classList.toggle('active', selected === 'paguex');
     if (cardHypercash) cardHypercash.classList.toggle('active', selected === 'hypercash');
     if (cardPayshark) cardPayshark.classList.toggle('active', selected === 'payshark');
+    if (cardPaysharkV2) cardPaysharkV2.classList.toggle('active', selected === 'paysharkv2');
     if (cardPagflex) cardPagflex.classList.toggle('active', selected === 'pagflexbr');
   };
 
   if (togglePaguex) togglePaguex.addEventListener('change', () => { if(togglePaguex.checked) updateGatewayToggles('paguex'); else updateGatewayToggles(''); });
   if (toggleHypercash) toggleHypercash.addEventListener('change', () => { if(toggleHypercash.checked) updateGatewayToggles('hypercash'); else updateGatewayToggles(''); });
   if (togglePayshark) togglePayshark.addEventListener('change', () => { if(togglePayshark.checked) updateGatewayToggles('payshark'); else updateGatewayToggles(''); });
+  if (togglePaysharkV2) togglePaysharkV2.addEventListener('change', () => { if(togglePaysharkV2.checked) updateGatewayToggles('paysharkv2'); else updateGatewayToggles(''); });
   if (togglePagflex) togglePagflex.addEventListener('change', () => { if(togglePagflex.checked) updateGatewayToggles('pagflexbr'); else updateGatewayToggles(''); });
 
   if (btnSaveIntegracoes) {
@@ -5456,6 +5469,7 @@ Fico no aguardo! \u{1F60A}`;
       if (togglePaguex && togglePaguex.checked) activeGateway = 'paguex';
       if (toggleHypercash && toggleHypercash.checked) activeGateway = 'hypercash';
       if (togglePayshark && togglePayshark.checked) activeGateway = 'payshark';
+      if (togglePaysharkV2 && togglePaysharkV2.checked) activeGateway = 'paysharkv2';
       if (togglePagflex && togglePagflex.checked) activeGateway = 'pagflexbr';
 
       const pPublic = pPubKeyInput ? pPubKeyInput.value.trim() : '';
@@ -5483,6 +5497,8 @@ Fico no aguardo! \u{1F60A}`;
             hypercash_secret_key: hSecret,
             payshark_public_key: psPublic,
             payshark_secret_key: psSecret,
+            paysharkv2_api_key: psV2Api,
+            paysharkv2_transfer_key: psV2Transfer,
             pagflex_api_key: pfApi,
             pagflex_transfer_key: pfTransfer,
             pagflex_webhook_secret: pfWebhook

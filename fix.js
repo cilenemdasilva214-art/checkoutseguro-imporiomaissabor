@@ -1,25 +1,24 @@
-﻿const fs = require('fs');
-let text = fs.readFileSync('js/app.js', 'utf8');
+const fs = require('fs');
+let code = fs.readFileSync('js/admin.js', 'utf8');
 
-function unMojibake(str) {
-    try {
-        let buf = Buffer.from(str, 'latin1');
-        let decoded = buf.toString('utf8');
-        // if decoded contains standard replacement characters, it failed
-        if (decoded.includes('\uFFFD')) return str;
-        return decoded;
-    } catch (e) {
-        return str;
-    }
+// Fix invalid assignment
+code = code.replace(/escapeHtml\(client\.name\) = tx\.customer_name;/g, "client.name = tx.customer_name;");
+code = code.replace(/if \(tx\.customer_name && \(\!escapeHtml\(client\.name\) \|\| escapeHtml\(client\.name\) === 'Sem Nome'\)\)/g, "if (tx.customer_name && (!client.name || client.name === 'Sem Nome'))");
+
+// Fix missing catch block
+let lines = code.split(/\r?\n/);
+let output = [];
+let replaced = false;
+for (let i = 0; i < lines.length; i++) {
+  if (!replaced && lines[i].includes('// 3. Atualiza')) {
+    output.push('    } catch (err) {');
+    output.push('      console.error(\"Erro ao carregar dados iniciais:\", err);');
+    output.push('    }');
+    output.push('  }');
+    output.push('');
+    replaced = true;
+  }
+  output.push(lines[i]);
 }
-
-let iters = 0;
-while(text.includes('Ã') || text.includes('ǟ')) {
-    let newText = unMojibake(text);
-    if (newText === text) break;
-    text = newText;
-    iters++;
-}
-
-console.log('Fixed js/app.js in ' + iters + ' iterations. Sample:');
-console.log(text.substring(0, 300));
+fs.writeFileSync('js/admin.js', output.join('\n'));
+console.log('Fixed js/admin.js. Replaced: ' + replaced);
