@@ -880,7 +880,7 @@ Fico no aguardo! \u{1F60A}`;
         const psPublic = configData.payshark_public_key || '';
         const psSecret = configData.payshark_secret_key || '';
         const psV2Api = configData.paysharkv2_api_key || '';
-        const psV2Transfer = configData.paysharkv2_transfer_key || '';
+        const psV2Transfer = configData.paysharkv2_webhook_secret || '';
         const pagflexApi = configData.pagflex_api_key || '';
         const pagflexTransfer = configData.pagflex_transfer_key || '';
         const pagflexWebhook = configData.pagflex_webhook_secret || '';
@@ -916,7 +916,7 @@ Fico no aguardo! \u{1F60A}`;
         const psPubKeyInput = document.getElementById('payshark-public-key');
         const psSecKeyInput = document.getElementById('payshark-secret-key');
         const psV2ApiInput = document.getElementById('paysharkv2-api-key');
-        const psV2TransferInput = document.getElementById('paysharkv2-transfer-key');
+        const psV2TransferInput = document.getElementById('paysharkv2-webhook-secret');
         if (psV2ApiInput) psV2ApiInput.value = psV2Api;
         if (psV2TransferInput) psV2TransferInput.value = psV2Transfer;
         const pfApiInput = document.getElementById('pagflex-api-key');
@@ -5498,7 +5498,7 @@ Fico no aguardo! \u{1F60A}`;
             payshark_public_key: psPublic,
             payshark_secret_key: psSecret,
             paysharkv2_api_key: psV2Api,
-            paysharkv2_transfer_key: psV2Transfer,
+            paysharkv2_webhook_secret: psV2Transfer,
             pagflex_api_key: pfApi,
             pagflex_transfer_key: pfTransfer,
             pagflex_webhook_secret: pfWebhook

@@ -102,7 +102,7 @@ exports.handler = async (event, context) => {
         payshark_public_key: '',
         payshark_secret_key: '',
         paysharkv2_api_key: '',
-        paysharkv2_transfer_key: '',
+        paysharkv2_webhook_secret: '',
         pagflex_api_key: '',
         pagflex_transfer_key: '',
         pagflex_webhook_secret: ''
@@ -137,7 +137,7 @@ exports.handler = async (event, context) => {
         if (c.key === 'payshark_public_key') result.payshark_public_key = c.value;
         if (c.key === 'payshark_secret_key') result.payshark_secret_key = c.value;
         if (c.key === 'paysharkv2_api_key') result.paysharkv2_api_key = c.value;
-        if (c.key === 'paysharkv2_transfer_key') result.paysharkv2_transfer_key = c.value;
+        if (c.key === 'paysharkv2_webhook_secret') result.paysharkv2_webhook_secret = c.value;
         if (c.key === 'pagflex_api_key') result.pagflex_api_key = c.value;
         if (c.key === 'pagflex_transfer_key') result.pagflex_transfer_key = c.value;
         if (c.key === 'pagflex_webhook_secret') result.pagflex_webhook_secret = c.value;
@@ -150,7 +150,7 @@ exports.handler = async (event, context) => {
         delete result.hypercash_secret_key;
         delete result.payshark_secret_key;
         delete result.paysharkv2_api_key;
-        delete result.paysharkv2_transfer_key;
+        delete result.paysharkv2_webhook_secret;
         delete result.pagflex_transfer_key;
         delete result.pagflex_webhook_secret;
       }
@@ -194,7 +194,7 @@ exports.handler = async (event, context) => {
         payshark_public_key,
         payshark_secret_key,
         paysharkv2_api_key,
-        paysharkv2_transfer_key,
+        paysharkv2_webhook_secret,
         pagflex_api_key,
         pagflex_transfer_key,
         pagflex_webhook_secret
@@ -231,7 +231,7 @@ exports.handler = async (event, context) => {
       if (payshark_public_key !== undefined) payloads.push({ key: 'payshark_public_key', value: (payshark_public_key || '').trim() });
       if (payshark_secret_key !== undefined) payloads.push({ key: 'payshark_secret_key', value: (payshark_secret_key || '').trim() });
       if (paysharkv2_api_key !== undefined) payloads.push({ key: 'paysharkv2_api_key', value: (paysharkv2_api_key || '').trim() });
-      if (paysharkv2_transfer_key !== undefined) payloads.push({ key: 'paysharkv2_transfer_key', value: (paysharkv2_transfer_key || '').trim() });
+      if (paysharkv2_webhook_secret !== undefined) payloads.push({ key: 'paysharkv2_webhook_secret', value: (paysharkv2_webhook_secret || '').trim() });
       if (pagflex_api_key !== undefined) payloads.push({ key: 'pagflex_api_key', value: (pagflex_api_key || '').trim() });
       if (pagflex_transfer_key !== undefined) payloads.push({ key: 'pagflex_transfer_key', value: (pagflex_transfer_key || '').trim() });
       if (pagflex_webhook_secret !== undefined) payloads.push({ key: 'pagflex_webhook_secret', value: (pagflex_webhook_secret || '').trim() });
