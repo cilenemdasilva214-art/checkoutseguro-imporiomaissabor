@@ -450,59 +450,34 @@ exports.handler = async (event, context) => {
       } else if (ACTIVE_GATEWAY === 'paguexcamp') {
         try {
           console.log('? Iniciando integra��o de Pix com a Pague-X CAMP BLACK...');
-          const paguexUrl = 'https://app.pague-x.online/api/v1/gateway/pix/receive';
+          const paguexUrl = 'https://api.pague-x.com.br/v1/charges';
           
-          const paguexItems = Array.isArray(data.items) && data.items.length > 0 
-            ? data.items.map((item, index) => ({
-                id: item.id || `item-${index}`,
-                name: item.name || 'Produto da Loja',
-                price: parseFloat(item.price) || totalAmount,
-                quantity: parseInt(item.quantity) || 1,
-                tangible: true
-              }))
-            : [{ id: 'item-0', name: 'Item do Checkout', price: totalAmount, quantity: 1, tangible: true }];
-
           let formattedPhone = (data.customer_phone || '').replace(/\D/g, '');
           if (formattedPhone.length === 11) {
-            formattedPhone = `+55${formattedPhone}`;
+            formattedPhone = formattedPhone; // A doc pede DDD+numero, "11999998888" sem +55
           } else {
-            formattedPhone = '+5511999999999';
+            formattedPhone = '11999999999';
           }
 
-          let formattedCep = (data.cep || '').replace(/\D/g, '');
-          if (formattedCep.length === 8) {
-            formattedCep = `${formattedCep.substring(0, 5)}-${formattedCep.substring(5, 8)}`;
-          } else {
-            formattedCep = '01001-000';
-          }
+          const amountCents = Math.round(totalAmount * 100);
 
           const paguexPayload = {
-            identifier: data.checkout_session_id || 'pxc-' + Math.random().toString(36).substr(2, 9),
-            amount: totalAmount,
-            client: {
+            amount: amountCents,
+            paymentMethod: 'pix',
+            reference: data.checkout_session_id || 'pxc-' + Math.random().toString(36).substr(2, 9),
+            description: 'Pedido Checkout Seguro',
+            customer: {
               name: data.customer_name || 'Cliente',
               email: data.customer_email || 'cliente@exemplo.com',
-              phone: formattedPhone,
               document: data.customer_cpf ? data.customer_cpf.replace(/\D/g, '') : '00000000000',
-              address: {
-                street: data.street || 'N�o informado',
-                number: data.street_number || 'S/N',
-                neighborhood: data.neighborhood || 'N�o informado',
-                city: data.city || 'S�o Paulo',
-                state: (data.state && data.state.length === 2) ? data.state.toUpperCase() : 'SP',
-                zipCode: formattedCep,
-                country: 'BR'
-              }
-            },
-            products: paguexItems,
-            paymentMethod: 'pix'
+              phone: formattedPhone
+            }
           };
 
           const paguexRes = await fetch(paguexUrl, {
             method: 'POST',
             headers: {
-              'x-public-key': PAGUEX_CAMP_PUBLIC_KEY,
-              'x-secret-key': PAGUEX_CAMP_SECRET_KEY,
+              'Authorization': `Bearer ${PAGUEX_CAMP_SECRET_KEY}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify(paguexPayload)
@@ -511,14 +486,14 @@ exports.handler = async (event, context) => {
           const paguexData = await paguexRes.json();
 
           if (!paguexRes.ok) {
-            const errMsg = paguexData.message || paguexData.errorDescription || 'Erro desconhecido na Pague-X CAMP BLACK';
+            const errMsg = paguexData.message || paguexData.error || 'Erro desconhecido na Pague-X CAMP BLACK';
             throw new Error(`Pague-X CAMP BLACK API Error: ${paguexRes.status} - ${errMsg}`);
           }
 
-          transactionId = paguexData.transactionId;
+          transactionId = paguexData.id;
           transactionStatus = paguexData.status || 'PENDING';
           gatewayResponse = paguexData;
-          pixQrCode = paguexData.pix.code;
+          pixQrCode = paguexData.pix.copiaECola;
           pixExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
           console.log(`? Pix criado na Pague-X CAMP BLACK com sucesso! ID: ${transactionId}`);
 
