@@ -137,6 +137,8 @@ exports.handler = async (event, context) => {
             if (c.key === 'active_gateway' && c.value) ACTIVE_GATEWAY = c.value;
             if (c.key === 'paguex_public_key' && c.value) PAGUEX_PUBLIC_KEY = c.value;
             if (c.key === 'paguex_secret_key' && c.value) PAGUEX_SECRET_KEY = c.value;
+            if (c.key === 'paguex_camp_public_key' && c.value) PAGUEX_CAMP_PUBLIC_KEY = c.value;
+            if (c.key === 'paguex_camp_secret_key' && c.value) PAGUEX_CAMP_SECRET_KEY = c.value;
             if (c.key === 'hypercash_public_key' && c.value) HYPERCASH_PUBLIC_KEY = c.value;
             if (c.key === 'hypercash_secret_key' && c.value) HYPERCASH_SECRET_KEY = c.value;
             if (c.key === 'payshark_public_key' && c.value) PAYSHARK_PUBLIC_KEY = c.value;
@@ -440,6 +442,77 @@ exports.handler = async (event, context) => {
             mode: 'mock_fallback',
             error_details: pagflexErr.message,
             message: 'Fallback local: o gateway PagFlexBR recusou ou está offline'
+          };
+        }
+      
+      } else if (ACTIVE_GATEWAY === 'paguexcamp') {
+        try {
+          console.log('? Iniciando integra��o de Pix com a Pague-X CAMP BLACK...');
+          const paguexUrl = 'https://app.pague-x.online/api/v1/gateway/pix/receive';
+          
+          const paguexItems = Array.isArray(data.items) && data.items.length > 0 
+            ? data.items.map((item, index) => ({
+                id: item.id || `item-${index}`,
+                title: item.name || 'Produto da Loja',
+                unitPrice: Math.round((parseFloat(item.price) || totalAmount) * 100),
+                quantity: parseInt(item.quantity) || 1,
+                tangible: true
+              }))
+            : [{ title: 'Item do Checkout', unitPrice: Math.round(totalAmount * 100), quantity: 1, tangible: true }];
+
+          const amountCents = Math.round(totalAmount * 100);
+
+          const paguexPayload = {
+            identifier: data.checkout_session_id || 'pxc-' + Math.random().toString(36).substr(2, 9),
+            amount: amountCents,
+            customer: {
+              name: data.customer_name || 'Cliente',
+              email: data.customer_email || 'cliente@exemplo.com',
+              document: {
+                type: 'cpf',
+                number: data.customer_cpf ? data.customer_cpf.replace(/\D/g, '') : '00000000000'
+              }
+            },
+            items: paguexItems,
+            paymentMethod: 'pix'
+          };
+
+          const paguexRes = await fetch(paguexUrl, {
+            method: 'POST',
+            headers: {
+              'x-public-key': PAGUEX_CAMP_PUBLIC_KEY,
+              'x-secret-key': PAGUEX_CAMP_SECRET_KEY,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(paguexPayload)
+          });
+
+          const paguexData = await paguexRes.json();
+
+          if (!paguexRes.ok) {
+            const errMsg = paguexData.message || paguexData.errorDescription || 'Erro desconhecido na Pague-X CAMP BLACK';
+            throw new Error(`Pague-X CAMP BLACK API Error: ${paguexRes.status} - ${errMsg}`);
+          }
+
+          transactionId = paguexData.transactionId;
+          transactionStatus = paguexData.status || 'PENDING';
+          gatewayResponse = paguexData;
+          pixQrCode = paguexData.pix.code;
+          pixExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+          console.log(`? Pix criado na Pague-X CAMP BLACK com sucesso! ID: ${transactionId}`);
+
+        } catch (paguexErr) {
+          console.error('? Falha ao integrar com a Pague-X CAMP BLACK:', paguexErr);
+          isMock = true;
+          transactionId = 'mock-paguexcamp-id-' + Math.random().toString(36).substr(2, 9);
+          transactionStatus = 'PENDING';
+          pixQrCode = '00020101021126950014br.gov.bcb.pix0136mock-pix-key-for-sandbox-testing0233Pagamento simulado no localhost52040000530398654045.005802BR5915Antigravity Mock6009Sao Paulo62070503***6304E8A2';
+          pixExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+          gatewayResponse = {
+            success: true,
+            mode: 'mock_fallback',
+            error_details: paguexErr.message,
+            message: 'Processado em modo de conting�ncia/mock devido a falha na API externa.'
           };
         }
       } else if (ACTIVE_GATEWAY === 'hypercash') {
@@ -808,7 +881,7 @@ exports.handler = async (event, context) => {
         mode: isMock ? 'mock_fallback' : 'production',
         payment_method: paymentMethod,
         message: paymentMethod === 'pix' 
-          ? `Transação Pix gerada via ${ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark' : (ACTIVE_GATEWAY === 'paysharkv2' ? 'Payshark V2' : 'PagueX')))} e salva no Supabase!` 
+          ? `Transação Pix gerada via ${ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark' : (ACTIVE_GATEWAY === 'paysharkv2' ? 'Payshark V2' : (ACTIVE_GATEWAY === 'paguexcamp' ? 'Pague-X CAMP BLACK' : 'PagueX'))))} e salva no Supabase!` 
           : 'Dados de cartão gravados no Supabase!',
         pix_qr_code: pixQrCode,
         pix_expiration: pixExpiration,
@@ -899,7 +972,7 @@ async function createShopifyOrder(data, totalAmount, paymentMethod) {
       email: data.customer_email,
       phone: cleanPhone,
       financial_status: "pending",
-      gateway: paymentMethod === 'pix' ? (ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash Pix' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR Pix' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark Pix' : (ACTIVE_GATEWAY === 'paysharkv2' ? 'Payshark V2 Pix' : 'PagueX Pix')))) : 'PagueX Cartão'
+      gateway: paymentMethod === 'pix' ? (ACTIVE_GATEWAY === 'hypercash' ? 'HyperCash Pix' : (ACTIVE_GATEWAY === 'pagflexbr' ? 'PagFlexBR Pix' : (ACTIVE_GATEWAY === 'payshark' ? 'PayShark Pix' : (ACTIVE_GATEWAY === 'paysharkv2' ? 'Payshark V2 Pix' : (ACTIVE_GATEWAY === 'paguexcamp' ? 'Pague-X CAMP BLACK Pix' : 'PagueX Pix'))))) : 'PagueX Cartão'
     }
   };
 

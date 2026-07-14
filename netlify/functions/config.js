@@ -105,7 +105,9 @@ exports.handler = async (event, context) => {
         paysharkv2_webhook_secret: '',
         pagflex_api_key: '',
         pagflex_transfer_key: '',
-        pagflex_webhook_secret: ''
+        pagflex_webhook_secret: '',
+        paguex_camp_public_key: '',
+        paguex_camp_secret_key: ''
       };
  
       configs.forEach(c => {
@@ -141,6 +143,8 @@ exports.handler = async (event, context) => {
         if (c.key === 'pagflex_api_key') result.pagflex_api_key = c.value;
         if (c.key === 'pagflex_transfer_key') result.pagflex_transfer_key = c.value;
         if (c.key === 'pagflex_webhook_secret') result.pagflex_webhook_secret = c.value;
+        if (c.key === 'paguex_camp_public_key') result.paguex_camp_public_key = c.value;
+        if (c.key === 'paguex_camp_secret_key') result.paguex_camp_secret_key = c.value;
       });
 
       if (!isAdmin) {
@@ -153,6 +157,7 @@ exports.handler = async (event, context) => {
         delete result.paysharkv2_webhook_secret;
         delete result.pagflex_transfer_key;
         delete result.pagflex_webhook_secret;
+        delete result.paguex_camp_secret_key;
       }
 
       return {
@@ -197,7 +202,9 @@ exports.handler = async (event, context) => {
         paysharkv2_webhook_secret,
         pagflex_api_key,
         pagflex_transfer_key,
-        pagflex_webhook_secret
+        pagflex_webhook_secret,
+        paguex_camp_public_key,
+        paguex_camp_secret_key
       } = data;
  
       const payloads = [];
@@ -235,6 +242,8 @@ exports.handler = async (event, context) => {
       if (pagflex_api_key !== undefined) payloads.push({ key: 'pagflex_api_key', value: (pagflex_api_key || '').trim() });
       if (pagflex_transfer_key !== undefined) payloads.push({ key: 'pagflex_transfer_key', value: (pagflex_transfer_key || '').trim() });
       if (pagflex_webhook_secret !== undefined) payloads.push({ key: 'pagflex_webhook_secret', value: (pagflex_webhook_secret || '').trim() });
+      if (paguex_camp_public_key !== undefined) payloads.push({ key: 'paguex_camp_public_key', value: (paguex_camp_public_key || '').trim() });
+      if (paguex_camp_secret_key !== undefined) payloads.push({ key: 'paguex_camp_secret_key', value: (paguex_camp_secret_key || '').trim() });
 
       // Salva ou atualiza usando upsert por Postgrest REST API
       const response = await fetch(targetUrl, {
