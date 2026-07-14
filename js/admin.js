@@ -5436,11 +5436,13 @@ Fico no aguardo! \u{1F60A}`;
   // INTEGRAÇÃƒO DE GATEWAYS EVENT BINDINGS
   // ==========================================
   const togglePaguex = document.getElementById('toggle-paguex');
+  const togglePaguexCamp = document.getElementById('toggle-paguexcamp');
   const toggleHypercash = document.getElementById('toggle-hypercash');
   const togglePayshark = document.getElementById('toggle-payshark');
   const togglePaysharkV2 = document.getElementById('toggle-paysharkv2');
   const togglePagflex = document.getElementById('toggle-pagflex');
   const cardPaguex = document.getElementById('card-paguex');
+  const cardPaguexCamp = document.getElementById('card-paguexcamp');
   const cardHypercash = document.getElementById('card-hypercash');
   const cardPayshark = document.getElementById('card-payshark');
   const cardPaysharkV2 = document.getElementById('card-paysharkv2');
