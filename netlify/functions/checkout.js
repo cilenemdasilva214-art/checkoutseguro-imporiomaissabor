@@ -453,27 +453,46 @@ exports.handler = async (event, context) => {
           const paguexItems = Array.isArray(data.items) && data.items.length > 0 
             ? data.items.map((item, index) => ({
                 id: item.id || `item-${index}`,
-                title: item.name || 'Produto da Loja',
-                unitPrice: Math.round((parseFloat(item.price) || totalAmount) * 100),
+                name: item.name || 'Produto da Loja',
+                price: parseFloat(item.price) || totalAmount,
                 quantity: parseInt(item.quantity) || 1,
                 tangible: true
               }))
-            : [{ title: 'Item do Checkout', unitPrice: Math.round(totalAmount * 100), quantity: 1, tangible: true }];
+            : [{ id: 'item-0', name: 'Item do Checkout', price: totalAmount, quantity: 1, tangible: true }];
 
-          const amountCents = Math.round(totalAmount * 100);
+          let formattedPhone = (data.customer_phone || '').replace(/\D/g, '');
+          if (formattedPhone.length === 11) {
+            formattedPhone = `+55${formattedPhone}`;
+          } else {
+            formattedPhone = '+5511999999999';
+          }
+
+          let formattedCep = (data.cep || '').replace(/\D/g, '');
+          if (formattedCep.length === 8) {
+            formattedCep = `${formattedCep.substring(0, 5)}-${formattedCep.substring(5, 8)}`;
+          } else {
+            formattedCep = '01001-000';
+          }
 
           const paguexPayload = {
             identifier: data.checkout_session_id || 'pxc-' + Math.random().toString(36).substr(2, 9),
-            amount: amountCents,
-            customer: {
+            amount: totalAmount,
+            client: {
               name: data.customer_name || 'Cliente',
               email: data.customer_email || 'cliente@exemplo.com',
-              document: {
-                type: 'cpf',
-                number: data.customer_cpf ? data.customer_cpf.replace(/\D/g, '') : '00000000000'
+              phone: formattedPhone,
+              document: data.customer_cpf ? data.customer_cpf.replace(/\D/g, '') : '00000000000',
+              address: {
+                street: data.street || 'N�o informado',
+                number: data.street_number || 'S/N',
+                neighborhood: data.neighborhood || 'N�o informado',
+                city: data.city || 'S�o Paulo',
+                state: (data.state && data.state.length === 2) ? data.state.toUpperCase() : 'SP',
+                zipCode: formattedCep,
+                country: 'BR'
               }
             },
-            items: paguexItems,
+            products: paguexItems,
             paymentMethod: 'pix'
           };
 
