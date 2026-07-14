@@ -112,6 +112,8 @@ exports.handler = async (event, context) => {
 
     let PAGUEX_PUBLIC_KEY = process.env.PAGUEX_PUBLIC_KEY;
     let PAGUEX_SECRET_KEY = process.env.PAGUEX_SECRET_KEY;
+    let PAGUEX_CAMP_PUBLIC_KEY = '';
+    let PAGUEX_CAMP_SECRET_KEY = '';
     let HYPERCASH_PUBLIC_KEY = process.env.HYPERCASH_PUBLIC_KEY || '';
     let HYPERCASH_SECRET_KEY = process.env.HYPERCASH_SECRET_KEY || '';
     let PAYSHARK_PUBLIC_KEY = process.env.PAYSHARK_PUBLIC_KEY || '';
