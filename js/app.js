@@ -2103,8 +2103,8 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
               ${imageHtml}
             </div>
             <div class="checkout-product-details" style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0; text-align: left;">
-              <span class="checkout-product-name" style="font-weight: 600; font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title=""></span>
-              <span class="checkout-product-size" style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">SKU: </span>
+              <span class="checkout-product-name" style="font-weight: 600; font-size: 14px; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(item.name || item.title || 'Produto')}">${escapeHtml(item.name || item.title || 'Produto')}</span>
+              <span class="checkout-product-size" style="font-size: 12px; color: var(--text-secondary); font-weight: 500;">SKU: ${escapeHtml(item.sku || '')}</span>
               <div class="checkout-product-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
                 <div class="checkout-qty-actions" style="display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; padding: 2px;">
                   <button type="button" onclick="changeCartItemQty(${index}, -1)" style="background: transparent; border: none; color: var(--text-secondary); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 4px; font-size: 10px;">
