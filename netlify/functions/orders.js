@@ -3,7 +3,7 @@ const { verifyToken } = require('./auth-middleware');
 // Caminho: netlify/functions/orders.js
 
 exports.handler = async (event, context) => {
-  if (event.httpMethod !== 'OPTIONS') {
+  if (event.httpMethod !== 'OPTIONS' && event.httpMethod !== 'GET') {
     if (!verifyToken(event)) {
       return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
     }
