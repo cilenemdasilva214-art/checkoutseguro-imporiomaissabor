@@ -112,7 +112,7 @@ exports.handler = async (event, context) => {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates' // Efetua Upsert se houver conflito de PK
+          'Prefer': 'resolution=merge-duplicates,return=representation' // Efetua Upsert se houver conflito de PK e retorna o dado inserido
         },
         body: JSON.stringify(payload)
       });
@@ -122,7 +122,8 @@ exports.handler = async (event, context) => {
         throw new Error(`Erro ao gravar dados no Supabase: ${response.status} - ${errText}`);
       }
 
-      const result = await response.json();
+      const textResponse = await response.text();
+      const result = textResponse ? JSON.parse(textResponse) : {};
       return {
         statusCode: 200,
         headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
