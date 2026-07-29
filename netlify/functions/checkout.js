@@ -120,7 +120,9 @@ exports.handler = async (event, context) => {
     let PAYSHARK_SECRET_KEY = process.env.PAYSHARK_SECRET_KEY || '';
     let PAYSHARKV2_API_KEY = process.env.PAYSHARKV2_API_KEY || '';
     let PAGFLEX_API_KEY = process.env.PAGFLEX_API_KEY || '';
-    let BLACKCAT_API_KEY = process.env.BLACKCAT_API_KEY || '';
+    let BLACKCAT_PUBLIC_KEY = process.env.BLACKCAT_PUBLIC_KEY || '';
+    let BLACKCAT_SECRET_KEY = process.env.BLACKCAT_SECRET_KEY || process.env.BLACKCAT_API_KEY || '';
+    let BLACKCAT_API_KEY = BLACKCAT_SECRET_KEY;
     let ACTIVE_GATEWAY = 'paguex';
 
     if (SUPABASE_URL && SUPABASE_ANON_KEY) {
@@ -148,6 +150,8 @@ exports.handler = async (event, context) => {
             if (c.key === 'payshark_secret_key' && c.value) PAYSHARK_SECRET_KEY = c.value;
             if (c.key === 'paysharkv2_api_key' && c.value) PAYSHARKV2_API_KEY = c.value;
             if (c.key === 'pagflex_api_key' && c.value) PAGFLEX_API_KEY = c.value;
+            if (c.key === 'blackcat_public_key' && c.value) BLACKCAT_PUBLIC_KEY = c.value;
+            if (c.key === 'blackcat_secret_key' && c.value) BLACKCAT_SECRET_KEY = c.value;
             if (c.key === 'blackcat_api_key' && c.value) BLACKCAT_API_KEY = c.value;
           });
         }
@@ -512,14 +516,17 @@ exports.handler = async (event, context) => {
             pix: {
               expiresInDays: 1
             },
+            postbackUrl: `https://${event.headers.host || 'checkoutseguro-imporiomaissabor.netlify.app'}/.netlify/functions/webhook-blackcat`,
             externalRef: data.checkout_session_id || 'bc-' + Math.random().toString(36).substr(2, 9)
           };
+
+          const activeApiKey = BLACKCAT_SECRET_KEY || BLACKCAT_API_KEY;
 
           const blackcatRes = await fetch(blackcatUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'X-API-Key': BLACKCAT_API_KEY
+              'X-API-Key': activeApiKey
             },
             body: JSON.stringify(blackcatPayload)
           });

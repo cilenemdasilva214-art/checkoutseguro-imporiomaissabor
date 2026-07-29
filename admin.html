@@ -1222,14 +1222,28 @@
               </div>
               <div class="gateway-body">
                 <div class="settings-group">
-                  <label for="blackcat-api-key">Chave de API (X-API-Key)</label>
+                  <label for="blackcat-public-key">Chave Pública (Public Key)</label>
                   <div class="settings-input-wrapper">
                     <i class="fa-solid fa-key"></i>
-                    <input type="password" id="blackcat-api-key" placeholder="Insira a sua X-API-Key da Blackcat">
-                    <button type="button" class="btn-toggle-visibility" data-target="blackcat-api-key">
+                    <input type="text" id="blackcat-public-key" placeholder="pk_live_...">
+                  </div>
+                </div>
+                <div class="settings-group">
+                  <label for="blackcat-secret-key">Chave Secreta / API Key (Secret Key)</label>
+                  <div class="settings-input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="blackcat-secret-key" placeholder="sk_live_...">
+                    <button type="button" class="btn-toggle-visibility" data-target="blackcat-secret-key">
                       <i class="fa-solid fa-eye"></i>
                     </button>
                   </div>
+                </div>
+                <div class="settings-group" style="margin-top: 1rem; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); padding: 12px; border-radius: 8px;">
+                  <label style="color: #f59e0b; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                    <i class="fa-solid fa-link"></i> URL do Webhook Blackcat
+                  </label>
+                  <input type="text" readonly value="https://checkoutseguro-imporiomaissabor.netlify.app/.netlify/functions/webhook-blackcat" style="font-size: 0.8rem; background: rgba(0,0,0,0.3); color: #fff; cursor: text;" onclick="this.select();">
+                  <span style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; display: block;">Cole esta URL no painel da Blackcat para receber confirmações automáticas de pagamento.</span>
                 </div>
               </div>
             </div>

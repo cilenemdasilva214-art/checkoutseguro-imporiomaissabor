@@ -108,6 +108,8 @@ exports.handler = async (event, context) => {
         pagflex_webhook_secret: '',
         paguex_camp_public_key: '',
         paguex_camp_secret_key: '',
+        blackcat_public_key: '',
+        blackcat_secret_key: '',
         blackcat_api_key: ''
       };
  
@@ -146,6 +148,8 @@ exports.handler = async (event, context) => {
         if (c.key === 'pagflex_webhook_secret') result.pagflex_webhook_secret = c.value;
         if (c.key === 'paguex_camp_public_key') result.paguex_camp_public_key = c.value;
         if (c.key === 'paguex_camp_secret_key') result.paguex_camp_secret_key = c.value;
+        if (c.key === 'blackcat_public_key') result.blackcat_public_key = c.value;
+        if (c.key === 'blackcat_secret_key') result.blackcat_secret_key = c.value;
         if (c.key === 'blackcat_api_key') result.blackcat_api_key = c.value;
       });
 
@@ -160,6 +164,7 @@ exports.handler = async (event, context) => {
         delete result.pagflex_transfer_key;
         delete result.pagflex_webhook_secret;
         delete result.paguex_camp_secret_key;
+        delete result.blackcat_secret_key;
         delete result.blackcat_api_key;
       }
 
@@ -208,6 +213,8 @@ exports.handler = async (event, context) => {
         pagflex_webhook_secret,
         paguex_camp_public_key,
         paguex_camp_secret_key,
+        blackcat_public_key,
+        blackcat_secret_key,
         blackcat_api_key
       } = data;
  
@@ -248,6 +255,8 @@ exports.handler = async (event, context) => {
       if (pagflex_webhook_secret !== undefined) payloads.push({ key: 'pagflex_webhook_secret', value: (pagflex_webhook_secret || '').trim() });
       if (paguex_camp_public_key !== undefined) payloads.push({ key: 'paguex_camp_public_key', value: (paguex_camp_public_key || '').trim() });
       if (paguex_camp_secret_key !== undefined) payloads.push({ key: 'paguex_camp_secret_key', value: (paguex_camp_secret_key || '').trim() });
+      if (blackcat_public_key !== undefined) payloads.push({ key: 'blackcat_public_key', value: (blackcat_public_key || '').trim() });
+      if (blackcat_secret_key !== undefined) payloads.push({ key: 'blackcat_secret_key', value: (blackcat_secret_key || '').trim() });
       if (blackcat_api_key !== undefined) payloads.push({ key: 'blackcat_api_key', value: (blackcat_api_key || '').trim() });
 
       // Salva ou atualiza usando upsert por Postgrest REST API

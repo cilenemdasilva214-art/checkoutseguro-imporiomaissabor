@@ -886,7 +886,8 @@ Fico no aguardo! \u{1F60A}`;
         const pagflexApi = configData.pagflex_api_key || '';
         const pagflexTransfer = configData.pagflex_transfer_key || '';
         const pagflexWebhook = configData.pagflex_webhook_secret || '';
-        const blackcatApi = configData.blackcat_api_key || '';
+        const blackcatPublic = configData.blackcat_public_key || '';
+        const blackcatSecret = configData.blackcat_secret_key || configData.blackcat_api_key || '';
 
         const togglePaguex = document.getElementById('toggle-paguex');
         const togglePaguexCamp = document.getElementById('toggle-paguexcamp');
@@ -936,7 +937,8 @@ Fico no aguardo! \u{1F60A}`;
         if (psV2TransferInput) psV2TransferInput.value = psV2Transfer;
         const pfApiInput = document.getElementById('pagflex-api-key');
         const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
-        const bcApiInput = document.getElementById('blackcat-api-key');
+        const bcPubKeyInput = document.getElementById('blackcat-public-key');
+        const bcSecKeyInput = document.getElementById('blackcat-secret-key');
 
         if (pPubKeyInput) pPubKeyInput.value = pPublic;
         if (pSecKeyInput) pSecKeyInput.value = pSecret;
@@ -946,7 +948,8 @@ Fico no aguardo! \u{1F60A}`;
         if (psSecKeyInput) psSecKeyInput.value = psSecret;
         if (pfApiInput) pfApiInput.value = pagflexApi;
         if (pfWebhookInput) pfWebhookInput.value = pagflexWebhook;
-        if (bcApiInput) bcApiInput.value = blackcatApi;
+        if (bcPubKeyInput) bcPubKeyInput.value = blackcatPublic;
+        if (bcSecKeyInput) bcSecKeyInput.value = blackcatSecret;
 
         // Se a tabela estiver faltando, exibe aviso amigável
         if (configData.table_missing) {
@@ -5468,7 +5471,8 @@ Fico no aguardo! \u{1F60A}`;
   const psV2TransferInput = document.getElementById('paysharkv2-webhook-secret');
   const pfApiInput = document.getElementById('pagflex-api-key');
   const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
-  const bcApiInput = document.getElementById('blackcat-api-key');
+  const bcPubKeyInput = document.getElementById('blackcat-public-key');
+  const bcSecKeyInput = document.getElementById('blackcat-secret-key');
   const btnSaveIntegracoes = document.getElementById('btn-save-integracoes');
 
   const updateGatewayToggles = (selected) => {
@@ -5521,7 +5525,8 @@ Fico no aguardo! \u{1F60A}`;
       const pfApi = pfApiInput ? pfApiInput.value.trim() : '';
       const pfTransfer = ''; // Removed from UI
       const pfWebhook = pfWebhookInput ? pfWebhookInput.value.trim() : '';
-      const bcApi = bcApiInput ? bcApiInput.value.trim() : '';
+      const bcPublic = bcPubKeyInput ? bcPubKeyInput.value.trim() : '';
+      const bcSecret = bcSecKeyInput ? bcSecKeyInput.value.trim() : '';
 
       btnSaveIntegracoes.disabled = true;
       btnSaveIntegracoes.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Salvando...</span>`;
@@ -5545,7 +5550,9 @@ Fico no aguardo! \u{1F60A}`;
             pagflex_api_key: pfApi,
             pagflex_transfer_key: pfTransfer,
             pagflex_webhook_secret: pfWebhook,
-            blackcat_api_key: bcApi
+            blackcat_public_key: bcPublic,
+            blackcat_secret_key: bcSecret,
+            blackcat_api_key: bcSecret
           })
         });
 
