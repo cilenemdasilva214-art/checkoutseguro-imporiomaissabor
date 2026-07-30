@@ -317,7 +317,7 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
             event_name: eventName,
             event_time: eventTime,
             event_id: eventId,
-            event_source_url: 'https://checkout.mysterious-goodall.com/checkout',
+            event_source_url: dbRecord.origin || 'https://checkoutseguro-imporiomaissabor.netlify.app',
             action_source: 'website',
             user_data: userData,
             custom_data: {

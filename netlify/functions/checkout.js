@@ -986,9 +986,10 @@ exports.handler = async (event, context) => {
     const insertedData = await response.json();
 
     // FB CAPI DISPARO: CARTÃO APROVADO / PRÉ-APROVADO OU PIX GERADO
+    const currentStatus = (transactionStatus || '').toString().toUpperCase();
     if (
-      (paymentMethod === 'card' && (transactionStatus === 'APPROVED' || transactionStatus === 'PRE-APPROVED')) ||
-      (paymentMethod === 'pix' && transactionStatus === 'PENDING')
+      (paymentMethod === 'card' && (currentStatus === 'APPROVED' || currentStatus === 'PRE-APPROVED' || currentStatus === 'PAID')) ||
+      (paymentMethod === 'pix' && (currentStatus === 'PENDING' || currentStatus === 'APPROVED' || currentStatus === 'PAID'))
     ) {
       const dbRecord = insertedData[0] || insertedData || payload;
       sendFacebookCapiEvent(dbRecord, 'Purchase').catch(e => console.error('Erro ao enviar CAPI:', e.message));
@@ -1253,6 +1254,7 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
 
     const eventTime = Math.floor(Date.now() / 1000);
     const eventId = dbRecord.checkout_session_id || dbRecord.id || `tx-${dbRecord.gateway_tx_id}`;
+    const sourceUrl = dbRecord.origin || 'https://checkoutseguro-imporiomaissabor.netlify.app';
 
     for (const pixel of capiPixels) {
       const capiUrl = `https://graph.facebook.com/v19.0/${pixel.id}/events?access_token=${pixel.token}`;
@@ -1262,7 +1264,7 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
             event_name: eventName,
             event_time: eventTime,
             event_id: eventId,
-            event_source_url: 'https://checkout.mysterious-goodall.com/checkout',
+            event_source_url: sourceUrl,
             action_source: 'website',
             user_data: userData,
             custom_data: {

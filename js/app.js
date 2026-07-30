@@ -123,21 +123,22 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
   }
 
   // Disparar evento de rastreamento do Pixel
-  function trackPixelEvent(eventName, eventData = {}) {
+  function trackPixelEvent(eventName, eventData = {}, eventId = null) {
     if (window.fbq) {
+      const options = eventId ? { eventID: eventId } : {};
       if (window.facebookPixels && window.facebookPixels.length > 0) {
         window.facebookPixels.forEach(p => {
           if (p.id) {
-            fbq('trackSingle', p.id, eventName, eventData);
-            console.log(`├░┼©┼¢┬» Facebook Pixel ${p.id} evento '${eventName}' enviado via trackSingle:`, eventData);
+            fbq('trackSingle', p.id, eventName, eventData, options);
+            console.log(`🎯 Facebook Pixel ${p.id} evento '${eventName}' enviado via trackSingle:`, eventData, options);
           }
         });
       } else {
-        fbq('track', eventName, eventData);
-        console.log(`├░┼©┼¢┬» Facebook Pixel evento '${eventName}' enviado via fbq('track'):`, eventData);
+        fbq('track', eventName, eventData, options);
+        console.log(`🎯 Facebook Pixel evento '${eventName}' enviado via fbq('track'):`, eventData, options);
       }
     } else {
-      console.log(`├ó┼í┬á├»┬©┬Å fbq indisponível. Ignorando evento '${eventName}'`);
+      console.log(`⚠️ fbq indisponível. Ignorando evento '${eventName}'`);
     }
   }
 
@@ -2796,12 +2797,14 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
               throw new Error(finalResponseData.details || finalResponseData.error || 'Falha ao salvar transação de cartão.');
             }
 
+            const currentSessionId = localStorage.getItem('checkout_session_id') || finalResponseData?.data?.checkout_session_id;
+
             // Sucesso absoluto! Redirecionar para tela de pré-aprovação premium
             trackPixelEvent('Purchase', {
               content_name: shpfyProductTitle || 'Pacote Sandbox Elite',
               currency: 'BRL',
               value: totalAmount
-            });
+            }, currentSessionId);
 
             // Limpar rascunho de sessão atual
             localStorage.removeItem('checkout_session_id');
@@ -3054,12 +3057,14 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
           }
           const totalAmount = subtotal + shippingPrice;
 
+          const currentSessionId = localStorage.getItem('checkout_session_id') || responseData?.data?.checkout_session_id;
+
           trackPixelEvent('Purchase', {
             content_name: shpfyProductTitle || 'Pacote Sandbox Elite',
             currency: 'BRL',
             value: totalAmount,
             payment_method: 'pix'
-          });
+          }, currentSessionId);
 
           // Limpar rascunho de sessão atual
           localStorage.removeItem('checkout_session_id');
