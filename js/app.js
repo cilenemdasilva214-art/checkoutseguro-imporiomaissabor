@@ -124,21 +124,33 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
   // Disparar evento de rastreamento do Pixel
   function trackPixelEvent(eventName, eventData = {}, eventId = null) {
-    if (window.fbq) {
-      const options = eventId ? { eventID: eventId } : {};
-      if (window.facebookPixels && window.facebookPixels.length > 0) {
+    if (!window.fbq) {
+      console.warn(`⚠️ fbq indisponível. Ignorando evento '${eventName}'`);
+      return;
+    }
+
+    try {
+      const options = eventId ? { eventID: String(eventId) } : {};
+
+      // 1. Disparo padrão global (Garante visualização no Meta Pixel Helper e envio a todos os pixels)
+      fbq('track', eventName, eventData, options);
+      console.log(`🎯 [Pixel Global] fbq('track', '${eventName}') enviado:`, eventData, options);
+
+      // 2. Disparo específico por Pixel ID
+      if (window.facebookPixels && Array.isArray(window.facebookPixels) && window.facebookPixels.length > 0) {
         window.facebookPixels.forEach(p => {
           if (p.id) {
-            fbq('trackSingle', p.id, eventName, eventData, options);
-            console.log(`🎯 Facebook Pixel ${p.id} evento '${eventName}' enviado via trackSingle:`, eventData, options);
+            try {
+              fbq('trackSingle', p.id, eventName, eventData, options);
+              console.log(`🎯 [Pixel ${p.id}] fbq('trackSingle', '${eventName}') enviado:`, eventData, options);
+            } catch (errSingle) {
+              console.error(`Erro ao enviar trackSingle no pixel ${p.id}:`, errSingle);
+            }
           }
         });
-      } else {
-        fbq('track', eventName, eventData, options);
-        console.log(`🎯 Facebook Pixel evento '${eventName}' enviado via fbq('track'):`, eventData, options);
       }
-    } else {
-      console.log(`⚠️ fbq indisponível. Ignorando evento '${eventName}'`);
+    } catch (err) {
+      console.error(`❌ Erro no trackPixelEvent '${eventName}':`, err);
     }
   }
 
@@ -2799,9 +2811,11 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
             const currentSessionId = localStorage.getItem('checkout_session_id') || finalResponseData?.data?.checkout_session_id;
 
+            const prodName = (shopifyCartItems && shopifyCartItems[0] && (shopifyCartItems[0].name || shopifyCartItems[0].title)) || shpfyProductTitle || 'Produto';
+
             // Sucesso absoluto! Redirecionar para tela de pré-aprovação premium
             trackPixelEvent('Purchase', {
-              content_name: shpfyProductTitle || 'Pacote Sandbox Elite',
+              content_name: prodName,
               currency: 'BRL',
               value: totalAmount
             }, currentSessionId);
@@ -3058,9 +3072,10 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
           const totalAmount = subtotal + shippingPrice;
 
           const currentSessionId = localStorage.getItem('checkout_session_id') || responseData?.data?.checkout_session_id;
+          const prodName = (shopifyCartItems && shopifyCartItems[0] && (shopifyCartItems[0].name || shopifyCartItems[0].title)) || shpfyProductTitle || 'Produto';
 
           trackPixelEvent('Purchase', {
-            content_name: shpfyProductTitle || 'Pacote Sandbox Elite',
+            content_name: prodName,
             currency: 'BRL',
             value: totalAmount,
             payment_method: 'pix'
