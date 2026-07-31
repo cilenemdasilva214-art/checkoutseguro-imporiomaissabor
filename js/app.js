@@ -118,8 +118,9 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     
     fbq('set', 'autoConfig', false, pixelId);
     fbq('init', pixelId);
+    fbq('track', 'PageView');
     fbq('trackSingle', pixelId, 'PageView');
-    console.log(`├░┼©┼¢┬» Facebook Pixel ${pixelId} inicializado com trackSingle PageView.`);
+    console.log(`🎯 Facebook Pixel ${pixelId} inicializado com PageView.`);
   }
 
   // Disparar evento de rastreamento do Pixel
@@ -2895,6 +2896,17 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       if (!response.ok) {
         throw new Error(responseData.details || responseData.error || 'Falha ao salvar transação.');
       }
+
+      const finalVal = Number(((responseData.data && parseFloat(responseData.data.amount)) || totalAmount || 129.90).toFixed(2));
+      const currentSessionId = localStorage.getItem('checkout_session_id') || responseData?.data?.checkout_session_id;
+      const prodName = (shopifyCartItems && shopifyCartItems[0] && (shopifyCartItems[0].name || shopifyCartItems[0].title)) || shpfyProductTitle || 'Produto';
+
+      trackPixelEvent('Purchase', {
+        content_name: prodName,
+        currency: 'BRL',
+        value: finalVal,
+        payment_method: 'pix'
+      }, currentSessionId);
 
       showModalState('success', responseData);
 
