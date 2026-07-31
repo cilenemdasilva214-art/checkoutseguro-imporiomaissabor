@@ -992,7 +992,7 @@ exports.handler = async (event, context) => {
       (paymentMethod === 'pix' && (currentStatus === 'PENDING' || currentStatus === 'APPROVED' || currentStatus === 'PAID'))
     ) {
       const dbRecord = insertedData[0] || insertedData || payload;
-      sendFacebookCapiEvent(dbRecord, 'Purchase').catch(e => console.error('Erro ao enviar CAPI:', e.message));
+      await sendFacebookCapiEvent(dbRecord, 'Purchase').catch(e => console.error('Erro ao enviar CAPI:', e.message));
     }
 
     return {

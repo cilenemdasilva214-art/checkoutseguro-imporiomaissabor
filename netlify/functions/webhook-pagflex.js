@@ -104,7 +104,7 @@ exports.handler = async (event, context) => {
 
       // FB CAPI DISPARO: PIX OU CARTÃO APROVADO
       if (dbRecord.status !== 'PAID') {
-        sendFacebookCapiEvent(dbRecord, 'Purchase').catch(e => console.error('Erro ao enviar CAPI no Webhook:', e.message));
+        await sendFacebookCapiEvent(dbRecord, 'Purchase').catch(e => console.error('Erro ao enviar CAPI no Webhook:', e.message));
       }
 
       // 1. Atualizar status no Supabase para PAID

@@ -196,7 +196,7 @@ exports.handler = async (event, context) => {
     // Disparar CAPI se o status for PAGO / APROVADO
     if (newStatus === 'pago' && Array.isArray(updatedRows) && updatedRows.length > 0) {
       const dbRecord = updatedRows[0];
-      sendFacebookCapiEvent(dbRecord, 'Purchase').catch(e => console.error('Erro ao enviar CAPI via Webhook:', e.message));
+      await sendFacebookCapiEvent(dbRecord, 'Purchase').catch(e => console.error('Erro ao enviar CAPI via Webhook:', e.message));
     }
 
     return {

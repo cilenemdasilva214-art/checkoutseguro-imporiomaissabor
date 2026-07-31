@@ -178,7 +178,7 @@ exports.handler = async (event, context) => {
     console.log(`Webhook processado com sucesso. Pedido ${transactionId} -> ${newStatus}`);
     
     if (newStatus === 'pago' && Array.isArray(updatedRows) && updatedRows.length > 0) {
-      sendFacebookCapiEvent(updatedRows[0], 'Purchase').catch(e => console.error('Erro CAPI:', e.message));
+      await sendFacebookCapiEvent(updatedRows[0], 'Purchase').catch(e => console.error('Erro CAPI:', e.message));
     }
 
     return {
