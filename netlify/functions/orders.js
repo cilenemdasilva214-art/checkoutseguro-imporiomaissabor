@@ -153,12 +153,15 @@ exports.handler = async (event, context) => {
 
   let domainFilter = '';
   if (siteDomain && siteDomain !== 'localhost' && siteDomain !== '127.0.0.1') {
-    // Se for o Checkout 1 (Porto dos Vinhos ou mysterious-goodall), permite carregar as novas dele + as antigas sem domínio (null)
-    if (siteDomain.includes('porto') || siteDomain.includes('vinho') || siteDomain.includes('mysterious-goodall')) {
-      domainFilter = `or=(domain.eq.${siteDomain},domain.is.null)`;
+    if (
+      siteDomain.includes('imporiomaissabor') || 
+      siteDomain.includes('porto') || 
+      siteDomain.includes('vinho') || 
+      siteDomain.includes('mysterious-goodall')
+    ) {
+      domainFilter = `or=(domain.eq.${siteDomain},domain.eq.checkoutseguro-imporiomaissabor.netlify.app,domain.eq.comprasegura-imporiomaissabor.netlify.app,domain.is.null)`;
     } else {
-      // Se for outro checkout (Checkout 2, etc.), filtra estritamente pelo domínio dele
-      domainFilter = `domain=eq.${siteDomain}`;
+      domainFilter = `or=(domain.eq.${siteDomain},domain.is.null)`;
     }
   }
   
@@ -194,9 +197,8 @@ exports.handler = async (event, context) => {
       },
       body: JSON.stringify(orders),
     };
-
   } catch (error) {
-    console.error('❌ Erro no processamento de orders:', error);
+    console.error('❌ Erro no GET de orders:', error);
     return {
       statusCode: 500,
       headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
