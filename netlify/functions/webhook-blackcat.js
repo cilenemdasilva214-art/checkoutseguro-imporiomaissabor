@@ -69,7 +69,7 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
 
     const eventTime = Math.floor(Date.now() / 1000);
     const eventId = dbRecord.checkout_session_id || dbRecord.id || `tx-${dbRecord.gateway_tx_id}`;
-    const sourceUrl = dbRecord.origin || 'https://checkoutseguro-imporiomaissabor.netlify.app';
+    const sourceUrl = dbRecord.origin || 'https://comprasegura-imporiomaissabor.netlify.app';
 
     for (const pixel of capiPixels) {
       const capiUrl = `https://graph.facebook.com/v19.0/${pixel.id}/events?access_token=${pixel.token}`;

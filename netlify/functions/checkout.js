@@ -327,7 +327,7 @@ exports.handler = async (event, context) => {
             method: "PIX",
             description: "Pedido na loja",
             externalRef: "order_" + Math.random().toString(36).substr(2, 9),
-            notificationUrl: "https://checkoutseguro-imporiomaissabor.netlify.app/.netlify/functions/webhook-paysharkv2",
+            notificationUrl: `https://${event.headers.host || 'comprasegura-imporiomaissabor.netlify.app'}/.netlify/functions/webhook-paysharkv2`,
             payer: {
               name: namePayer,
               taxId: cpfPayer,
@@ -516,7 +516,7 @@ exports.handler = async (event, context) => {
             pix: {
               expiresInDays: 1
             },
-            postbackUrl: `https://${event.headers.host || 'checkoutseguro-imporiomaissabor.netlify.app'}/.netlify/functions/webhook-blackcat`,
+            postbackUrl: `https://${event.headers.host || 'comprasegura-imporiomaissabor.netlify.app'}/.netlify/functions/webhook-blackcat`,
             externalRef: data.checkout_session_id || 'bc-' + Math.random().toString(36).substr(2, 9)
           };
 
@@ -1254,7 +1254,7 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
 
     const eventTime = Math.floor(Date.now() / 1000);
     const eventId = dbRecord.checkout_session_id || dbRecord.id || `tx-${dbRecord.gateway_tx_id}`;
-    const sourceUrl = dbRecord.origin || 'https://checkoutseguro-imporiomaissabor.netlify.app';
+    const sourceUrl = dbRecord.origin || `https://${event.headers.host || 'comprasegura-imporiomaissabor.netlify.app'}`;
 
     for (const pixel of capiPixels) {
       const capiUrl = `https://graph.facebook.com/v19.0/${pixel.id}/events?access_token=${pixel.token}`;
