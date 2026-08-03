@@ -3,6 +3,12 @@
   functions = "netlify/functions"
 
 [[redirects]]
+  from = "https://checkoutseguro-imporiomaissabor.netlify.app/*"
+  to = "https://comprasegura-imporiomaissabor.netlify.app/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/api/postback/shopify/install"
   to = "/admin.html"
   status = 302
