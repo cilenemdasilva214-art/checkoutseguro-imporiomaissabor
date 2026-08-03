@@ -101,6 +101,26 @@ Se preferir pode usar outras formas de pagamento como Boleto ou Cartão.
 
 Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confirmando a compra :)`;
 
+  // Coletar dados de correspondência avançada (Advanced Matching)
+  function getAdvancedMatchingData() {
+    const email = (document.getElementById('customer_email')?.value || '').trim().toLowerCase();
+    const phone = (document.getElementById('customer_phone')?.value || '').replace(/\D/g, '');
+    const fullName = (document.getElementById('customer_name')?.value || '').trim();
+    const nameParts = fullName ? fullName.split(/\s+/) : [];
+    const fn = nameParts[0] ? nameParts[0].toLowerCase() : '';
+    const ln = nameParts.length > 1 ? nameParts.slice(1).join(' ').toLowerCase() : '';
+    const external_id = localStorage.getItem('checkout_session_id') || '';
+
+    const userData = {};
+    if (email) userData.em = email;
+    if (phone) userData.ph = phone;
+    if (fn) userData.fn = fn;
+    if (ln) userData.ln = ln;
+    if (external_id) userData.external_id = external_id;
+
+    return userData;
+  }
+
   // Inicialização dinâmica do Facebook Pixel
   function loadFacebookPixel(pixelId) {
     if (!pixelId) return;
@@ -116,11 +136,19 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       'https://connect.facebook.net/en_US/fbevents.js');
     }
     
+    const userData = getAdvancedMatchingData();
+
     fbq('set', 'autoConfig', false, pixelId);
-    fbq('init', pixelId);
+    if (Object.keys(userData).length > 0) {
+      fbq('init', pixelId, userData);
+      console.log(`🎯 Facebook Pixel ${pixelId} inicializado com Correspondência Avançada (Advanced Matching):`, userData);
+    } else {
+      fbq('init', pixelId);
+      console.log(`🎯 Facebook Pixel ${pixelId} inicializado.`);
+    }
+
     fbq('track', 'PageView');
     fbq('trackSingle', pixelId, 'PageView');
-    console.log(`🎯 Facebook Pixel ${pixelId} inicializado com PageView.`);
   }
 
   // Disparar evento de rastreamento do Pixel
@@ -132,6 +160,18 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
     try {
       const options = eventId ? { eventID: String(eventId) } : {};
+      const userData = getAdvancedMatchingData();
+
+      // Atualizar correspondência avançada em todos os pixels se houver dados do cliente
+      if (window.facebookPixels && Array.isArray(window.facebookPixels) && window.facebookPixels.length > 0) {
+        window.facebookPixels.forEach(p => {
+          if (p.id) {
+            if (Object.keys(userData).length > 0) {
+              fbq('init', p.id, userData);
+            }
+          }
+        });
+      }
 
       // 1. Disparo padrão global (Garante visualização no Meta Pixel Helper e envio a todos os pixels)
       fbq('track', eventName, eventData, options);
@@ -143,7 +183,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
           if (p.id) {
             try {
               fbq('trackSingle', p.id, eventName, eventData, options);
-              console.log(`🎯 [Pixel ${p.id}] fbq('trackSingle', '${eventName}') enviado:`, eventData, options);
+              console.log(`🎯 [Pixel ${p.id}] fbq('trackSingle', '${eventName}') enviado com Advanced Matching:`, eventData, options);
             } catch (errSingle) {
               console.error(`Erro ao enviar trackSingle no pixel ${p.id}:`, errSingle);
             }
