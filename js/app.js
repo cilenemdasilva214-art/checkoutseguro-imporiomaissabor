@@ -147,7 +147,6 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       console.log(`🎯 Facebook Pixel ${pixelId} inicializado.`);
     }
 
-    fbq('track', 'PageView');
     fbq('trackSingle', pixelId, 'PageView');
   }
 
@@ -2694,10 +2693,27 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       }
     ]);
 
+    function getCookieVal(cName) {
+      const match = document.cookie.match(new RegExp('(^| )' + cName + '=([^;]+)'));
+      return match ? match[2] : null;
+    }
+
+    const fbpVal = getCookieVal('_fbp');
+    let fbcVal = getCookieVal('_fbc');
+    if (!fbcVal) {
+      const urlFbclid = new URLSearchParams(window.location.search).get('fbclid');
+      if (urlFbclid) {
+        fbcVal = `fb.1.${Date.now()}.${urlFbclid}`;
+      }
+    }
+
     const payload = {
       checkout_session_id: uuid,
       payment_method: selectedMethod,
       domain: window.location.hostname,
+      fbp: fbpVal,
+      fbc: fbcVal,
+      user_agent: navigator.userAgent,
       
       // Cliente
       customer_name: document.getElementById('customer_name').value,

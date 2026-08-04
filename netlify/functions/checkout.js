@@ -1244,6 +1244,8 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
     const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
     const email = dbRecord.customer_email || '';
     const phone = (dbRecord.customer_phone || '').replace(/\D/g, '');
+    const clientIp = (event.headers['x-forwarded-for'] || event.headers['client-ip'] || event.headers['x-real-ip'] || '').split(',')[0].trim();
+    const userAgent = event.headers['user-agent'] || dbRecord.user_agent || '';
 
     const userData = {
       em: email ? [sha256(email)] : [],
@@ -1251,6 +1253,11 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
       fn: firstName ? [sha256(firstName)] : [],
       ln: lastName ? [sha256(lastName)] : []
     };
+
+    if (clientIp) userData.client_ip_address = clientIp;
+    if (userAgent) userData.client_user_agent = userAgent;
+    if (dbRecord.fbp) userData.fbp = dbRecord.fbp;
+    if (dbRecord.fbc) userData.fbc = dbRecord.fbc;
 
     const eventTime = Math.floor(Date.now() / 1000);
     const eventId = dbRecord.checkout_session_id || dbRecord.id || `tx-${dbRecord.gateway_tx_id}`;
