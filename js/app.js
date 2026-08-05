@@ -150,7 +150,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     fbq('trackSingle', pixelId, 'PageView');
   }
 
-  // Disparar evento de rastreamento do Pixel
+  // Disparar evento de rastreamento do Pixel (Sem duplicar chamadas)
   function trackPixelEvent(eventName, eventData = {}, eventId = null) {
     if (!window.fbq) {
       console.warn(`⚠️ fbq indisponível. Ignorando evento '${eventName}'`);
@@ -161,33 +161,23 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       const options = eventId ? { eventID: String(eventId) } : {};
       const userData = getAdvancedMatchingData();
 
-      // Atualizar correspondência avançada em todos os pixels se houver dados do cliente
-      if (window.facebookPixels && Array.isArray(window.facebookPixels) && window.facebookPixels.length > 0) {
-        window.facebookPixels.forEach(p => {
-          if (p.id) {
-            if (Object.keys(userData).length > 0) {
-              fbq('init', p.id, userData);
-            }
-          }
-        });
-      }
-
-      // 1. Disparo padrão global (Garante visualização no Meta Pixel Helper e envio a todos os pixels)
-      fbq('track', eventName, eventData, options);
-      console.log(`🎯 [Pixel Global] fbq('track', '${eventName}') enviado:`, eventData, options);
-
-      // 2. Disparo específico por Pixel ID
       if (window.facebookPixels && Array.isArray(window.facebookPixels) && window.facebookPixels.length > 0) {
         window.facebookPixels.forEach(p => {
           if (p.id) {
             try {
+              if (Object.keys(userData).length > 0) {
+                fbq('init', p.id, userData);
+              }
               fbq('trackSingle', p.id, eventName, eventData, options);
-              console.log(`🎯 [Pixel ${p.id}] fbq('trackSingle', '${eventName}') enviado com Advanced Matching:`, eventData, options);
+              console.log(`🎯 [Pixel ${p.id}] fbq('trackSingle', '${eventName}') enviado:`, eventData, options);
             } catch (errSingle) {
               console.error(`Erro ao enviar trackSingle no pixel ${p.id}:`, errSingle);
             }
           }
         });
+      } else {
+        fbq('track', eventName, eventData, options);
+        console.log(`🎯 [Pixel Global] fbq('track', '${eventName}') enviado:`, eventData, options);
       }
     } catch (err) {
       console.error(`❌ Erro no trackPixelEvent '${eventName}':`, err);
