@@ -580,8 +580,22 @@ exports.handler = async (event, context) => {
         try {
           const wappiUrl = 'https://api.wappibrasil.com.br/api/v1/transactions';
           const amountCents = Math.round(data.amount * 100);
-          const docNum = (data.customer_cpf || '').replace(/\D/g, '');
-          const phoneClean = (data.customer_phone || '').replace(/\D/g, '');
+          const docNum = (data.customer_cpf || '').replace(/\D/g, '') || '00000000000';
+          const phoneClean = (data.customer_phone || '').replace(/\D/g, '') || '11999999999';
+
+          const cartItems = (Array.isArray(data.items) && data.items.length > 0)
+            ? data.items.map(item => ({
+                title: item.name || item.title || 'Produto',
+                unitPrice: Math.max(1, Math.round((parseFloat(item.price) || data.amount || 1) * 100)),
+                quantity: parseInt(item.quantity) || 1,
+                tangible: false
+              }))
+            : [{
+                title: 'Pedido Checkout',
+                unitPrice: amountCents,
+                quantity: 1,
+                tangible: false
+              }];
 
           const wappiPayload = {
             amount: amountCents,
@@ -595,12 +609,7 @@ exports.handler = async (event, context) => {
                 type: 'cpf'
               }
             },
-            items: itemsPayload.map(i => ({
-              title: i.name || 'Produto',
-              unitPrice: Math.round((i.price || 0) * 100),
-              quantity: i.quantity || 1,
-              tangible: false
-            })),
+            items: cartItems,
             pix: {
               expiresInDays: 1
             },
