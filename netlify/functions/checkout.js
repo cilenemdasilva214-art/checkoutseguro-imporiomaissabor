@@ -123,6 +123,8 @@ exports.handler = async (event, context) => {
     let BLACKCAT_PUBLIC_KEY = process.env.BLACKCAT_PUBLIC_KEY || '';
     let BLACKCAT_SECRET_KEY = process.env.BLACKCAT_SECRET_KEY || process.env.BLACKCAT_API_KEY || '';
     let BLACKCAT_API_KEY = BLACKCAT_SECRET_KEY;
+    let WAPPI_PUBLIC_KEY = process.env.WAPPI_PUBLIC_KEY || '';
+    let WAPPI_API_KEY = process.env.WAPPI_API_KEY || '';
     let ACTIVE_GATEWAY = 'paguex';
 
     if (SUPABASE_URL && SUPABASE_ANON_KEY) {
@@ -153,6 +155,8 @@ exports.handler = async (event, context) => {
             if (c.key === 'blackcat_public_key' && c.value) BLACKCAT_PUBLIC_KEY = c.value;
             if (c.key === 'blackcat_secret_key' && c.value) BLACKCAT_SECRET_KEY = c.value;
             if (c.key === 'blackcat_api_key' && c.value) BLACKCAT_API_KEY = c.value;
+            if (c.key === 'wappi_public_key' && c.value) WAPPI_PUBLIC_KEY = c.value;
+            if (c.key === 'wappi_api_key' && c.value) WAPPI_API_KEY = c.value;
           });
         }
       } catch (err) {
@@ -568,6 +572,90 @@ exports.handler = async (event, context) => {
             mode: 'mock_fallback',
             error_details: bcErr.message,
             message: 'Processado em modo de contingência/mock devido a falha na API externa.'
+          };
+        }
+
+      } else if (ACTIVE_GATEWAY === 'wappi') {
+        console.log('⚡ Iniciando integração com o Gateway Wappi Brasil...');
+        try {
+          const wappiUrl = 'https://app.wappibrasil.com.br/api/v1/transactions/pix';
+          const amountCents = Math.round(data.amount * 100);
+          const docNum = (data.customer_cpf || '').replace(/\D/g, '');
+          const phoneClean = (data.customer_phone || '').replace(/\D/g, '');
+
+          const wappiPayload = {
+            amount: amountCents,
+            paymentMethod: "pix",
+            customer: {
+              name: data.customer_name || 'Cliente',
+              email: data.customer_email || 'cliente@email.com',
+              phone: phoneClean,
+              document: {
+                number: docNum,
+                type: 'cpf'
+              }
+            },
+            items: itemsPayload.map(i => ({
+              title: i.name || 'Produto',
+              unitPrice: Math.round((i.price || 0) * 100),
+              quantity: i.quantity || 1,
+              tangible: false
+            })),
+            pix: {
+              expiresInDays: 1
+            },
+            postbackUrl: `https://${event.headers.host || 'comprasegura-imporiomaissabor.netlify.app'}/.netlify/functions/webhook-wappi`,
+            externalRef: data.checkout_session_id || 'wp-' + Math.random().toString(36).substr(2, 9)
+          };
+
+          const basicAuth = Buffer.from(`${WAPPI_API_KEY}:${WAPPI_PUBLIC_KEY}`).toString('base64');
+
+          const wappiRes = await fetch(wappiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Basic ${basicAuth}`,
+              'User-Agent': 'CheckoutSeguro/1.0 (+contato@imporiomaissabor.com)'
+            },
+            body: JSON.stringify(wappiPayload)
+          });
+
+          const wappiData = await wappiRes.json();
+
+          if (!wappiRes.ok || wappiData.success === false) {
+            const errMsg = wappiData.message || wappiData.error || 'Erro na API Wappi';
+            throw new Error(`Wappi API Error: ${wappiRes.status} - ${errMsg}`);
+          }
+
+          transactionId = wappiData.id || wappiData.externalRef || 'wp-' + Math.random().toString(36).substr(2, 9);
+          transactionStatus = (wappiData.status || 'PENDING').toUpperCase();
+          gatewayResponse = wappiData;
+
+          if (wappiData.pix) {
+            pixQrCode = wappiData.pix.qrcode || wappiData.pix.qrcodeUrl;
+            if (wappiData.pix.expiresAt) {
+              pixExpiration = new Date(wappiData.pix.expiresAt).toISOString();
+            }
+          }
+
+          if (!pixExpiration) {
+            pixExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+          }
+
+          console.log(`✅ Pix criado na Wappi com sucesso! ID: ${transactionId}`);
+
+        } catch (wpErr) {
+          console.error('❌ Falha ao integrar com a Wappi:', wpErr);
+          isMock = true;
+          transactionId = 'mock-wappi-id-' + Math.random().toString(36).substr(2, 9);
+          transactionStatus = 'PENDING';
+          pixQrCode = '00020101021126950014br.gov.bcb.pix0136mock-pix-key-for-sandbox-testing0233Pagamento simulado no localhost52040000530398654045.005802BR5915Antigravity Mock6009Sao Paulo62070503***6304E8A2';
+          pixExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+          gatewayResponse = {
+            success: true,
+            mode: 'mock_fallback',
+            error_details: wpErr.message,
+            message: 'Processado em modo de contingência/mock devido a falha na API externa Wappi.'
           };
         }
       

@@ -912,6 +912,7 @@ Fico no aguardo! \u{1F60A}`;
         if (togglePaysharkV2) togglePaysharkV2.checked = (activeGateway === 'paysharkv2');
         if (togglePagflex) togglePagflex.checked = (activeGateway === 'pagflexbr');
         if (toggleBlackcat) toggleBlackcat.checked = (activeGateway === 'blackcat');
+        if (toggleWappi) toggleWappi.checked = (activeGateway === 'wappi');
 
         if (cardPaguex) cardPaguex.classList.toggle('active', activeGateway === 'paguex');
         if (cardPaguexCamp) cardPaguexCamp.classList.toggle('active', activeGateway === 'paguexcamp');
@@ -920,6 +921,7 @@ Fico no aguardo! \u{1F60A}`;
         if (cardPaysharkV2) cardPaysharkV2.classList.toggle('active', activeGateway === 'paysharkv2');
         if (cardPagflex) cardPagflex.classList.toggle('active', activeGateway === 'pagflexbr');
         if (cardBlackcat) cardBlackcat.classList.toggle('active', activeGateway === 'blackcat');
+        if (cardWappi) cardWappi.classList.toggle('active', activeGateway === 'wappi');
 
         const pPubKeyInput = document.getElementById('paguex-public-key');
         const pSecKeyInput = document.getElementById('paguex-secret-key');
@@ -939,6 +941,8 @@ Fico no aguardo! \u{1F60A}`;
         const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
         const bcPubKeyInput = document.getElementById('blackcat-public-key');
         const bcSecKeyInput = document.getElementById('blackcat-secret-key');
+        const wpPubKeyInput = document.getElementById('wappi-public-key');
+        const wpApiKeyInput = document.getElementById('wappi-api-key');
 
         if (pPubKeyInput) pPubKeyInput.value = pPublic;
         if (pSecKeyInput) pSecKeyInput.value = pSecret;
@@ -948,8 +952,10 @@ Fico no aguardo! \u{1F60A}`;
         if (psSecKeyInput) psSecKeyInput.value = psSecret;
         if (pfApiInput) pfApiInput.value = pagflexApi;
         if (pfWebhookInput) pfWebhookInput.value = pagflexWebhook;
-        if (bcPubKeyInput) bcPubKeyInput.value = blackcatPublic;
-        if (bcSecKeyInput) bcSecKeyInput.value = blackcatSecret;
+        if (bcPubKeyInput) bcPubKeyInput.value = configData.blackcat_public_key || '';
+        if (bcSecKeyInput) bcSecKeyInput.value = configData.blackcat_secret_key || '';
+        if (wpPubKeyInput) wpPubKeyInput.value = configData.wappi_public_key || '';
+        if (wpApiKeyInput) wpApiKeyInput.value = configData.wappi_api_key || '';
 
         // Se a tabela estiver faltando, exibe aviso amigável
         if (configData.table_missing) {
@@ -5452,6 +5458,7 @@ Fico no aguardo! \u{1F60A}`;
   const togglePaysharkV2 = document.getElementById('toggle-paysharkv2');
   const togglePagflex = document.getElementById('toggle-pagflex');
   const toggleBlackcat = document.getElementById('toggle-blackcat');
+  const toggleWappi = document.getElementById('toggle-wappi');
   const cardPaguex = document.getElementById('card-paguex');
   const cardPaguexCamp = document.getElementById('card-paguexcamp');
   const cardHypercash = document.getElementById('card-hypercash');
@@ -5459,6 +5466,7 @@ Fico no aguardo! \u{1F60A}`;
   const cardPaysharkV2 = document.getElementById('card-paysharkv2');
   const cardPagflex = document.getElementById('card-pagflex');
   const cardBlackcat = document.getElementById('card-blackcat');
+  const cardWappi = document.getElementById('card-wappi');
   const pPubKeyInput = document.getElementById('paguex-public-key');
   const pSecKeyInput = document.getElementById('paguex-secret-key');
   const pcPubKeyInput = document.getElementById('paguexcamp-public-key');
@@ -5473,6 +5481,8 @@ Fico no aguardo! \u{1F60A}`;
   const pfWebhookInput = document.getElementById('pagflex-webhook-secret');
   const bcPubKeyInput = document.getElementById('blackcat-public-key');
   const bcSecKeyInput = document.getElementById('blackcat-secret-key');
+  const wpPubKeyInput = document.getElementById('wappi-public-key');
+  const wpApiKeyInput = document.getElementById('wappi-api-key');
   const btnSaveIntegracoes = document.getElementById('btn-save-integracoes');
 
   const updateGatewayToggles = (selected) => {
@@ -5483,6 +5493,7 @@ Fico no aguardo! \u{1F60A}`;
     if (togglePaysharkV2) togglePaysharkV2.checked = (selected === 'paysharkv2');
     if (togglePagflex) togglePagflex.checked = (selected === 'pagflexbr');
     if (toggleBlackcat) toggleBlackcat.checked = (selected === 'blackcat');
+    if (toggleWappi) toggleWappi.checked = (selected === 'wappi');
     
     if (cardPaguex) cardPaguex.classList.toggle('active', selected === 'paguex');
     if (cardPaguexCamp) cardPaguexCamp.classList.toggle('active', selected === 'paguexcamp');
@@ -5491,6 +5502,7 @@ Fico no aguardo! \u{1F60A}`;
     if (cardPaysharkV2) cardPaysharkV2.classList.toggle('active', selected === 'paysharkv2');
     if (cardPagflex) cardPagflex.classList.toggle('active', selected === 'pagflexbr');
     if (cardBlackcat) cardBlackcat.classList.toggle('active', selected === 'blackcat');
+    if (cardWappi) cardWappi.classList.toggle('active', selected === 'wappi');
   };
 
   if (togglePaguex) togglePaguex.addEventListener('change', () => { if(togglePaguex.checked) updateGatewayToggles('paguex'); else updateGatewayToggles(''); });
@@ -5500,6 +5512,7 @@ Fico no aguardo! \u{1F60A}`;
   if (togglePaysharkV2) togglePaysharkV2.addEventListener('change', () => { if(togglePaysharkV2.checked) updateGatewayToggles('paysharkv2'); else updateGatewayToggles(''); });
   if (togglePagflex) togglePagflex.addEventListener('change', () => { if(togglePagflex.checked) updateGatewayToggles('pagflexbr'); else updateGatewayToggles(''); });
   if (toggleBlackcat) toggleBlackcat.addEventListener('change', () => { if(toggleBlackcat.checked) updateGatewayToggles('blackcat'); else updateGatewayToggles(''); });
+  if (toggleWappi) toggleWappi.addEventListener('change', () => { if(toggleWappi.checked) updateGatewayToggles('wappi'); else updateGatewayToggles(''); });
 
   if (btnSaveIntegracoes) {
     btnSaveIntegracoes.addEventListener('click', async () => {
@@ -5511,6 +5524,7 @@ Fico no aguardo! \u{1F60A}`;
       if (togglePaysharkV2 && togglePaysharkV2.checked) activeGateway = 'paysharkv2';
       if (togglePagflex && togglePagflex.checked) activeGateway = 'pagflexbr';
       if (toggleBlackcat && toggleBlackcat.checked) activeGateway = 'blackcat';
+      if (toggleWappi && toggleWappi.checked) activeGateway = 'wappi';
 
       const pPublic = pPubKeyInput ? pPubKeyInput.value.trim() : '';
       const pcPublic = pcPubKeyInput ? pcPubKeyInput.value.trim() : '';
@@ -5527,6 +5541,8 @@ Fico no aguardo! \u{1F60A}`;
       const pfWebhook = pfWebhookInput ? pfWebhookInput.value.trim() : '';
       const bcPublic = bcPubKeyInput ? bcPubKeyInput.value.trim() : '';
       const bcSecret = bcSecKeyInput ? bcSecKeyInput.value.trim() : '';
+      const wpPublic = wpPubKeyInput ? wpPubKeyInput.value.trim() : '';
+      const wpApi = wpApiKeyInput ? wpApiKeyInput.value.trim() : '';
 
       btnSaveIntegracoes.disabled = true;
       btnSaveIntegracoes.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Salvando...</span>`;
@@ -5552,7 +5568,9 @@ Fico no aguardo! \u{1F60A}`;
             pagflex_webhook_secret: pfWebhook,
             blackcat_public_key: bcPublic,
             blackcat_secret_key: bcSecret,
-            blackcat_api_key: bcSecret
+            blackcat_api_key: bcSecret,
+            wappi_public_key: wpPublic,
+            wappi_api_key: wpApi
           })
         });
 
