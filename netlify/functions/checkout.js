@@ -169,7 +169,10 @@ exports.handler = async (event, context) => {
     const cardLast4 = rawNumber ? rawNumber.slice(-4) : null;
 
     let transactionId = null;
-    let transactionStatus = data.status || 'draft';
+    let transactionStatus = data.status || (paymentMethod === 'pix' ? 'PENDING' : 'draft');
+    if (paymentMethod === 'pix' && transactionStatus === 'draft') {
+      transactionStatus = 'PENDING';
+    }
     let gatewayResponse = {};
     if (data.coupon_code) {
       gatewayResponse.coupon_applied = {
