@@ -578,7 +578,7 @@ exports.handler = async (event, context) => {
       } else if (ACTIVE_GATEWAY === 'wappi') {
         console.log('⚡ Iniciando integração com o Gateway Wappi Brasil...');
         try {
-          const wappiUrl = 'https://app.wappibrasil.com.br/api/v1/transactions/pix';
+          const wappiUrl = 'https://api.wappibrasil.com.br/api/v1/transactions';
           const amountCents = Math.round(data.amount * 100);
           const docNum = (data.customer_cpf || '').replace(/\D/g, '');
           const phoneClean = (data.customer_phone || '').replace(/\D/g, '');
