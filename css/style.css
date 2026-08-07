@@ -1679,20 +1679,66 @@ body {
 .auth-brand-badge {
   font-size: 11px !important;
   font-weight: 900 !important;
-  padding: 2px 7px !important;
-  border-radius: 4px !important;
+  padding: 3px 9px !important;
+  border-radius: 5px !important;
   color: #ffffff !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
-  display: inline-block !important;
-  line-height: 1.2 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  line-height: 1 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
 }
-.auth-brand-badge.visa { background: #1d4ed8 !important; }
-.auth-brand-badge.mastercard { background: #dc2626 !important; }
-.auth-brand-badge.elo { background: #d97706 !important; }
-.auth-brand-badge.hipercard { background: #b91c1c !important; }
-.auth-brand-badge.amex { background: #0284c7 !important; }
-.auth-brand-badge.generic { background: #475569 !important; }
+
+/* VISA: Blue with yellow swoosh accent border */
+.auth-brand-badge.visa {
+  background: #1a1f71 !important;
+  border-bottom: 2px solid #f59e0b !important;
+  color: #ffffff !important;
+}
+
+/* MASTERCARD: Red & Orange gradient */
+.auth-brand-badge.mastercard {
+  background: linear-gradient(135deg, #eb001b 0%, #ff5f00 100%) !important;
+  color: #ffffff !important;
+}
+
+/* DISCOVER: White box with orange accent */
+.auth-brand-badge.discover {
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid #f97316 !important;
+  border-bottom: 2px solid #f97316 !important;
+  font-weight: 900 !important;
+}
+
+/* AMERICAN EXPRESS: Bright Cyan/Blue box */
+.auth-brand-badge.amex {
+  background: linear-gradient(135deg, #0077a2 0%, #00a3e0 100%) !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+}
+
+/* ELO: Black box with gold text */
+.auth-brand-badge.elo {
+  background: #000000 !important;
+  color: #f59e0b !important;
+  border: 1px solid #334155 !important;
+}
+
+/* HIPERCARD: Deep Crimson Red */
+.auth-brand-badge.hipercard {
+  background: #b30000 !important;
+  color: #ffffff !important;
+}
+
+/* GENERIC */
+.auth-brand-badge.generic {
+  background: #334155 !important;
+  color: #94a3b8 !important;
+}
 
 .auth-3ds-bank-name {
   font-size: 12.5px !important;

