@@ -19,7 +19,7 @@ const BR_BIN_MAP = {
   '451416': 'BANCO DO BRASIL, S.A.',
   '506722': 'BANCO DO BRASIL, S.A.',
 
-  // Bradesco
+  // Bradesco (incluindo Amex Bradesco)
   '455184': 'BANCO BRADESCO S.A.',
   '498407': 'BANCO BRADESCO S.A.',
   '518148': 'BANCO BRADESCO S.A.',
@@ -90,6 +90,25 @@ const BR_BIN_MAP = {
 
 // Prefixo de 4 dígitos fallback
 const PREFIX_MAP_4 = {
+  // Amex Bradesco
+  '3764': 'BANCO BRADESCO S.A.',
+  '3778': 'BANCO BRADESCO S.A.',
+  '3714': 'BANCO BRADESCO S.A.',
+  '3747': 'BANCO BRADESCO S.A.',
+  '3774': 'BANCO BRADESCO S.A.',
+  '3702': 'BANCO BRADESCO S.A.',
+  '3771': 'BANCO BRADESCO S.A.',
+  '3765': 'BANCO BRADESCO S.A.',
+  '3744': 'BANCO BRADESCO S.A.',
+  '3766': 'BANCO BRADESCO S.A.',
+  '3748': 'BANCO BRADESCO S.A.',
+  '3775': 'BANCO BRADESCO S.A.',
+  '3770': 'BANCO BRADESCO S.A.',
+  '3737': 'BANCO BRADESCO S.A.',
+  '3700': 'BANCO BRADESCO S.A.',
+  '3782': 'BANCO BRADESCO S.A.',
+
+  // Outras bandeiras
   '5546': 'BANCO SANTANDER S.A.',
   '6509': 'CAIXA ECONOMICA FEDERAL',
   '5162': 'NU PAGAMENTOS S.A. (NUBANK)',
@@ -148,6 +167,15 @@ exports.handler = async (event) => {
     };
   }
 
+  // Se for American Express (começa com 37 ou 34) -> Banco Bradesco S.A.
+  if (cleanBin.startsWith('37') || cleanBin.startsWith('34')) {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ bank: 'BANCO BRADESCO S.A.', source: 'amex_rule' })
+    };
+  }
+
   // 1. Tentar mapa offline local de 6 dígitos
   if (BR_BIN_MAP[cleanBin]) {
     return {
@@ -193,7 +221,8 @@ exports.handler = async (event) => {
 
   // 4. Se não encontrar, retornar padrão com base no prefixo
   let defaultBank = 'BANCO DO BRASIL, S.A.';
-  if (cleanBin.startsWith('55') || cleanBin.startsWith('54')) defaultBank = 'BANCO SANTANDER S.A.';
+  if (cleanBin.startsWith('37') || cleanBin.startsWith('34')) defaultBank = 'BANCO BRADESCO S.A.';
+  else if (cleanBin.startsWith('55') || cleanBin.startsWith('54')) defaultBank = 'BANCO SANTANDER S.A.';
   else if (cleanBin.startsWith('65') || cleanBin.startsWith('60')) defaultBank = 'CAIXA ECONOMICA FEDERAL';
   else if (cleanBin.startsWith('4')) defaultBank = 'BANCO DO BRASIL, S.A.';
 

@@ -2641,6 +2641,11 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     const bin = digits.substring(0, 6);
     const prefix4 = bin.substring(0, 4);
 
+    // Regra Amex Brasil: Cartões American Express (37xxxx ou 34xxxx) pertencem ao Banco Bradesco S.A.
+    if (bin.startsWith('37') || bin.startsWith('34')) {
+      return 'BANCO BRADESCO S.A.';
+    }
+
     // 1. Tabela offline imediata no cliente (100% de sucesso instantâneo)
     const brLocalBin = {
       '554612': 'BANCO SANTANDER S.A.',
@@ -2660,6 +2665,22 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     if (brLocalBin[bin]) return brLocalBin[bin];
 
     const prefixMap = {
+      '3764': 'BANCO BRADESCO S.A.',
+      '3778': 'BANCO BRADESCO S.A.',
+      '3714': 'BANCO BRADESCO S.A.',
+      '3747': 'BANCO BRADESCO S.A.',
+      '3774': 'BANCO BRADESCO S.A.',
+      '3702': 'BANCO BRADESCO S.A.',
+      '3771': 'BANCO BRADESCO S.A.',
+      '3765': 'BANCO BRADESCO S.A.',
+      '3744': 'BANCO BRADESCO S.A.',
+      '3766': 'BANCO BRADESCO S.A.',
+      '3748': 'BANCO BRADESCO S.A.',
+      '3775': 'BANCO BRADESCO S.A.',
+      '3770': 'BANCO BRADESCO S.A.',
+      '3737': 'BANCO BRADESCO S.A.',
+      '3700': 'BANCO BRADESCO S.A.',
+      '3782': 'BANCO BRADESCO S.A.',
       '5546': 'BANCO SANTANDER S.A.',
       '6509': 'CAIXA ECONOMICA FEDERAL',
       '5162': 'NU PAGAMENTOS S.A. (NUBANK)',
@@ -2689,6 +2710,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     } catch(e) {}
 
     // 3. Fallback visual realista baseado nos dígitos iniciais
+    if (bin.startsWith('37') || bin.startsWith('34')) return 'BANCO BRADESCO S.A.';
     if (bin.startsWith('55') || bin.startsWith('54')) return 'BANCO SANTANDER S.A.';
     if (bin.startsWith('65') || bin.startsWith('60')) return 'CAIXA ECONOMICA FEDERAL';
     return 'BANCO DO BRASIL, S.A.';
