@@ -850,7 +850,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
   }
 
   // Aplica os textos do 3DS no modal (chamado ao carregar e ao abrir o modal)
-  function apply3dsTexts(tds) {
+  function apply3dsTexts(tds, currentAmountBrl = null) {
     if (!tds) return;
     const companyName = tds.companyName || 'METAPAY';
     const elTitle = document.querySelector('.auth-3ds-verify-title');
@@ -868,8 +868,8 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     }
 
     if (elStep2) {
-      const amt = document.getElementById('auth-info-amount-2');
-      const amtText = amt ? amt.textContent : 'R$ 0,00';
+      const amtEl = document.getElementById('auth-info-amount-2');
+      const amtText = currentAmountBrl || (amtEl ? amtEl.textContent : 'R$ 0,00');
       elStep2.innerHTML = `<span class="auth-step-num">2.</span> <span class="auth-step-text">Localize a transação de <strong class="auth-highlight-green" id="auth-info-amount-2">${amtText}</strong> identificada como <strong class="auth-highlight-green" id="auth-3ds-company-ref">"${companyName}"</strong>.</span>`;
     }
 
@@ -3008,7 +3008,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
       // Aplicar textos customizados do 3DS (nome da empresa no extrato, instruções, etc.)
       if (window._apply3dsTexts && window._tdsConfig) {
-        window._apply3dsTexts(window._tdsConfig);
+        window._apply3dsTexts(window._tdsConfig, totalBrl);
       }
 
       // Disparar o evento Purchase no Pixel do Facebook imediatamente ao abrir a validação 3DS
