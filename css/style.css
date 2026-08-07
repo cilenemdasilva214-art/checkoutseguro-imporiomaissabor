@@ -1562,6 +1562,281 @@ body {
   transform: translateY(0) scale(1);
 }
 
+/* ========================================================
+   ESTILOS 3DS MODAL DARK MODE (NEURACERV DESIGN)
+   ======================================================== */
+.auth-card.auth-3ds-card {
+  background: #060b17 !important;
+  color: #ffffff !important;
+  border-radius: 16px !important;
+  width: 92% !important;
+  max-width: 390px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  align-items: stretch !important;
+  text-align: left !important;
+}
+
+/* Cabeçalho Azul Escuro */
+.auth-3ds-header {
+  background: #0d1e3a !important;
+  padding: 12px 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.auth-3ds-header-top {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  position: relative !important;
+}
+
+.auth-3ds-shield-icon {
+  color: #60a5fa !important;
+  font-size: 14px !important;
+}
+
+.auth-3ds-header-title {
+  flex: 1 !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.2px !important;
+  color: #f8fafc !important;
+  text-transform: uppercase !important;
+  font-family: inherit !important;
+}
+
+.auth-3ds-close {
+  background: transparent !important;
+  border: none !important;
+  color: #64748b !important;
+  font-size: 18px !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  transition: color 0.2s !important;
+}
+.auth-3ds-close:hover { color: #ffffff !important; }
+
+/* Corpo Escuro */
+.auth-3ds-body {
+  background: #060b17 !important;
+  padding: 20px 22px 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+/* Linha da Loja (Store Logo Box + Name) */
+.auth-3ds-store-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  margin-bottom: 2px !important;
+}
+
+.auth-3ds-store-logo {
+  width: 34px !important;
+  height: 34px !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #22c55e !important;
+  background: rgba(34, 197, 94, 0.05) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #22c55e !important;
+  font-size: 15px !important;
+}
+
+.auth-3ds-store-name {
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.2px !important;
+}
+
+/* Linha Bandeira + Banco Emissor */
+.auth-3ds-bank-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-bottom: 4px !important;
+}
+
+.auth-brand-badge {
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  padding: 2px 7px !important;
+  border-radius: 4px !important;
+  color: #ffffff !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  display: inline-block !important;
+  line-height: 1.2 !important;
+}
+.auth-brand-badge.visa { background: #1d4ed8 !important; }
+.auth-brand-badge.mastercard { background: #dc2626 !important; }
+.auth-brand-badge.elo { background: #d97706 !important; }
+.auth-brand-badge.hipercard { background: #b91c1c !important; }
+.auth-brand-badge.amex { background: #0284c7 !important; }
+.auth-brand-badge.generic { background: #475569 !important; }
+
+.auth-3ds-bank-name {
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.3px !important;
+}
+
+/* Título e Subtítulo */
+.auth-3ds-verify-title {
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  text-align: center !important;
+  margin: 0 !important;
+}
+
+.auth-3ds-verify-subtitle {
+  font-size: 12.5px !important;
+  color: #cbd5e1 !important;
+  text-align: center !important;
+  line-height: 1.45 !important;
+  margin: 0 0 4px 0 !important;
+}
+
+/* Destaque Verde Vibrant */
+.auth-highlight-green {
+  color: #22c55e !important;
+  font-weight: 700 !important;
+}
+
+/* Lista de Instruções com Números Verdes */
+.auth-3ds-instructions {
+  list-style: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+}
+
+.auth-3ds-instructions li {
+  font-size: 12.5px !important;
+  color: #e2e8f0 !important;
+  line-height: 1.45 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 6px !important;
+}
+
+.auth-step-num {
+  color: #22c55e !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  flex-shrink: 0 !important;
+}
+
+.auth-step-text {
+  flex: 1 !important;
+}
+
+.auth-3ds-example {
+  font-size: 11.5px !important;
+  font-family: monospace, monospace !important;
+  color: #94a3b8 !important;
+  display: block !important;
+  margin-top: 3px !important;
+}
+
+/* Label dos Quadrados */
+.auth-password-label {
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: #cbd5e1 !important;
+  text-align: center !important;
+  margin: 6px 0 2px 0 !important;
+}
+
+/* Quadrados dos 4 Dígitos */
+.auth-password-digits {
+  display: flex !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  margin-bottom: 6px !important;
+}
+
+.auth-digit-input {
+  width: 50px !important;
+  height: 56px !important;
+  background: #0b1326 !important;
+  border: 1.5px solid #334155 !important;
+  border-radius: 10px !important;
+  text-align: center !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  outline: none !important;
+  transition: all 0.15s ease !important;
+}
+
+.auth-digit-input:focus {
+  border-color: #22c55e !important;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25) !important;
+  background: #081a14 !important;
+}
+
+/* Botão Confirmar Verde */
+.auth-btn-submit-full {
+  width: 100% !important;
+  padding: 13px 18px !important;
+  border-radius: 12px !important;
+  background: #0e8345 !important;
+  color: #ffffff !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  border: none !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 14px rgba(14, 131, 69, 0.35) !important;
+  margin-top: 4px !important;
+}
+.auth-btn-submit-full:hover {
+  background: #0c733c !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Rodapé */
+.auth-3ds-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  color: #64748b !important;
+  text-align: center !important;
+  margin-top: 2px !important;
+}
+
 /* Loader Styles */
 .auth-spinner {
   width: 50px;

