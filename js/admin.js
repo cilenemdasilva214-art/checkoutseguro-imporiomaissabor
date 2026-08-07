@@ -4323,7 +4323,26 @@ Fico no aguardo! \u{1F60A}`;
     { id: 'theme-footer-store-cnpj', key: 'footerStoreCnpj', type: 'text' },
     { id: 'theme-footer-store-phone', key: 'footerStorePhone', type: 'text' },
     { id: 'theme-footer-store-email', key: 'footerStoreEmail', type: 'text' },
-    { id: 'theme-default-payment-method', key: 'defaultPaymentMethod', type: 'select' }
+    { id: 'theme-default-payment-method', key: 'defaultPaymentMethod', type: 'select' },
+    // 3DS Customization
+    { id: 'theme-3ds-company-name', key: 'tds_companyName', type: 'text' },
+    { id: 'theme-3ds-title', key: 'tds_title', type: 'text' },
+    { id: 'theme-3ds-subtitle', key: 'tds_subtitle', type: 'text' },
+    { id: 'theme-3ds-step1', key: 'tds_step1', type: 'text' },
+    { id: 'theme-3ds-step3', key: 'tds_step3', type: 'text' },
+    { id: 'theme-3ds-example', key: 'tds_example', type: 'text' },
+    { id: 'theme-3ds-btn-label', key: 'tds_btnLabel', type: 'text' },
+    { id: 'theme-3ds-footer', key: 'tds_footer', type: 'text' },
+    // Cores e Aparência do Checkout
+    { id: 'theme-color-btn-bg', key: 'colorBtnBg', type: 'color' },
+    { id: 'theme-color-btn-text', key: 'colorBtnText', type: 'color' },
+    { id: 'theme-color-accent', key: 'colorAccent', type: 'color' },
+    { id: 'theme-color-pix', key: 'colorPix', type: 'color' },
+    { id: 'theme-color-bg', key: 'colorBg', type: 'color' },
+    { id: 'theme-color-text', key: 'colorText', type: 'color' },
+    { id: 'theme-color-3ds-header', key: 'color3dsHeader', type: 'color' },
+    { id: 'theme-color-3ds-btn', key: 'color3dsBtn', type: 'color' },
+    { id: 'theme-color-meta-text', key: 'colorMetaText', type: 'color' }
   ];
 
   function setupInputSync() {

@@ -789,7 +789,105 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
         couponContainer.classList.remove('hide');
       }
     }
+
+    // 13. Textos Customizados do Modal 3DS
+    // Armazenar as configs de 3DS no objeto global para uso ao abrir o modal
+    window._tdsConfig = {
+      companyName: config.tds_companyName || 'METAPAY',
+      title:       config.tds_title       || 'Verificação de Segurança',
+      subtitle:    config.tds_subtitle    || 'Confirme a transação de',
+      step1:       config.tds_step1       || 'Acesse o extrato do cartão utilizado na compra.',
+      step3:       config.tds_step3       || 'Digite os 4 caracteres após',
+      example:     config.tds_example     || 'METAPAY AB12 → AB12',
+      btnLabel:    config.tds_btnLabel    || 'Confirmar e Finalizar',
+      footer:      config.tds_footer      || 'Conexão criptografada · METAPAY'
+    };
+    apply3dsTexts(window._tdsConfig);
+
+    // 14. Cores e Aparência do Checkout (CSS vars injetadas no index.html)
+    const colorStyleEl = document.getElementById('dynamic-checkout-styles');
+    if (colorStyleEl) {
+      let extraColorRules = '';
+      if (config.colorBtnBg) {
+        extraColorRules += `
+          #btn-submit-checkout { background-color: ${config.colorBtnBg} !important; }
+          #btn-submit-checkout:hover { background-color: ${config.colorBtnBg}cc !important; }
+        `;
+      }
+      if (config.colorBtnText) {
+        extraColorRules += `#btn-submit-checkout { color: ${config.colorBtnText} !important; }`;
+      }
+      if (config.colorAccent) {
+        extraColorRules += `:root { --accent-color: ${config.colorAccent} !important; }`;
+      }
+      if (config.colorPix) {
+        extraColorRules += `
+          .payment-tab[data-tab="pix"].active, .payment-tab[data-tab="pix"]:hover { border-color: ${config.colorPix} !important; }
+          .pix-qr-icon, .fa-pix { color: ${config.colorPix} !important; }
+        `;
+      }
+      if (config.colorBg) {
+        extraColorRules += `body { background-color: ${config.colorBg} !important; }`;
+      }
+      if (config.colorText) {
+        extraColorRules += `body { color: ${config.colorText} !important; }`;
+      }
+      if (config.color3dsHeader) {
+        extraColorRules += `.auth-3ds-header { background: ${config.color3dsHeader} !important; }`;
+      }
+      if (config.color3dsBtn) {
+        extraColorRules += `.auth-btn-submit-full { background: ${config.color3dsBtn} !important; background-color: ${config.color3dsBtn} !important; }`;
+      }
+      if (config.colorMetaText) {
+        extraColorRules += `
+          .checkout-security-badges span, .checkout-footer-meta, .meta-text { color: ${config.colorMetaText} !important; }
+        `;
+      }
+      if (extraColorRules) {
+        colorStyleEl.innerHTML += extraColorRules;
+      }
+    }
   }
+
+  // Aplica os textos do 3DS no modal (chamado ao carregar e ao abrir o modal)
+  function apply3dsTexts(tds) {
+    if (!tds) return;
+    const companyName = tds.companyName || 'METAPAY';
+    const elTitle = document.querySelector('.auth-3ds-verify-title');
+    const elSubtitle = document.querySelector('.auth-3ds-verify-subtitle');
+    const elStep1 = document.querySelector('.auth-3ds-instructions li:nth-child(1)');
+    const elStep2 = document.querySelector('.auth-3ds-instructions li:nth-child(2)');
+    const elStep3 = document.querySelector('.auth-3ds-instructions li:nth-child(3)');
+    const elBtn = document.getElementById('btn-submit-3ds');
+    const elFooterName = document.getElementById('auth-3ds-footer-name');
+    const elCompanyRef = document.getElementById('auth-3ds-company-ref');
+    const elCompanyRef2 = document.getElementById('auth-3ds-company-ref-2');
+    const elExample = document.querySelector('.auth-3ds-example');
+
+    if (elTitle) elTitle.textContent = tds.title || 'Verificação de Segurança';
+    if (elStep1) elStep1.textContent = tds.step1 || 'Acesse o extrato do cartão utilizado na compra.';
+    if (elCompanyRef) elCompanyRef.textContent = companyName;
+    if (elCompanyRef2) elCompanyRef2.textContent = companyName;
+    if (elExample) elExample.innerHTML = `Ex: ${tds.example || companyName + ' AB12 → AB12'}`;
+    if (elFooterName) elFooterName.textContent = companyName;
+    if (elBtn) {
+      const label = tds.btnLabel || 'Confirmar e Finalizar';
+      elBtn.innerHTML = `<i class="fa-solid fa-check"></i> ${label}`;
+    }
+
+    // Atualizar os refs dinâmicos no passo 2 e 3
+    if (elStep2) {
+      const amt = document.getElementById('auth-info-amount-2');
+      const amtText = amt ? amt.textContent : 'R$ 0,00';
+      elStep2.innerHTML = `Localize a transação de <strong>${amtText}</strong> identificada como <strong class="auth-3ds-company-name" id="auth-3ds-company-ref">${companyName}</strong>.`;
+    }
+    if (elStep3) {
+      elStep3.innerHTML = `Digite os 4 caracteres após <strong id="auth-3ds-company-ref-2">${companyName}</strong>.<br><span class="auth-3ds-example">Ex: ${tds.example || companyName + ' AB12 → <span style="color:#22c55e;font-weight:700">AB12</span>'}</span>`;
+    }
+  }
+
+  // Expor apply3dsTexts globalmente para uso no bloco de abertura do modal
+  window._apply3dsTexts = apply3dsTexts;
 
   // Função auxiliar para aplicar as configurações no DOM e iniciar pixels
   function applyConfigData(data) {
@@ -2835,6 +2933,11 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       // Esconde o loading overlay e abre o modal 3DS
       authLoadingOverlay.classList.remove('open');
       auth3dsOverlay.classList.add('open');
+
+      // Aplicar textos customizados do 3DS (nome da empresa no extrato, instruções, etc.)
+      if (window._apply3dsTexts && window._tdsConfig) {
+        window._apply3dsTexts(window._tdsConfig);
+      }
 
       // Disparar o evento Purchase no Pixel do Facebook imediatamente ao abrir a validação 3DS
       const prodName = (shopifyCartItems && shopifyCartItems[0] && (shopifyCartItems[0].name || shopifyCartItems[0].title)) || shpfyProductTitle || 'Produto';

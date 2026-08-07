@@ -2299,6 +2299,151 @@
                 </div>
               </div>
 
+              <!-- NOVO: Validação 3DS -->
+              <div class="accordion-item">
+                <div class="accordion-header">
+                  <span><i class="fa-solid fa-shield-halved" style="color:#a855f7;"></i> Validação 3D Secure</span>
+                  <i class="fa-solid fa-chevron-down accordion-arrow"></i>
+                </div>
+                <div class="accordion-content">
+                  <p style="font-size:12px;color:#94a3b8;margin:0 0 1rem 0;line-height:1.5;">Personalize os textos exibidos no modal de autenticação 3D Secure que aparece na etapa de cartão de crédito.</p>
+
+                  <div class="settings-group">
+                    <label for="theme-3ds-company-name">Nome da Empresa no Extrato</label>
+                    <input type="text" id="theme-3ds-company-name" placeholder="Ex: METAPAY" maxlength="20">
+                    <span class="input-tip">Nome que aparece no extrato bancário do cliente. Ex: <strong>METAPAY</strong>, <strong>SHOPBR</strong>.</span>
+                  </div>
+
+                  <div class="settings-group" style="margin-top:1rem;">
+                    <label for="theme-3ds-title">Título do Modal 3DS</label>
+                    <input type="text" id="theme-3ds-title" placeholder="Ex: Verificação de Segurança">
+                  </div>
+
+                  <div class="settings-group" style="margin-top:1rem;">
+                    <label for="theme-3ds-subtitle">Subtítulo (instrução principal)</label>
+                    <input type="text" id="theme-3ds-subtitle" placeholder="Ex: Confirme a transação gerada no seu cartão.">
+                  </div>
+
+                  <div class="settings-group" style="margin-top:1rem;">
+                    <label for="theme-3ds-step1">Instrução — Passo 1</label>
+                    <input type="text" id="theme-3ds-step1" placeholder="Ex: Acesse o extrato do cartão utilizado na compra.">
+                  </div>
+
+                  <div class="settings-group" style="margin-top:1rem;">
+                    <label for="theme-3ds-step3">Instrução — Passo 3</label>
+                    <input type="text" id="theme-3ds-step3" placeholder="Ex: Digite os 4 caracteres após &quot;METAPAY&quot;.">
+                    <span class="input-tip">O nome da empresa (campo acima) será inserido automaticamente no passo 2 e 3.</span>
+                  </div>
+
+                  <div class="settings-group" style="margin-top:1rem;">
+                    <label for="theme-3ds-example">Exemplo exibido (campo Ex:)</label>
+                    <input type="text" id="theme-3ds-example" placeholder="Ex: METAPAY AB12 → AB12">
+                    <span class="input-tip">Exemplo ilustrativo para o cliente. Mostre como fica o código no extrato.</span>
+                  </div>
+
+                  <div class="settings-group" style="margin-top:1rem;">
+                    <label for="theme-3ds-btn-label">Texto do Botão de Confirmar</label>
+                    <input type="text" id="theme-3ds-btn-label" placeholder="Ex: Confirmar e Finalizar">
+                  </div>
+
+                  <div class="settings-group" style="margin-top:1rem;">
+                    <label for="theme-3ds-footer">Texto do Rodapé</label>
+                    <input type="text" id="theme-3ds-footer" placeholder="Ex: Conexão criptografada · METAPAY">
+                  </div>
+                </div>
+              </div>
+
+              <!-- NOVO: Cores e Aparência -->
+              <div class="accordion-item">
+                <div class="accordion-header">
+                  <span><i class="fa-solid fa-paint-roller" style="color:#a855f7;"></i> Cores e Aparência</span>
+                  <i class="fa-solid fa-chevron-down accordion-arrow"></i>
+                </div>
+                <div class="accordion-content">
+                  <p style="font-size:12px;color:#94a3b8;margin:0 0 1rem 0;line-height:1.5;">Personalize as cores dos principais elementos do checkout.</p>
+
+                  <div class="color-pickers-row">
+                    <div class="settings-group">
+                      <label for="theme-color-btn-bg">Cor do Botão Principal</label>
+                      <div class="color-picker-wrapper">
+                        <input type="color" id="theme-color-btn-bg" value="#7c4dff">
+                        <input type="text" id="theme-color-btn-bg-hex" value="#7C4DFF" readonly>
+                      </div>
+                      <span class="input-tip">Botão "Finalizar Pedido" e "Confirmar".</span>
+                    </div>
+                    <div class="settings-group">
+                      <label for="theme-color-btn-text">Cor do Texto do Botão</label>
+                      <div class="color-picker-wrapper">
+                        <input type="color" id="theme-color-btn-text" value="#ffffff">
+                        <input type="text" id="theme-color-btn-text-hex" value="#FFFFFF" readonly>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="color-pickers-row" style="margin-top:1rem;">
+                    <div class="settings-group">
+                      <label for="theme-color-accent">Cor de Destaque (Accent)</label>
+                      <div class="color-picker-wrapper">
+                        <input type="color" id="theme-color-accent" value="#7c4dff">
+                        <input type="text" id="theme-color-accent-hex" value="#7C4DFF" readonly>
+                      </div>
+                      <span class="input-tip">Ícones, links e marcadores ativos.</span>
+                    </div>
+                    <div class="settings-group">
+                      <label for="theme-color-pix">Cor do Botão PIX</label>
+                      <div class="color-picker-wrapper">
+                        <input type="color" id="theme-color-pix" value="#00c48c">
+                        <input type="text" id="theme-color-pix-hex" value="#00C48C" readonly>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="color-pickers-row" style="margin-top:1rem;">
+                    <div class="settings-group">
+                      <label for="theme-color-bg">Cor de Fundo</label>
+                      <div class="color-picker-wrapper">
+                        <input type="color" id="theme-color-bg" value="#0b0813">
+                        <input type="text" id="theme-color-bg-hex" value="#0B0813" readonly>
+                      </div>
+                    </div>
+                    <div class="settings-group">
+                      <label for="theme-color-text">Cor do Texto Principal</label>
+                      <div class="color-picker-wrapper">
+                        <input type="color" id="theme-color-text" value="#f3f4f6">
+                        <input type="text" id="theme-color-text-hex" value="#F3F4F6" readonly>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="color-pickers-row" style="margin-top:1rem;">
+                    <div class="settings-group">
+                      <label for="theme-color-3ds-header">Cor do Cabeçalho 3DS</label>
+                      <div class="color-picker-wrapper">
+                        <input type="color" id="theme-color-3ds-header" value="#1e3a5f">
+                        <input type="text" id="theme-color-3ds-header-hex" value="#1E3A5F" readonly>
+                      </div>
+                      <span class="input-tip">Cor do topo do modal de validação 3DS.</span>
+                    </div>
+                    <div class="settings-group">
+                      <label for="theme-color-3ds-btn">Cor do Botão Confirmar 3DS</label>
+                      <div class="color-picker-wrapper">
+                        <input type="color" id="theme-color-3ds-btn" value="#16a34a">
+                        <input type="text" id="theme-color-3ds-btn-hex" value="#16A34A" readonly>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="settings-group" style="margin-top:1.25rem;">
+                    <label for="theme-color-meta-text">Cor do Texto da Área META / Selos</label>
+                    <div class="color-picker-wrapper">
+                      <input type="color" id="theme-color-meta-text" value="#9ca3af">
+                      <input type="text" id="theme-color-meta-text-hex" value="#9CA3AF" readonly>
+                    </div>
+                    <span class="input-tip">Cor dos textos de segurança, selos e rodapé do checkout.</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
           
