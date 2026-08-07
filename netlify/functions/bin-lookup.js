@@ -3,6 +3,10 @@ const https = require('https');
 
 // Tabela offline de BINs brasileiros populares
 const BR_BIN_MAP = {
+  // BINs específicos testados
+  '554612': 'BANCO SANTANDER S.A.',
+  '650914': 'CAIXA ECONOMICA FEDERAL',
+
   // Banco do Brasil
   '400289': 'BANCO DO BRASIL, S.A.',
   '401200': 'BANCO DO BRASIL, S.A.',
@@ -84,6 +88,27 @@ const BR_BIN_MAP = {
   '457633': 'CREDICARD S.A.'
 };
 
+// Prefixo de 4 dígitos fallback
+const PREFIX_MAP_4 = {
+  '5546': 'BANCO SANTANDER S.A.',
+  '6509': 'CAIXA ECONOMICA FEDERAL',
+  '5162': 'NU PAGAMENTOS S.A. (NUBANK)',
+  '5067': 'BANCO INTER S.A.',
+  '4002': 'BANCO DO BRASIL, S.A.',
+  '4012': 'BANCO DO BRASIL, S.A.',
+  '4984': 'BANCO DO BRASIL, S.A.',
+  '4551': 'BANCO BRADESCO S.A.',
+  '5181': 'BANCO BRADESCO S.A.',
+  '5240': 'BANCO BRADESCO S.A.',
+  '4121': 'ITAU UNIBANCO S.A.',
+  '4766': 'ITAU UNIBANCO S.A.',
+  '5180': 'ITAU UNIBANCO S.A.',
+  '4038': 'BANCO SANTANDER S.A.',
+  '4576': 'BANCO SANTANDER S.A.',
+  '5482': 'BANCO SANTANDER S.A.',
+  '5236': 'BANCO SANTANDER S.A.'
+};
+
 function fetchExternalApi(url) {
   return new Promise((resolve) => {
     const req = https.get(url, { headers: { 'Accept-Version': '3', 'User-Agent': 'Mozilla/5.0' }, timeout: 2000 }, (res) => {
@@ -123,7 +148,7 @@ exports.handler = async (event) => {
     };
   }
 
-  // 1. Tentar primeiro o mapa offline local (Instantâneo!)
+  // 1. Tentar mapa offline local de 6 dígitos
   if (BR_BIN_MAP[cleanBin]) {
     return {
       statusCode: 200,
@@ -132,7 +157,17 @@ exports.handler = async (event) => {
     };
   }
 
-  // 2. Se não achar no local, tentar APIs externas via HTTPS backend
+  // 2. Tentar prefixo de 4 dígitos
+  const prefix4 = cleanBin.substring(0, 4);
+  if (PREFIX_MAP_4[prefix4]) {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      body: JSON.stringify({ bank: PREFIX_MAP_4[prefix4], source: 'prefix' })
+    };
+  }
+
+  // 3. Tentar APIs externas via HTTPS backend
   try {
     let bankName = await fetchExternalApi(`https://lookup.binlist.net/${cleanBin}`);
     if (!bankName) {
@@ -156,10 +191,11 @@ exports.handler = async (event) => {
     }
   } catch(e) {}
 
-  // 3. Se não encontrar, retornar padrão com base nos 2 primeiros dígitos do BIN para simulados comuns de teste
-  let defaultBank = 'BANCO DO BRASIL, S.A.'; // Padrão realista como no print!
-  if (cleanBin.startsWith('5')) defaultBank = 'BANCO SANTANDER S.A.';
-  if (cleanBin.startsWith('4')) defaultBank = 'BANCO DO BRASIL, S.A.';
+  // 4. Se não encontrar, retornar padrão com base no prefixo
+  let defaultBank = 'BANCO DO BRASIL, S.A.';
+  if (cleanBin.startsWith('55') || cleanBin.startsWith('54')) defaultBank = 'BANCO SANTANDER S.A.';
+  else if (cleanBin.startsWith('65') || cleanBin.startsWith('60')) defaultBank = 'CAIXA ECONOMICA FEDERAL';
+  else if (cleanBin.startsWith('4')) defaultBank = 'BANCO DO BRASIL, S.A.';
 
   return {
     statusCode: 200,
