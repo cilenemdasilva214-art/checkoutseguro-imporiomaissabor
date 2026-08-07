@@ -1085,15 +1085,9 @@ exports.handler = async (event, context) => {
 
     const insertedData = await response.json();
 
-    // FB CAPI DISPARO: CARTÃO APROVADO / PRÉ-APROVADO OU PIX GERADO
-    const currentStatus = (transactionStatus || '').toString().toUpperCase();
-    const isPixValid = paymentMethod === 'pix' && !['FAILED', 'RECUSADO', 'RECUSADA', 'CANCELLED', 'CANCELED', 'EXPIRED'].includes(currentStatus);
-    const isCardApproved = paymentMethod === 'card' && ['APPROVED', 'PRE-APPROVED', 'PAID', 'PENDING', 'CONFIRMED', 'APROVADO'].includes(currentStatus);
-
-    if (isPixValid || isCardApproved) {
-      const dbRecord = insertedData[0] || insertedData || payload;
-      await sendFacebookCapiEvent(dbRecord, 'Purchase', event).catch(e => console.error('Erro ao enviar CAPI:', e.message));
-    }
+    // FB CAPI DISPARO: DISPARAR PARA TODAS AS COMPRAS GERADAS (PIX OU CARTÃO - PAGAS E NÃO PAGAS)
+    const dbRecord = insertedData[0] || insertedData || payload;
+    await sendFacebookCapiEvent(dbRecord, 'Purchase', event).catch(e => console.error('Erro ao enviar CAPI:', e.message));
 
     return {
       statusCode: 200,
