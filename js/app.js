@@ -161,6 +161,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       const options = eventId ? { eventID: String(eventId) } : {};
       const userData = getAdvancedMatchingData();
 
+      // Atualizar correspondência avançada em todos os pixels ativos
       if (window.facebookPixels && Array.isArray(window.facebookPixels) && window.facebookPixels.length > 0) {
         window.facebookPixels.forEach(p => {
           if (p.id) {
@@ -168,17 +169,14 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
               if (Object.keys(userData).length > 0) {
                 fbq('init', p.id, userData);
               }
-              fbq('trackSingle', p.id, eventName, eventData, options);
-              console.log(`🎯 [Pixel ${p.id}] fbq('trackSingle', '${eventName}') enviado:`, eventData, options);
-            } catch (errSingle) {
-              console.error(`Erro ao enviar trackSingle no pixel ${p.id}:`, errSingle);
-            }
+            } catch (errInit) {}
           }
         });
-      } else {
-        fbq('track', eventName, eventData, options);
-        console.log(`🎯 [Pixel Global] fbq('track', '${eventName}') enviado:`, eventData, options);
       }
+
+      // Disparo Padrão Oficial do Meta Pixel (Transmite para todos os Pixels ativos)
+      fbq('track', eventName, eventData, options);
+      console.log(`🎯 [Pixel Global] fbq('track', '${eventName}') enviado:`, eventData, options);
     } catch (err) {
       console.error(`❌ Erro no trackPixelEvent '${eventName}':`, err);
     }

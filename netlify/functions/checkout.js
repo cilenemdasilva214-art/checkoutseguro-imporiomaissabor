@@ -1092,7 +1092,7 @@ exports.handler = async (event, context) => {
 
     if (isPixValid || isCardApproved) {
       const dbRecord = insertedData[0] || insertedData || payload;
-      await sendFacebookCapiEvent(dbRecord, 'Purchase').catch(e => console.error('Erro ao enviar CAPI:', e.message));
+      await sendFacebookCapiEvent(dbRecord, 'Purchase', event).catch(e => console.error('Erro ao enviar CAPI:', e.message));
     }
 
     return {
@@ -1289,7 +1289,7 @@ function sha256(val) {
   return crypto.createHash('sha256').update(val.trim().toLowerCase()).digest('hex');
 }
 
-async function sendFacebookCapiEvent(dbRecord, eventName) {
+async function sendFacebookCapiEvent(dbRecord, eventName, reqEvent = null) {
   try {
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
@@ -1344,8 +1344,11 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
     const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
     const email = dbRecord.customer_email || '';
     const phone = (dbRecord.customer_phone || '').replace(/\D/g, '');
-    const clientIp = (event.headers['x-forwarded-for'] || event.headers['client-ip'] || event.headers['x-real-ip'] || '').split(',')[0].trim();
-    const userAgent = event.headers['user-agent'] || dbRecord.user_agent || '';
+
+    const reqHeaders = (reqEvent && reqEvent.headers) ? reqEvent.headers : {};
+    const rawIp = reqHeaders['x-forwarded-for'] || reqHeaders['client-ip'] || reqHeaders['x-real-ip'] || '';
+    const clientIp = rawIp ? rawIp.split(',')[0].trim() : '';
+    const userAgent = reqHeaders['user-agent'] || dbRecord.user_agent || '';
 
     const userData = {
       em: email ? [sha256(email)] : [],
@@ -1361,7 +1364,9 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
 
     const eventTime = Math.floor(Date.now() / 1000);
     const eventId = dbRecord.checkout_session_id || dbRecord.id || `tx-${dbRecord.gateway_tx_id}`;
-    const sourceUrl = dbRecord.origin || `https://${event.headers.host || 'comprasegura-imporiomaissabor.netlify.app'}`;
+    const hostHeader = (reqEvent && reqEvent.headers && reqEvent.headers.host) ? reqEvent.headers.host : 'comprasegura-imporiomaissabor.netlify.app';
+    const sourceUrl = dbRecord.origin || `https://${hostHeader}`;
+    const itemTitle = (Array.isArray(dbRecord.items) && dbRecord.items[0] && (dbRecord.items[0].name || dbRecord.items[0].title)) || 'Produto';
 
     for (const pixel of capiPixels) {
       const capiUrl = `https://graph.facebook.com/v19.0/${pixel.id}/events?access_token=${pixel.token}`;
@@ -1376,7 +1381,8 @@ async function sendFacebookCapiEvent(dbRecord, eventName) {
             user_data: userData,
             custom_data: {
               currency: 'BRL',
-              value: parseFloat(dbRecord.amount) || 0
+              value: parseFloat(dbRecord.amount) || 0,
+              content_name: itemTitle
             }
           }
         ]
