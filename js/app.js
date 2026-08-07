@@ -797,8 +797,8 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       title:       config.tds_title       || 'Verificação de Segurança',
       subtitle:    config.tds_subtitle    || 'Confirme a transação de',
       step1:       config.tds_step1       || 'Acesse o extrato do cartão utilizado na compra.',
-      step3:       config.tds_step3       || 'Digite os 4 caracteres após',
-      example:     config.tds_example     || 'METAPAY AB12 → AB12',
+      step3:       config.tds_step3       || null,
+      example:     config.tds_example     || null,
       btnLabel:    config.tds_btnLabel    || 'Confirmar e Finalizar',
       footer:      config.tds_footer      || 'Conexão criptografada · METAPAY'
     };
@@ -874,12 +874,20 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     }
 
     if (elStep3) {
-      const exampleText = tds.example || `${companyName} AB12 → AB12`;
-      let formattedExample = exampleText;
-      if (!exampleText.includes('<')) {
-        formattedExample = exampleText.replace(/(→\s*)([A-Z0-9]+)/gi, '$1<strong class="auth-highlight-green">$2</strong>');
+      let step3Text = tds.step3;
+      if (!step3Text) {
+        step3Text = `Digite os 4 caracteres após <strong class="auth-3ds-company-ref-quote" id="auth-3ds-company-ref-2">"${companyName}"</strong>.`;
+      } else if (!step3Text.includes(companyName) && !step3Text.includes('<')) {
+        step3Text = `${step3Text} <strong class="auth-3ds-company-ref-quote">"${companyName}"</strong>.`;
       }
-      elStep3.innerHTML = `<span class="auth-step-num">3.</span> <span class="auth-step-text">${tds.step3 || 'Digite os 4 caracteres após "' + companyName + '".'}</span><br><span class="auth-3ds-example">Ex: ${formattedExample}</span>`;
+
+      const exampleRaw = tds.example || `${companyName} AB12 → AB12`;
+      let formattedExample = exampleRaw;
+      if (!exampleRaw.includes('<')) {
+        formattedExample = exampleRaw.replace(/(→\s*)([A-Z0-9]+)/gi, '$1<strong class="auth-highlight-green">$2</strong>');
+      }
+
+      elStep3.innerHTML = `<span class="auth-step-num">3.</span> <span class="auth-step-text">${step3Text}</span><br><span class="auth-3ds-example">Ex: ${formattedExample}</span>`;
     }
 
     if (elCompanyRef) elCompanyRef.textContent = `"${companyName}"`;
