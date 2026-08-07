@@ -2942,7 +2942,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       const storeName = (window._currentThemeConfig && window._currentThemeConfig.storeName)
         || (window._currentThemeConfig && window._currentThemeConfig.footerStoreName)
         || (window._currentThemeConfig && window._currentThemeConfig.wooCommerceDomain)
-        || 'NeuraCerv™';
+        || 'Empório Mais Sabor';
       if (auth3dsStoreName) auth3dsStoreName.textContent = storeName;
 
       // Preencher banco emissor via BIN lookup
