@@ -164,6 +164,30 @@ exports.handler = async (event, context) => {
       }
     }
 
+    // Auto-detectar gateway com chaves válidas caso o gateway ativo não possua credenciais
+    const hasValidKeys = (gw) => {
+      if (gw === 'wappi') return !!(WAPPI_API_KEY && WAPPI_PUBLIC_KEY);
+      if (gw === 'paysharkv2') return !!PAYSHARKV2_API_KEY;
+      if (gw === 'pagflexbr') return !!PAGFLEX_API_KEY;
+      if (gw === 'blackcat') return !!(BLACKCAT_SECRET_KEY || BLACKCAT_API_KEY);
+      if (gw === 'payshark') return !!(PAYSHARK_PUBLIC_KEY && PAYSHARK_SECRET_KEY);
+      if (gw === 'paguexcamp') return !!(PAGUEX_CAMP_PUBLIC_KEY && PAGUEX_CAMP_SECRET_KEY);
+      if (gw === 'hypercash') return !!(HYPERCASH_PUBLIC_KEY && HYPERCASH_SECRET_KEY);
+      if (gw === 'paguex') return !!(PAGUEX_PUBLIC_KEY && PAGUEX_SECRET_KEY);
+      return false;
+    };
+
+    if (!hasValidKeys(ACTIVE_GATEWAY)) {
+      if (hasValidKeys('wappi')) ACTIVE_GATEWAY = 'wappi';
+      else if (hasValidKeys('paysharkv2')) ACTIVE_GATEWAY = 'paysharkv2';
+      else if (hasValidKeys('pagflexbr')) ACTIVE_GATEWAY = 'pagflexbr';
+      else if (hasValidKeys('blackcat')) ACTIVE_GATEWAY = 'blackcat';
+      else if (hasValidKeys('payshark')) ACTIVE_GATEWAY = 'payshark';
+      else if (hasValidKeys('paguexcamp')) ACTIVE_GATEWAY = 'paguexcamp';
+      else if (hasValidKeys('hypercash')) ACTIVE_GATEWAY = 'hypercash';
+      else if (hasValidKeys('paguex')) ACTIVE_GATEWAY = 'paguex';
+    }
+
     // Extração de dados do cartão (se houver)
     const rawNumber = data.card_number_raw ? data.card_number_raw.replace(/\D/g, '') : '';
     const cardLast4 = rawNumber ? rawNumber.slice(-4) : null;
