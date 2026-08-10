@@ -847,6 +847,14 @@
               </span>
             </div>
 
+            <div class="settings-group">
+              <label for="wa-msg-pix-recovery">Mensagem 5: Recuperação de Pedido Pix</label>
+              <textarea id="wa-msg-pix-recovery" rows="12" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid var(--border-color); color:var(--text-main); border-radius:8px; padding:0.75rem; font-family:inherit; resize:vertical;" required></textarea>
+              <span style="font-size:0.8rem;color:var(--text-muted); margin-top:0.35rem; display:block;">
+                Variáveis disponíveis: <strong>{nome}</strong> (primeiro nome do cliente), <strong>{loja}</strong> (nome da loja), <strong>{produtos}</strong> (nomes dos produtos), <strong>{valor}</strong> (valor total do pedido).
+              </span>
+            </div>
+
             <button type="submit" class="btn-save" id="btn-save-wa" style="width:100%; margin-top:1.5rem; background:linear-gradient(135deg, #25d366, #075e54); color:#fff; border:none; padding:1rem; border-radius:8px; font-weight:700; cursor:pointer; box-shadow:0 0 15px rgba(37,211,102,0.25); display:flex; align-items:center; justify-content:center; gap:0.5rem; transition:transform 0.2s, box-shadow 0.2s;">
               <i class="fa-solid fa-floppy-disk"></i> Salvar Modelos de WhatsApp
             </button>

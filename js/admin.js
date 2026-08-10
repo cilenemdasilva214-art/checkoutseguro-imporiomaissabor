@@ -210,6 +210,23 @@ Assim que você confirmar, processaremos o pagamento na hora e enviaremos o comp
 Fico no aguardo! \u{1F60A}`;
   let waMsgCard = sanitizeWaMsg(safeStorage.getItem('checkout_wa_msg_card_v2'), defaultWaMsgCard);
 
+  const defaultWaMsgPixRecovery = `Olá, {nome}! Tudo bem? 
+
+Aqui é a equipe do {loja}. 
+
+Vimos que você iniciou uma compra em nossa loja, mas o pedido ainda não foi finalizado. Gostaríamos de saber se aconteceu algum problema durante o pagamento ou se podemos ajudar você. 
+
+Produto: {produtos}
+Valor: {valor}
+
+Seu pedido ainda pode estar disponível para finalização. 
+
+Se você teve alguma dificuldade para concluir a compra, responda esta mensagem e nossa equipe terá prazer em ajudar. 
+
+{loja}
+Agradecemos pela preferência e esperamos você!`;
+  let waMsgPixRecovery = sanitizeWaMsg(safeStorage.getItem('checkout_wa_msg_pix_recovery_v2'), defaultWaMsgPixRecovery);
+
   // ==========================================
   // MAPEAMENTO DE ELEMENTOS DOM
   // ==========================================
@@ -349,6 +366,7 @@ Fico no aguardo! \u{1F60A}`;
   const waMsgShippedTextarea = document.getElementById('wa-msg-shipped');
   const waMsgPixTextarea = document.getElementById('wa-msg-pix');
   const waMsgCardTextarea = document.getElementById('wa-msg-card');
+  const waMsgPixRecoveryTextarea = document.getElementById('wa-msg-pix-recovery');
   const btnSaveWa = document.getElementById('btn-save-wa');
 
   // Inicializar os campos do formulário de WhatsApp
@@ -357,6 +375,7 @@ Fico no aguardo! \u{1F60A}`;
   if (waMsgShippedTextarea) waMsgShippedTextarea.value = waMsgShipped;
   if (waMsgPixTextarea) waMsgPixTextarea.value = waMsgPix;
   if (waMsgCardTextarea) waMsgCardTextarea.value = waMsgCard;
+  if (waMsgPixRecoveryTextarea) waMsgPixRecoveryTextarea.value = waMsgPixRecovery;
 
   // ==========================================
   // 1. TELA DE SEGURANÇA (LOGIN LOCK SCREEN)
@@ -869,6 +888,10 @@ Fico no aguardo! \u{1F60A}`;
         if (configData.checkout_wa_msg_card_v2) {
           waMsgCard = sanitizeWaMsg(configData.checkout_wa_msg_card_v2, defaultWaMsgCard);
           if (waMsgCardTextarea) waMsgCardTextarea.value = waMsgCard;
+        }
+        if (configData.checkout_wa_msg_pix_recovery_v2) {
+          waMsgPixRecovery = sanitizeWaMsg(configData.checkout_wa_msg_pix_recovery_v2, defaultWaMsgPixRecovery);
+          if (waMsgPixRecoveryTextarea) waMsgPixRecoveryTextarea.value = waMsgPixRecovery;
         }
 
         // Configurações de Integração de Gateways
@@ -1826,8 +1849,16 @@ Fico no aguardo! \u{1F60A}`;
             .replace(/{produtos}/g, itemsText)
             .replace(/{valor}/g, formattedVal);
 
+          const textPixRecovery = waMsgPixRecovery
+            .replace(/{nome}/g, name.split(' ')[0])
+            .replace(/{loja}/g, waStoreName)
+            .replace(/{pedido}/g, orderCode)
+            .replace(/{produtos}/g, itemsText)
+            .replace(/{valor}/g, formattedVal);
+
           const linkPix = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textPix)}`;
           const linkCard = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textCard)}`;
+          const linkPixRecovery = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textPixRecovery)}`;
           
           waButtons = `
             <a href="${linkConfirmed}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;" title="Enviar Confirmação de Pedido">
@@ -1850,6 +1881,9 @@ Fico no aguardo! \u{1F60A}`;
               </a>
               <a href="${linkPixKeyOnly}" target="_blank" class="btn-table-action" style="background:#128c7e;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar Chave Pix no WhatsApp">
                 <i class="fa-brands fa-whatsapp"></i> Enviar Chave Pix
+              </a>
+              <a href="${linkPixRecovery}" target="_blank" class="btn-table-action" style="background:#eab308;color:#000;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar Recuperação de Pedido Pix no WhatsApp">
+                <i class="fa-brands fa-whatsapp"></i> Recuperação de Pedido
               </a>
             `;
           } else if (isCard) {
@@ -1969,7 +2003,15 @@ Fico no aguardo! \u{1F60A}`;
             .replace(/{produtos}/g, itemsText)
             .replace(/{valor}/g, formattedVal);
 
+          const textPixRecovery = waMsgPixRecovery
+            .replace(/{nome}/g, name.split(' ')[0])
+            .replace(/{loja}/g, waStoreName)
+            .replace(/{pedido}/g, orderCode)
+            .replace(/{produtos}/g, itemsText)
+            .replace(/{valor}/g, formattedVal);
+
           const linkPix = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textPix)}`;
+          const linkPixRecovery = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textPixRecovery)}`;
           
           waButtons = `
             <a href="${linkConfirmed}" target="_blank" class="btn-table-action" style="background:#25d366;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;" title="Enviar Confirmação de Pedido">
@@ -1988,6 +2030,9 @@ Fico no aguardo! \u{1F60A}`;
             </a>
             <a href="${linkPixKeyOnly}" target="_blank" class="btn-table-action" style="background:#128c7e;color:#fff;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar Chave Pix no WhatsApp">
               <i class="fa-brands fa-whatsapp"></i> Enviar Chave Pix
+            </a>
+            <a href="${linkPixRecovery}" target="_blank" class="btn-table-action" style="background:#eab308;color:#000;border:none;padding:0.25rem 0.5rem;font-size:0.75rem;text-decoration:none;display:inline-flex;align-items:center;gap:0.2rem;border-radius:4px;font-weight:bold;" title="Enviar Recuperação de Pedido Pix no WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i> Recuperação de Pedido
             </a>
           `;
         } else {
@@ -2763,12 +2808,14 @@ Fico no aguardo! \u{1F60A}`;
       waMsgShipped = waMsgShippedTextarea.value;
       waMsgPix = waMsgPixTextarea.value;
       waMsgCard = waMsgCardTextarea.value;
+      waMsgPixRecovery = waMsgPixRecoveryTextarea ? waMsgPixRecoveryTextarea.value : waMsgPixRecovery;
       
       safeStorage.setItem('checkout_wa_store_name', waStoreName);
       safeStorage.setItem('checkout_wa_msg_confirmed_v2', waMsgConfirmed);
       safeStorage.setItem('checkout_wa_msg_shipped_v2', waMsgShipped);
       safeStorage.setItem('checkout_wa_msg_pix_v2', waMsgPix);
       safeStorage.setItem('checkout_wa_msg_card_v2', waMsgCard);
+      safeStorage.setItem('checkout_wa_msg_pix_recovery_v2', waMsgPixRecovery);
       
       // Mudar visual do botão de salvar temporariamente
       btnSaveWa.disabled = true;
@@ -2785,7 +2832,8 @@ Fico no aguardo! \u{1F60A}`;
             checkout_wa_msg_confirmed_v2: waMsgConfirmed,
             checkout_wa_msg_shipped_v2: waMsgShipped,
             checkout_wa_msg_pix_v2: waMsgPix,
-            checkout_wa_msg_card_v2: waMsgCard
+            checkout_wa_msg_card_v2: waMsgCard,
+            checkout_wa_msg_pix_recovery_v2: waMsgPixRecovery
           })
         });
         
