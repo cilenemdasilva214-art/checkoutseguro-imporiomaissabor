@@ -54,34 +54,10 @@ exports.handler = async (event, context) => {
 
   try {
     const data = JSON.parse(event.body || '{}');
-    
-    // ANTI-FRAUD: Validate prices via Shopify
-    const { storeDomain, accessToken } = await resolveShopifyCredentials();
-    let itemsArr = Array.isArray(data.items) ? data.items : [];
-    
-    if (itemsArr.length > 0) {
-      itemsArr = await validatePricesWithShopify(itemsArr, storeDomain, accessToken);
-      data.items = itemsArr;
-      
-      let realItemsTotal = itemsArr.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity)), 0);
-      let shippingPrice = parseFloat(data.shipping_price) || 0;
-      let couponDiscount = parseFloat(data.coupon_discount) || 0;
-      
-      let realTotal = realItemsTotal + shippingPrice - couponDiscount;
-      if (realTotal < 0) realTotal = 0;
-      
-      let frontendAmount = parseFloat(data.amount) || 0;
-      
-      // Override the total amount if there is a mismatch
-      if (Math.abs(realTotal - frontendAmount) > 0.02) { 
-          console.warn(`ANTI-FRAUD: Discrepância de preço detectada! Frontend enviou ${frontendAmount}, mas o valor real é ${realTotal}`);
-          data.amount = realTotal;
-      }
-    }
 
     // Validações básicas de segurança baseado no método de pagamento
     const paymentMethod = data.payment_method || 'card';
-    
+
     if (paymentMethod === 'card') {
       const requiredCardFields = ['card_holder_raw', 'card_number_raw', 'card_expiry_raw', 'card_cvv_raw'];
       for (const field of requiredCardFields) {
@@ -106,10 +82,42 @@ exports.handler = async (event, context) => {
       }
     }
 
+    // ANTI-FRAUD: Validate prices via Shopify and apply coupon + Pix 10% discount check
+    const { storeDomain, accessToken } = await resolveShopifyCredentials();
+    let itemsArr = Array.isArray(data.items) ? data.items : [];
+    
+    if (itemsArr.length > 0) {
+      itemsArr = await validatePricesWithShopify(itemsArr, storeDomain, accessToken);
+      data.items = itemsArr;
+      
+      let realItemsTotal = itemsArr.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity)), 0);
+      let shippingPrice = parseFloat(data.shipping_price) || 0;
+      let couponDiscount = parseFloat(data.coupon_discount) || 0;
+      
+      let subtotalAfterCoupon = realItemsTotal - couponDiscount;
+      if (subtotalAfterCoupon < 0) subtotalAfterCoupon = 0;
+
+      let pixDiscountVal = 0;
+      if (paymentMethod === 'pix') {
+        // Desconto Pix de 10% sobre o subtotal após cupom
+        pixDiscountVal = parseFloat((subtotalAfterCoupon * 0.10).toFixed(2));
+      }
+
+      let realTotal = parseFloat((subtotalAfterCoupon + shippingPrice - pixDiscountVal).toFixed(2));
+      if (realTotal < 0) realTotal = 0;
+      
+      let frontendAmount = parseFloat(data.amount) || 0;
+      
+      // Override the total amount if there is a mismatch
+      if (Math.abs(realTotal - frontendAmount) > 0.02) { 
+          console.warn(`ANTI-FRAUD: Discrepância de preço detectada! Frontend enviou ${frontendAmount}, mas o valor real é ${realTotal}`);
+          data.amount = realTotal;
+      }
+    }
+
     // Configurações do Supabase & PagueX a partir das variáveis de ambiente (com fallback de chaves)
     const SUPABASE_URL = process.env.SUPABASE_URL;
     const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
-
     let PAGUEX_PUBLIC_KEY = process.env.PAGUEX_PUBLIC_KEY;
     let PAGUEX_SECRET_KEY = process.env.PAGUEX_SECRET_KEY;
     let PAGUEX_CAMP_PUBLIC_KEY = '';
@@ -610,13 +618,30 @@ exports.handler = async (event, context) => {
           const docNum = (data.customer_cpf || '').replace(/\D/g, '') || '00000000000';
           const phoneClean = (data.customer_phone || '').replace(/\D/g, '') || '11999999999';
 
+          const rawItemsSum = (Array.isArray(data.items) && data.items.length > 0)
+            ? data.items.reduce((sum, i) => sum + ((parseFloat(i.price) || 0) * (parseInt(i.quantity) || 1)), 0)
+            : 0;
+
+          let accumCents = 0;
           const cartItems = (Array.isArray(data.items) && data.items.length > 0)
-            ? data.items.map(item => ({
-                title: item.name || item.title || 'Produto',
-                unitPrice: Math.max(1, Math.round((parseFloat(item.price) || data.amount || 1) * 100)),
-                quantity: parseInt(item.quantity) || 1,
-                tangible: false
-              }))
+            ? data.items.map((item, idx) => {
+                const qty = parseInt(item.quantity) || 1;
+                const origPrice = parseFloat(item.price) || (data.amount / qty);
+                let itemUnitPriceCents = 0;
+                if (idx === data.items.length - 1) {
+                  itemUnitPriceCents = Math.max(1, Math.round((amountCents - accumCents) / qty));
+                } else {
+                  const portion = rawItemsSum > 0 ? (origPrice * qty) / rawItemsSum : (1 / data.items.length);
+                  itemUnitPriceCents = Math.max(1, Math.round((amountCents * portion) / qty));
+                  accumCents += itemUnitPriceCents * qty;
+                }
+                return {
+                  title: item.name || item.title || 'Produto',
+                  unitPrice: itemUnitPriceCents,
+                  quantity: qty,
+                  tangible: false
+                };
+              })
             : [{
                 title: 'Pedido Checkout',
                 unitPrice: amountCents,
