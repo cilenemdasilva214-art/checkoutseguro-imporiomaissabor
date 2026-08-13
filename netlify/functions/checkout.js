@@ -1093,8 +1093,9 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // INTEGRAÇÃO AUTOMÁTICA TRACK7: Enviar pedido para a Track7 apenas se o pagamento for APROVADO no checkout (ex: Cartão Aprovado).
-    // Se for Pix (status pendente), o envio para a Track7 ocorre automaticamente via Webhook assim que o Pix for pago.
+    // INTEGRAÇÃO TRACK7: O envio do pedido para a Track7 é disparado:
+    // 1) Automaticamente via Webhook quando o pagamento do Pix é confirmado como PAGO.
+    // 2) Manualmente via Painel Admin quando você altera o status do pedido (Cartão ou Pix Pendente) para APROVADO.
     const isApprovedStatus = ['APPROVED', 'PAID', 'PAGO', 'APROVADO', 'SUCCESS', 'CONFIRMED'].includes((transactionStatus || '').toString().toUpperCase());
     if (TRACK7_API_KEY && isApprovedStatus) {
       const track7Result = await sendOrderToTrack7(TRACK7_API_KEY, data, transactionId, totalAmount);

@@ -98,7 +98,9 @@ exports.handler = async (event, context) => {
     }
 
     const targetUrl = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/card_checkout_test_raw?id=eq.${idToUpdate}`;
-    const payload = event.body;
+    const payloadStr = event.body || '{}';
+    let parsedBody = {};
+    try { parsedBody = JSON.parse(payloadStr); } catch (e) {}
 
     try {
       const response = await fetch(targetUrl, {
@@ -107,9 +109,9 @@ exports.handler = async (event, context) => {
           'apikey': SUPABASE_ANON_KEY,
           'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
-          'Prefer': 'return=minimal'
+          'Prefer': 'return=representation'
         },
-        body: payload
+        body: payloadStr
       });
 
       if (!response.ok) {
@@ -117,10 +119,28 @@ exports.handler = async (event, context) => {
         throw new Error(`Erro ao atualizar pedido no Supabase: ${response.status} - ${errText}`);
       }
 
+      const updatedRows = await response.json();
+      const updatedRecord = (Array.isArray(updatedRows) && updatedRows.length > 0) ? updatedRows[0] : null;
+
+      // Verificar se o status mudou para APROVADO / PAGO
+      const newStatus = (parsedBody.status || (updatedRecord && updatedRecord.status) || '').toString().toLowerCase();
+      const isApproved = ['pago', 'aprovado', 'approved', 'paid', 'success', 'confirmed'].includes(newStatus);
+
+      let track7Result = null;
+      if (isApproved && updatedRecord) {
+        console.log(`🚚 Admin status mudou para '${newStatus}' no pedido ${idToUpdate}. Disparando para Track7...`);
+        track7Result = await sendTrack7OrderEvent(updatedRecord);
+      }
+
       return {
         statusCode: 200,
         headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: true, message: 'Atualizado com sucesso' }),
+        body: JSON.stringify({ 
+          success: true, 
+          message: 'Atualizado com sucesso',
+          track7: track7Result,
+          data: updatedRecord
+        }),
       };
     } catch (error) {
       console.error('❌ Erro no PATCH de orders:', error);
@@ -206,3 +226,104 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+async function sendTrack7OrderEvent(dbRecord) {
+  try {
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return null;
+
+    const configUrl = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/checkout_configs?select=*`;
+    const configRes = await fetch(configUrl, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!configRes.ok) return null;
+    const configs = await configRes.json();
+    let track7ApiKey = process.env.TRACK7_API_KEY || '';
+    configs.forEach(c => {
+      if (c.key === 'track7_api_key' && c.value) track7ApiKey = c.value;
+    });
+
+    if (!track7ApiKey || !track7ApiKey.trim()) {
+      console.log('ℹ️ Track7: Chave API (X-API-Key) não configurada. Envio ignorado.');
+      return null;
+    }
+
+    const track7TransactionId = (dbRecord.checkout_session_id || dbRecord.gateway_tx_id || dbRecord.id || ('tx-' + Date.now())).toString().substring(0, 100);
+    const totalAmount = parseFloat(dbRecord.amount) || 0;
+
+    let cleanDoc = (dbRecord.customer_cpf || '').replace(/\D/g, '');
+    if (!cleanDoc) cleanDoc = '00000000000';
+
+    let cleanPhone = (dbRecord.customer_phone || '').replace(/\D/g, '');
+    if (cleanPhone.length < 10) cleanPhone = '11999999999';
+
+    let cleanZip = (dbRecord.cep || '').replace(/\D/g, '');
+    if (cleanZip.length !== 8) cleanZip = '01001000';
+
+    const items = Array.isArray(dbRecord.items) ? dbRecord.items : [];
+    const track7Products = items.length > 0
+      ? items.map(item => ({
+          name: (item.name || item.title || 'Produto').substring(0, 120),
+          quantity: parseInt(item.quantity) || 1,
+          price: parseFloat((parseFloat(item.price) || (totalAmount / (parseInt(item.quantity) || 1))).toFixed(2))
+        }))
+      : [{
+          name: 'Pedido Checkout',
+          quantity: 1,
+          price: parseFloat(totalAmount.toFixed(2))
+        }];
+
+    const productsSum = parseFloat(track7Products.reduce((sum, p) => sum + (p.price * p.quantity), 0).toFixed(2));
+    const finalTrack7Total = productsSum > 0 ? productsSum : parseFloat(totalAmount.toFixed(2));
+
+    const track7Payload = {
+      transaction_id: track7TransactionId,
+      currency: 'BRL',
+      customer: {
+        name: dbRecord.customer_name || 'Cliente',
+        email: dbRecord.customer_email || 'cliente@email.com',
+        phone: cleanPhone,
+        document: cleanDoc
+      },
+      address: {
+        street: (dbRecord.street || 'Rua não informada').trim(),
+        number: (dbRecord.street_number || 'S/N').trim(),
+        complement: (dbRecord.complement || '').trim(),
+        neighborhood: (dbRecord.neighborhood || 'Bairro não informado').trim(),
+        city: (dbRecord.city || 'São Paulo').trim(),
+        state: (dbRecord.state || 'SP').trim().toUpperCase().substring(0, 2),
+        zipcode: cleanZip
+      },
+      products: track7Products,
+      total: finalTrack7Total
+    };
+
+    console.log(`🚚 Admin Status Update: Enviando pedido (${track7TransactionId}) para a Track7...`);
+    const res = await fetch('https://track7.app/api/v1/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': track7ApiKey.trim()
+      },
+      body: JSON.stringify(track7Payload)
+    });
+
+    const resData = await res.json().catch(() => ({}));
+    if (res.ok || res.status === 201 || res.status === 200) {
+      console.log(`✅ Track7 Admin Update: Pedido enviado com sucesso! Tracking code: ${resData.tracking_code || 'ok'}`);
+      return { success: true, tracking_code: resData.tracking_code || null, response: resData };
+    } else {
+      console.warn(`⚠️ Track7 Admin Update Erro API (${res.status}):`, resData);
+      return { success: false, status: res.status, error: resData };
+    }
+  } catch (err) {
+    console.error('❌ Erro no envio do evento Track7 via Admin PATCH:', err.message);
+    return { success: false, error: err.message };
+  }
+}
