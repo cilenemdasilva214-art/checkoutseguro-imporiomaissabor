@@ -26,6 +26,94 @@ async function validatePricesWithShopify(items, storeDomain, accessToken) {
   return validItems;
 }
 
+async function sendOrderToTrack7(apiKey, data, transactionId, totalAmount) {
+  if (!apiKey || !apiKey.trim()) {
+    console.log('ℹ️ Track7: Chave API (X-API-Key) não configurada. Envio de rastreio ignorado.');
+    return null;
+  }
+
+  try {
+    console.log('🚚 Enviando pedido para a API Track7...');
+    const track7Url = 'https://track7.app/api/v1/orders';
+
+    const track7TransactionId = (data.checkout_session_id || transactionId || ('tx-' + Date.now())).toString().substring(0, 100);
+
+    let cleanDoc = (data.customer_cpf || '').replace(/\D/g, '');
+    if (!cleanDoc) cleanDoc = '00000000000';
+
+    let cleanPhone = (data.customer_phone || '').replace(/\D/g, '');
+    if (cleanPhone.length < 10) cleanPhone = '11999999999';
+
+    let cleanZip = (data.cep || '').replace(/\D/g, '');
+    if (cleanZip.length !== 8) cleanZip = '01001000';
+
+    const addressNumber = (data.street_number || '').trim() || 'S/N';
+    const addressStreet = (data.street || '').trim() || 'Rua não informada';
+    const addressNeighborhood = (data.neighborhood || '').trim() || 'Bairro não informado';
+    const addressCity = (data.city || '').trim() || 'São Paulo';
+    const addressState = (data.state || 'SP').trim().toUpperCase().substring(0, 2);
+
+    const track7Products = (Array.isArray(data.items) && data.items.length > 0)
+      ? data.items.map(item => ({
+          name: (item.name || item.title || 'Produto').substring(0, 120),
+          quantity: parseInt(item.quantity) || 1,
+          price: parseFloat((parseFloat(item.price) || (totalAmount / (parseInt(item.quantity) || 1))).toFixed(2))
+        }))
+      : [{
+          name: 'Pedido Checkout',
+          quantity: 1,
+          price: parseFloat(totalAmount.toFixed(2))
+        }];
+
+    const productsSum = parseFloat(track7Products.reduce((sum, p) => sum + (p.price * p.quantity), 0).toFixed(2));
+    const finalTrack7Total = productsSum > 0 ? productsSum : parseFloat(totalAmount.toFixed(2));
+
+    const track7Payload = {
+      transaction_id: track7TransactionId,
+      currency: 'BRL',
+      customer: {
+        name: data.customer_name || 'Cliente',
+        email: data.customer_email || 'cliente@email.com',
+        phone: cleanPhone,
+        document: cleanDoc
+      },
+      address: {
+        street: addressStreet,
+        number: addressNumber,
+        complement: (data.complement || '').trim() || '',
+        neighborhood: addressNeighborhood,
+        city: addressCity,
+        state: addressState,
+        zipcode: cleanZip
+      },
+      products: track7Products,
+      total: finalTrack7Total
+    };
+
+    const res = await fetch(track7Url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': apiKey.trim()
+      },
+      body: JSON.stringify(track7Payload)
+    });
+
+    const resData = await res.json().catch(() => ({}));
+
+    if (res.ok || res.status === 201 || res.status === 200) {
+      console.log(`✅ Track7: Pedido criado/enviado com sucesso! HTTP ${res.status}. Rastreio: ${resData.tracking_code || 'pendente'}`);
+      return { success: true, tracking_code: resData.tracking_code || null, response: resData };
+    } else {
+      console.warn(`⚠️ Track7 Erro API (${res.status}):`, resData);
+      return { success: false, status: res.status, error: resData };
+    }
+  } catch (err) {
+    console.error('❌ Falha ao integrar com a Track7:', err);
+    return { success: false, error: err.message };
+  }
+}
+
 exports.handler = async (event, context) => {
   // Tratar requisições do tipo OPTIONS (CORS preflight)
   if (event.httpMethod === 'OPTIONS') {
@@ -133,6 +221,7 @@ exports.handler = async (event, context) => {
     let BLACKCAT_API_KEY = BLACKCAT_SECRET_KEY;
     let WAPPI_PUBLIC_KEY = process.env.WAPPI_PUBLIC_KEY || '';
     let WAPPI_API_KEY = process.env.WAPPI_API_KEY || '';
+    let TRACK7_API_KEY = process.env.TRACK7_API_KEY || '';
     let ACTIVE_GATEWAY = 'paguex';
 
     if (SUPABASE_URL && SUPABASE_ANON_KEY) {
@@ -165,6 +254,7 @@ exports.handler = async (event, context) => {
             if (c.key === 'blackcat_api_key' && c.value) BLACKCAT_API_KEY = c.value;
             if (c.key === 'wappi_public_key' && c.value) WAPPI_PUBLIC_KEY = c.value;
             if (c.key === 'wappi_api_key' && c.value) WAPPI_API_KEY = c.value;
+            if (c.key === 'track7_api_key' && c.value) TRACK7_API_KEY = c.value;
           });
         }
       } catch (err) {
@@ -1001,6 +1091,17 @@ exports.handler = async (event, context) => {
           type: data.coupon_type
         }
       };
+    }
+
+    // INTEGRAÇÃO AUTOMÁTICA TRACK7: Enviar pedido para a Track7 se a chave API estiver configurada
+    if (TRACK7_API_KEY) {
+      const track7Result = await sendOrderToTrack7(TRACK7_API_KEY, data, transactionId, totalAmount);
+      if (track7Result) {
+        gatewayResponse = {
+          ...(gatewayResponse || {}),
+          track7: track7Result
+        };
+      }
     }
 
     // ========================================================
