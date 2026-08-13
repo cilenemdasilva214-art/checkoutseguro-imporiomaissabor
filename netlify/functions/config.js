@@ -113,6 +113,7 @@ exports.handler = async (event, context) => {
         blackcat_api_key: '',
         wappi_public_key: '',
         wappi_api_key: '',
+        wappi_webhook_secret: '',
         track7_api_key: ''
       };
  
@@ -156,6 +157,7 @@ exports.handler = async (event, context) => {
         if (c.key === 'blackcat_api_key') result.blackcat_api_key = c.value;
         if (c.key === 'wappi_public_key') result.wappi_public_key = c.value;
         if (c.key === 'wappi_api_key') result.wappi_api_key = c.value;
+        if (c.key === 'wappi_webhook_secret') result.wappi_webhook_secret = c.value;
         if (c.key === 'track7_api_key') result.track7_api_key = c.value;
       });
 
@@ -225,6 +227,7 @@ exports.handler = async (event, context) => {
         blackcat_api_key,
         wappi_public_key,
         wappi_api_key,
+        wappi_webhook_secret,
         track7_api_key
       } = data;
  
@@ -270,6 +273,7 @@ exports.handler = async (event, context) => {
       if (blackcat_api_key !== undefined) payloads.push({ key: 'blackcat_api_key', value: (blackcat_api_key || '').trim() });
       if (wappi_public_key !== undefined) payloads.push({ key: 'wappi_public_key', value: (wappi_public_key || '').trim() });
       if (wappi_api_key !== undefined) payloads.push({ key: 'wappi_api_key', value: (wappi_api_key || '').trim() });
+      if (wappi_webhook_secret !== undefined) payloads.push({ key: 'wappi_webhook_secret', value: (wappi_webhook_secret || '').trim() });
       if (track7_api_key !== undefined) payloads.push({ key: 'track7_api_key', value: (track7_api_key || '').trim() });
 
       // Salva ou atualiza usando upsert por Postgrest REST API

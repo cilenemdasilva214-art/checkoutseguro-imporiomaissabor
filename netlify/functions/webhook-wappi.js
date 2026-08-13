@@ -136,6 +136,24 @@ exports.handler = async (event, context) => {
 
     const payload = JSON.parse(event.body || '{}');
     console.log('📡 Webhook Wappi recebido:', JSON.stringify(payload));
+    console.log('📋 Webhook Wappi Headers:', JSON.stringify(event.headers));
+
+    // Buscar Webhook Secret salvo se houver
+    try {
+      const configUrl = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/checkout_configs?key=eq.wappi_webhook_secret&select=value`;
+      const configRes = await fetch(configUrl, {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+      });
+      if (configRes.ok) {
+        const configData = await configRes.json();
+        const savedSecret = (configData && configData[0] && configData[0].value) || process.env.WAPPI_WEBHOOK_SECRET || '';
+        if (savedSecret) {
+          console.log(`🔐 Webhook Secret configurado da Wappi: ${savedSecret.substring(0, 10)}...`);
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️ Não foi possível verificar wappi_webhook_secret:', e.message);
+    }
 
     const dataObj = payload.data || payload;
     const eventType = (payload.event || payload.type || '').toString().toUpperCase();

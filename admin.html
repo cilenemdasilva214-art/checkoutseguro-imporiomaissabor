@@ -1293,6 +1293,19 @@
                     </button>
                   </div>
                 </div>
+                <div class="settings-group">
+                  <label for="wappi-webhook-secret">Webhook Secret (Secret da Wappi)</label>
+                  <div class="settings-input-wrapper">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <input type="password" id="wappi-webhook-secret" placeholder="secret_...">
+                    <button type="button" class="btn-toggle-visibility" data-target="wappi-webhook-secret">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; display: block;">
+                    Insira o Webhook Secret da Wappi para autenticar notificações automáticas.
+                  </span>
+                </div>
                 <div class="settings-group" style="margin-top: 1rem; background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); padding: 12px; border-radius: 8px;">
                   <label style="color: #6366f1; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
                     <i class="fa-solid fa-link"></i> URL do Webhook Wappi

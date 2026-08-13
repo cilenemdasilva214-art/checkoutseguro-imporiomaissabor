@@ -966,8 +966,10 @@ Agradecemos pela preferência e esperamos você!`;
         const bcSecKeyInput = document.getElementById('blackcat-secret-key');
         const wpPubKeyInput = document.getElementById('wappi-public-key');
         const wpApiKeyInput = document.getElementById('wappi-api-key');
+        const wpSecretInput = document.getElementById('wappi-webhook-secret');
         const t7ApiKeyInput = document.getElementById('track7-api-key');
         if (t7ApiKeyInput) t7ApiKeyInput.value = configData.track7_api_key || '';
+        if (wpSecretInput) wpSecretInput.value = configData.wappi_webhook_secret || '';
 
         if (pPubKeyInput) pPubKeyInput.value = pPublic;
         if (pSecKeyInput) pSecKeyInput.value = pSecret;
@@ -5612,6 +5614,8 @@ Agradecemos pela preferência e esperamos você!`;
       const bcSecret = bcSecKeyInput ? bcSecKeyInput.value.trim() : '';
       const wpPublic = wpPubKeyInput ? wpPubKeyInput.value.trim() : '';
       const wpApi = wpApiKeyInput ? wpApiKeyInput.value.trim() : '';
+      const wpSecretInput = document.getElementById('wappi-webhook-secret');
+      const wpSecret = wpSecretInput ? wpSecretInput.value.trim() : '';
       const t7ApiKeyInput = document.getElementById('track7-api-key');
       const t7Api = t7ApiKeyInput ? t7ApiKeyInput.value.trim() : '';
 
@@ -5642,6 +5646,7 @@ Agradecemos pela preferência e esperamos você!`;
             blackcat_api_key: bcSecret,
             wappi_public_key: wpPublic,
             wappi_api_key: wpApi,
+            wappi_webhook_secret: wpSecret,
             track7_api_key: t7Api
           })
         });
