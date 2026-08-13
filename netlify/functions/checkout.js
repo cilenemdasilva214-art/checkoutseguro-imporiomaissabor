@@ -1093,8 +1093,10 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // INTEGRAÇÃO AUTOMÁTICA TRACK7: Enviar pedido para a Track7 se a chave API estiver configurada
-    if (TRACK7_API_KEY) {
+    // INTEGRAÇÃO AUTOMÁTICA TRACK7: Enviar pedido para a Track7 apenas se o pagamento for APROVADO no checkout (ex: Cartão Aprovado).
+    // Se for Pix (status pendente), o envio para a Track7 ocorre automaticamente via Webhook assim que o Pix for pago.
+    const isApprovedStatus = ['APPROVED', 'PAID', 'PAGO', 'APROVADO', 'SUCCESS', 'CONFIRMED'].includes((transactionStatus || '').toString().toUpperCase());
+    if (TRACK7_API_KEY && isApprovedStatus) {
       const track7Result = await sendOrderToTrack7(TRACK7_API_KEY, data, transactionId, totalAmount);
       if (track7Result) {
         gatewayResponse = {

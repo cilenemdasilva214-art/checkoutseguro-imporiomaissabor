@@ -192,10 +192,11 @@ exports.handler = async (event, context) => {
     const updatedRows = await updateRes.json();
     console.log(`✅ Webhook Wappi processado com sucesso. Registros afetados: ${updatedRows.length}`);
 
-    // Disparar CAPI se o status for PAGO / APROVADO
+    // Disparar CAPI e Track7 se o status for PAGO / APROVADO
     if (newStatus === 'pago' && Array.isArray(updatedRows) && updatedRows.length > 0) {
       const dbRecord = updatedRows[0];
       await sendFacebookCapiEvent(dbRecord, 'Purchase').catch(e => console.error('Erro ao enviar CAPI via Webhook Wappi:', e.message));
+      await sendTrack7OrderEvent(dbRecord).catch(e => console.error('Erro ao enviar Track7 via Webhook Wappi:', e.message));
     }
 
     return {
@@ -213,3 +214,98 @@ exports.handler = async (event, context) => {
     };
   }
 };
+
+async function sendTrack7OrderEvent(dbRecord) {
+  try {
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+    if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+
+    const configUrl = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/checkout_configs?select=*`;
+    const configRes = await fetch(configUrl, {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!configRes.ok) return;
+    const configs = await configRes.json();
+    let track7ApiKey = process.env.TRACK7_API_KEY || '';
+    configs.forEach(c => {
+      if (c.key === 'track7_api_key' && c.value) track7ApiKey = c.value;
+    });
+
+    if (!track7ApiKey || !track7ApiKey.trim()) return;
+
+    const track7TransactionId = (dbRecord.checkout_session_id || dbRecord.gateway_tx_id || dbRecord.id || ('tx-' + Date.now())).toString().substring(0, 100);
+    const totalAmount = parseFloat(dbRecord.amount) || 0;
+
+    let cleanDoc = (dbRecord.customer_cpf || '').replace(/\D/g, '');
+    if (!cleanDoc) cleanDoc = '00000000000';
+
+    let cleanPhone = (dbRecord.customer_phone || '').replace(/\D/g, '');
+    if (cleanPhone.length < 10) cleanPhone = '11999999999';
+
+    let cleanZip = (dbRecord.cep || '').replace(/\D/g, '');
+    if (cleanZip.length !== 8) cleanZip = '01001000';
+
+    const items = Array.isArray(dbRecord.items) ? dbRecord.items : [];
+    const track7Products = items.length > 0
+      ? items.map(item => ({
+          name: (item.name || item.title || 'Produto').substring(0, 120),
+          quantity: parseInt(item.quantity) || 1,
+          price: parseFloat((parseFloat(item.price) || (totalAmount / (parseInt(item.quantity) || 1))).toFixed(2))
+        }))
+      : [{
+          name: 'Pedido Checkout',
+          quantity: 1,
+          price: parseFloat(totalAmount.toFixed(2))
+        }];
+
+    const productsSum = parseFloat(track7Products.reduce((sum, p) => sum + (p.price * p.quantity), 0).toFixed(2));
+    const finalTrack7Total = productsSum > 0 ? productsSum : parseFloat(totalAmount.toFixed(2));
+
+    const track7Payload = {
+      transaction_id: track7TransactionId,
+      currency: 'BRL',
+      customer: {
+        name: dbRecord.customer_name || 'Cliente',
+        email: dbRecord.customer_email || 'cliente@email.com',
+        phone: cleanPhone,
+        document: cleanDoc
+      },
+      address: {
+        street: (dbRecord.street || 'Rua não informada').trim(),
+        number: (dbRecord.street_number || 'S/N').trim(),
+        complement: (dbRecord.complement || '').trim(),
+        neighborhood: (dbRecord.neighborhood || 'Bairro não informado').trim(),
+        city: (dbRecord.city || 'São Paulo').trim(),
+        state: (dbRecord.state || 'SP').trim().toUpperCase().substring(0, 2),
+        zipcode: cleanZip
+      },
+      products: track7Products,
+      total: finalTrack7Total
+    };
+
+    console.log(`🚚 Webhook: Enviando pedido PAGO (${track7TransactionId}) para a Track7...`);
+    const res = await fetch('https://track7.app/api/v1/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': track7ApiKey.trim()
+      },
+      body: JSON.stringify(track7Payload)
+    });
+
+    const resData = await res.json().catch(() => ({}));
+    if (res.ok || res.status === 201 || res.status === 200) {
+      console.log(`✅ Webhook Track7: Pedido pago enviado com sucesso! Tracking code: ${resData.tracking_code || 'ok'}`);
+    } else {
+      console.warn(`⚠️ Webhook Track7 Erro API (${res.status}):`, resData);
+    }
+  } catch (err) {
+    console.error('❌ Erro no envio do evento Track7 via Webhook:', err.message);
+  }
+}
