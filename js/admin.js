@@ -965,6 +965,7 @@ Agradecemos pela preferência e esperamos você!`;
         const bcPubKeyInput = document.getElementById('blackcat-public-key');
         const bcSecKeyInput = document.getElementById('blackcat-secret-key');
         const wpPubKeyInput = document.getElementById('wappi-public-key');
+        const wpApiKeyInput = document.getElementById('wappi-api-key');
         const t7ApiKeyInput = document.getElementById('track7-api-key');
         if (t7ApiKeyInput) t7ApiKeyInput.value = configData.track7_api_key || '';
 
@@ -5610,6 +5611,7 @@ Agradecemos pela preferência e esperamos você!`;
       const bcPublic = bcPubKeyInput ? bcPubKeyInput.value.trim() : '';
       const bcSecret = bcSecKeyInput ? bcSecKeyInput.value.trim() : '';
       const wpPublic = wpPubKeyInput ? wpPubKeyInput.value.trim() : '';
+      const wpApi = wpApiKeyInput ? wpApiKeyInput.value.trim() : '';
       const t7ApiKeyInput = document.getElementById('track7-api-key');
       const t7Api = t7ApiKeyInput ? t7ApiKeyInput.value.trim() : '';
 
