@@ -154,7 +154,7 @@ exports.handler = async (event, context) => {
 
   // Obter parâmetros da query string (limites, etc.)
   const id = event.queryStringParameters ? event.queryStringParameters.id : null;
-  const limit = (event.queryStringParameters && event.queryStringParameters.limit) || '1000';
+  const limit = (event.queryStringParameters && event.queryStringParameters.limit) || '10000';
 
   // Detectar o domínio de onde partiu a requisição (através do referer)
   const referer = event.headers.referer || event.headers.referrer || '';

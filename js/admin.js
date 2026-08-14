@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ESTADO GLOBAL DO PAINEL
   // ==========================================
   let allTransactions = [];
-  let currentPeriod = 'today'; // 'today', 'yesterday', 'week', 'month', 'year'
+  let currentPeriod = 'all'; // 'all', 'today', 'yesterday', 'week', 'month', 'year'
   let currentDomainFilter = ''; // Filtro do domínio de checkout
   let adsExpenseRate = 0.0;     // Gasto diário de anúncios
   let facebookPixelId = '';     // FB Pixel ID
@@ -804,7 +804,7 @@ Agradecemos pela preferência e esperamos você!`;
       // 1. Carregar Configurações Globais e Pedidos PARALELAMENTE para ficar muito mais rápido
       const [configRes, ordersRes] = await Promise.all([
         fetchWithAuth('/api/config'),
-        fetchWithAuth('/api/orders?limit=100')
+        fetchWithAuth('/api/orders?limit=10000')
       ]);
 
       // --- PROCESSAR CONFIGURAÇÃ•ES ---
