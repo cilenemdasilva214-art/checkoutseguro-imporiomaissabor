@@ -197,7 +197,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
         if (priceSpan && data.shipping_standard_price !== undefined) {
           const price = parseFloat(data.shipping_standard_price) || 0;
           priceSpan.setAttribute('data-price', price.toFixed(2));
-          priceSpan.textContent = price === 0 ? 'Gr├â┬ítis' : price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+          priceSpan.textContent = price === 0 ? 'Grátis' : price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
       }
     }
@@ -215,7 +215,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
         if (priceSpan && data.shipping_express_price !== undefined) {
           const price = parseFloat(data.shipping_express_price) || 0;
           priceSpan.setAttribute('data-price', price.toFixed(2));
-          priceSpan.textContent = price === 0 ? 'Gr├â┬ítis' : price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+          priceSpan.textContent = price === 0 ? 'Grátis' : price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
         }
       }
     }
@@ -506,7 +506,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     const annBar = document.getElementById('announcement-bar-checkout');
     if (annBar) {
       if (config.announcementActive) {
-        annBar.innerText = config.announcementText || 'FRETE GR├â┬üTIS hoje para todo o Brasil!';
+        annBar.innerText = config.announcementText || 'FRETE GRÁTIS hoje para todo o Brasil!';
         annBar.style.background = config.announcementBg || '#7c4dff';
         annBar.style.color = config.announcementColor || '#ffffff';
         annBar.classList.remove('hide');
@@ -2003,7 +2003,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     const total = parseFloat((subtotalAfterCoupon + shippingPrice - discountVal).toFixed(2));
 
     subtotalView.textContent = subtotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    shippingView.textContent = shippingPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    shippingView.textContent = shippingPrice === 0 ? 'Grátis' : shippingPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     totalView.textContent = total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
     // Atualizar visualizador de resumo Pix simplificado
