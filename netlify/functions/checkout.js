@@ -830,6 +830,16 @@ exports.handler = async (event, context) => {
 
         } catch (rpErr) {
           console.error('❌ Falha ao integrar com a RevoPay:', rpErr);
+          if (rpErr.message && (rpErr.message.toLowerCase().includes('invalid cpf') || rpErr.message.includes('CPF_INVALID'))) {
+            return {
+              statusCode: 400,
+              headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                success: false,
+                error: 'O CPF informado é inválido. Por favor, verifique se digitou o CPF corretamente e tente novamente.'
+              })
+            };
+          }
           isMock = true;
           transactionId = 'mock-revopay-id-' + Math.random().toString(36).substr(2, 9);
           transactionStatus = paymentMethod === 'pix' ? 'PENDING' : 'APPROVED';

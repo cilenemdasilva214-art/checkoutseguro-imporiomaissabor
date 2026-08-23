@@ -1490,7 +1490,22 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       
       if (input.id === 'customer_cpf' && input.value.trim()) {
         const cleanCPF = input.value.replace(/\D/g, '');
-        if (cleanCPF.length !== 11) {
+        function validateCPFDigits(str) {
+          if (str.length !== 11 || /^(\d)\1{10}$/.test(str)) return false;
+          let sum = 0, rest;
+          for (let i = 1; i <= 9; i++) sum += parseInt(str.substring(i - 1, i)) * (11 - i);
+          rest = (sum * 10) % 11;
+          if (rest === 10 || rest === 11) rest = 0;
+          if (rest !== parseInt(str.substring(9, 10))) return false;
+          sum = 0;
+          for (let i = 1; i <= 10; i++) sum += parseInt(str.substring(i - 1, i)) * (12 - i);
+          rest = (sum * 10) % 11;
+          if (rest === 10 || rest === 11) rest = 0;
+          if (rest !== parseInt(str.substring(10, 11))) return false;
+          return true;
+        }
+
+        if (!validateCPFDigits(cleanCPF)) {
           isValid = false;
           if (wrapper) {
             wrapper.classList.add('input-error');
