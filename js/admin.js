@@ -1791,7 +1791,17 @@ Agradecemos pela preferência e esperamos você!`;
     if (order.complement) params.set('complement', order.complement);
     if (order.neighborhood) params.set('neighborhood', order.neighborhood);
     if (order.city) params.set('city', order.city);
-    if (order.state) params.set('state', order.state);
+    let rawItems = order.items;
+    if (typeof rawItems === 'string') {
+      try { rawItems = JSON.parse(rawItems); } catch(e) {}
+    }
+    if (Array.isArray(rawItems) && rawItems.length > 0) {
+      params.set('cart', JSON.stringify(rawItems));
+      const first = rawItems[0];
+      if (first.name || first.title) params.set('title', first.name || first.title);
+      if (first.price !== undefined) params.set('price', first.price);
+      if (first.quantity !== undefined) params.set('quantity', first.quantity);
+    }
 
     return `${baseUrl.replace(/\/$/, '')}/?${params.toString()}`;
   }

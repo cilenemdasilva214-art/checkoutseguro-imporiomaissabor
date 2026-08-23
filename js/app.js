@@ -905,9 +905,23 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
             if (order.city && document.getElementById('city')) document.getElementById('city').value = order.city;
             if (order.state && document.getElementById('state')) document.getElementById('state').value = order.state;
 
-            if (Array.isArray(order.items) && order.items.length > 0) {
-              window.shopifyCartItems = order.items;
-              if (typeof renderOrderSummary === 'function') renderOrderSummary(order.items);
+            let recItems = order.items;
+            if (typeof recItems === 'string') {
+              try { recItems = JSON.parse(recItems); } catch(e) {}
+            }
+            if (Array.isArray(recItems) && recItems.length > 0) {
+              shopifyCartItems = recItems.map(item => ({
+                title: item.title || item.name || 'Produto',
+                name: item.name || item.title || 'Produto',
+                price: parseFloat(item.price) || 0,
+                quantity: parseInt(item.quantity) || 1,
+                sku: item.sku || 'DEFAULT',
+                variant_id: item.variant_id || null,
+                product_id: item.product_id || null
+              }));
+              if (typeof window.renderCheckoutCart === 'function') {
+                window.renderCheckoutCart();
+              }
               if (typeof calculateTotals === 'function') calculateTotals();
             }
           }
