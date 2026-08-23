@@ -1780,29 +1780,26 @@ Agradecemos pela preferência e esperamos você!`;
     
     const params = new URLSearchParams();
     const recId = order.id || order.checkout_session_id || order.gateway_tx_id || '';
-    if (recId) params.set('rec', recId);
-    if (order.customer_name) params.set('name', order.customer_name);
-    if (order.customer_email) params.set('email', order.customer_email);
-    if (order.customer_phone) params.set('phone', order.customer_phone);
-    if (order.customer_cpf) params.set('cpf', order.customer_cpf);
-    if (order.cep) params.set('cep', order.cep);
-    if (order.street) params.set('street', order.street);
-    if (order.street_number) params.set('number', order.street_number);
-    if (order.complement) params.set('complement', order.complement);
-    if (order.neighborhood) params.set('neighborhood', order.neighborhood);
-    if (order.city) params.set('city', order.city);
-    let rawItems = order.items;
-    if (typeof rawItems === 'string') {
-      try { rawItems = JSON.parse(rawItems); } catch(e) {}
-    }
-    if (Array.isArray(rawItems) && rawItems.length > 0) {
-      params.set('cart', JSON.stringify(rawItems));
-      const first = rawItems[0];
-      if (first.name || first.title) params.set('title', first.name || first.title);
-      if (first.price !== undefined) params.set('price', first.price);
-      if (first.quantity !== undefined) params.set('quantity', first.quantity);
-      const imgUrl = first.image || first.featured_image || first.src || first.img || first.image_url || '';
-      if (imgUrl) params.set('image', imgUrl);
+
+    if (recId) {
+      // Link ultracurto profissional baseado no ID do pedido
+      params.set('rec', recId);
+    } else {
+      // Fallback simples para leads sem ID no Supabase
+      if (order.customer_name) params.set('name', order.customer_name);
+      if (order.customer_email) params.set('email', order.customer_email);
+      if (order.customer_phone) params.set('phone', order.customer_phone);
+      if (order.customer_cpf && order.customer_cpf !== '-') params.set('cpf', order.customer_cpf);
+      if (order.cep) params.set('cep', order.cep);
+      let rawItems = order.items;
+      if (typeof rawItems === 'string') {
+        try { rawItems = JSON.parse(rawItems); } catch(e) {}
+      }
+      if (Array.isArray(rawItems) && rawItems.length > 0) {
+        const first = rawItems[0];
+        if (first.name || first.title) params.set('title', first.name || first.title);
+        if (first.price !== undefined) params.set('price', first.price);
+      }
     }
 
     return `${baseUrl.replace(/\/$/, '')}/?${params.toString()}`;
