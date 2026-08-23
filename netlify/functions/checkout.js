@@ -711,9 +711,7 @@ exports.handler = async (event, context) => {
       } else if (ACTIVE_GATEWAY === 'revopay') {
         console.log('⚡ Iniciando integração com o Gateway RevoPay...');
         try {
-          const basicUser = REVOPAY_SECRET_KEY.trim();
-          const basicPass = REVOPAY_PUBLIC_KEY.trim() || 'x';
-          const authHeader = 'Basic ' + Buffer.from(`${basicUser}:${basicPass}`).toString('base64');
+          const authHeader = 'Basic ' + Buffer.from(`${REVOPAY_SECRET_KEY.trim()}:x`).toString('base64');
           const amountCents = Math.round(data.amount * 100);
 
           let cleanPhone = (data.customer_phone || '').replace(/\D/g, '');
