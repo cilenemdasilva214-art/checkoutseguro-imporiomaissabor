@@ -1338,9 +1338,16 @@
               </div>
               <div class="gateway-body">
                 <div class="settings-group">
-                  <label for="revopay-secret-key">Chave Secreta (secretKey)</label>
+                  <label for="revopay-public-key">Chave Pública (publicKey)</label>
                   <div class="settings-input-wrapper">
                     <i class="fa-solid fa-key"></i>
+                    <input type="text" id="revopay-public-key" placeholder="Chave pública / pk_...">
+                  </div>
+                </div>
+                <div class="settings-group">
+                  <label for="revopay-secret-key">Chave Secreta (secretKey)</label>
+                  <div class="settings-input-wrapper">
+                    <i class="fa-solid fa-lock"></i>
                     <input type="password" id="revopay-secret-key" placeholder="Chave secreta / sk_...">
                     <button type="button" class="btn-toggle-visibility" data-target="revopay-secret-key">
                       <i class="fa-solid fa-eye"></i>

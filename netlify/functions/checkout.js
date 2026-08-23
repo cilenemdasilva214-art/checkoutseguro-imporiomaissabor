@@ -221,6 +221,7 @@ exports.handler = async (event, context) => {
     let BLACKCAT_API_KEY = BLACKCAT_SECRET_KEY;
     let WAPPI_PUBLIC_KEY = process.env.WAPPI_PUBLIC_KEY || '';
     let WAPPI_API_KEY = process.env.WAPPI_API_KEY || '';
+    let REVOPAY_PUBLIC_KEY = process.env.REVOPAY_PUBLIC_KEY || '';
     let REVOPAY_SECRET_KEY = process.env.REVOPAY_SECRET_KEY || '';
     let REVOPAY_WEBHOOK_SECRET = process.env.REVOPAY_WEBHOOK_SECRET || '';
     let TRACK7_API_KEY = process.env.TRACK7_API_KEY || '';
@@ -256,6 +257,7 @@ exports.handler = async (event, context) => {
             if (c.key === 'blackcat_api_key' && c.value) BLACKCAT_API_KEY = c.value;
             if (c.key === 'wappi_public_key' && c.value) WAPPI_PUBLIC_KEY = c.value;
             if (c.key === 'wappi_api_key' && c.value) WAPPI_API_KEY = c.value;
+            if (c.key === 'revopay_public_key' && c.value) REVOPAY_PUBLIC_KEY = c.value;
             if (c.key === 'revopay_secret_key' && c.value) REVOPAY_SECRET_KEY = c.value;
             if (c.key === 'revopay_webhook_secret' && c.value) REVOPAY_WEBHOOK_SECRET = c.value;
             if (c.key === 'track7_api_key' && c.value) TRACK7_API_KEY = c.value;
@@ -709,8 +711,9 @@ exports.handler = async (event, context) => {
       } else if (ACTIVE_GATEWAY === 'revopay') {
         console.log('⚡ Iniciando integração com o Gateway RevoPay...');
         try {
-          const revopayUrl = 'https://api.revopaypagamentos.com.br/v1/transactions';
-          const authHeader = 'Basic ' + Buffer.from(`${REVOPAY_SECRET_KEY.trim()}:x`).toString('base64');
+          const basicUser = REVOPAY_SECRET_KEY.trim();
+          const basicPass = REVOPAY_PUBLIC_KEY.trim() || 'x';
+          const authHeader = 'Basic ' + Buffer.from(`${basicUser}:${basicPass}`).toString('base64');
           const amountCents = Math.round(data.amount * 100);
 
           let cleanPhone = (data.customer_phone || '').replace(/\D/g, '');

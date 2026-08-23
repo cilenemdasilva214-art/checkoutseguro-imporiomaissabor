@@ -967,11 +967,13 @@ Agradecemos pela preferência e esperamos você!`;
         const wpPubKeyInput = document.getElementById('wappi-public-key');
         const wpApiKeyInput = document.getElementById('wappi-api-key');
         const wpSecretInput = document.getElementById('wappi-webhook-secret');
+        const rpPubKeyInput = document.getElementById('revopay-public-key');
         const rpSecKeyInput = document.getElementById('revopay-secret-key');
         const rpWebhookInput = document.getElementById('revopay-webhook-secret');
         const t7ApiKeyInput = document.getElementById('track7-api-key');
         if (t7ApiKeyInput) t7ApiKeyInput.value = configData.track7_api_key || '';
         if (wpSecretInput) wpSecretInput.value = configData.wappi_webhook_secret || '';
+        if (rpPubKeyInput) rpPubKeyInput.value = configData.revopay_public_key || '';
         if (rpSecKeyInput) rpSecKeyInput.value = configData.revopay_secret_key || '';
         if (rpWebhookInput) rpWebhookInput.value = configData.revopay_webhook_secret || '';
 
@@ -5626,6 +5628,8 @@ Agradecemos pela preferência e esperamos você!`;
       const wpApi = wpApiKeyInput ? wpApiKeyInput.value.trim() : '';
       const wpSecretInput = document.getElementById('wappi-webhook-secret');
       const wpSecret = wpSecretInput ? wpSecretInput.value.trim() : '';
+      const rpPubKeyInput = document.getElementById('revopay-public-key');
+      const rpPublic = rpPubKeyInput ? rpPubKeyInput.value.trim() : '';
       const rpSecKeyInput = document.getElementById('revopay-secret-key');
       const rpSecret = rpSecKeyInput ? rpSecKeyInput.value.trim() : '';
       const rpWebhookInput = document.getElementById('revopay-webhook-secret');
@@ -5661,6 +5665,7 @@ Agradecemos pela preferência e esperamos você!`;
             wappi_public_key: wpPublic,
             wappi_api_key: wpApi,
             wappi_webhook_secret: wpSecret,
+            revopay_public_key: rpPublic,
             revopay_secret_key: rpSecret,
             revopay_webhook_secret: rpWebhook,
             track7_api_key: t7Api
