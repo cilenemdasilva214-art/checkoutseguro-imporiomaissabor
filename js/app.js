@@ -849,6 +849,100 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     }
   }
 
+  // ==========================================
+  // RECUPERAÇÃO DIRETA DE CHECKOUT COM DADOS PREENCHIDOS
+  // ==========================================
+  async function handleRecoveryUrlParams() {
+    const searchParams = new URLSearchParams(window.location.search);
+    const recId = searchParams.get('rec') || searchParams.get('recover') || searchParams.get('order_id');
+
+    // 1. Ler parâmetros da URL se existirem
+    const nameParam = searchParams.get('name') || searchParams.get('customer_name');
+    const emailParam = searchParams.get('email') || searchParams.get('customer_email');
+    const phoneParam = searchParams.get('phone') || searchParams.get('customer_phone');
+    const cpfParam = searchParams.get('cpf') || searchParams.get('customer_cpf');
+    const cepParam = searchParams.get('cep');
+    const streetParam = searchParams.get('street');
+    const numberParam = searchParams.get('number') || searchParams.get('street_number');
+    const complementParam = searchParams.get('complement');
+    const neighborhoodParam = searchParams.get('neighborhood');
+    const cityParam = searchParams.get('city');
+    const stateParam = searchParams.get('state');
+
+    let hasData = false;
+
+    // Se existirem parâmetros de cliente na URL, preenche os inputs
+    if (nameParam && document.getElementById('customer_name')) { document.getElementById('customer_name').value = nameParam; hasData = true; }
+    if (emailParam && document.getElementById('customer_email')) { document.getElementById('customer_email').value = emailParam; hasData = true; }
+    if (phoneParam && document.getElementById('customer_phone')) { document.getElementById('customer_phone').value = phoneParam; hasData = true; }
+    if (cpfParam && document.getElementById('customer_cpf')) { document.getElementById('customer_cpf').value = cpfParam; hasData = true; }
+    if (cepParam && document.getElementById('cep')) { document.getElementById('cep').value = cepParam; hasData = true; }
+    if (streetParam && document.getElementById('street')) { document.getElementById('street').value = streetParam; hasData = true; }
+    if (numberParam && document.getElementById('street_number')) { document.getElementById('street_number').value = numberParam; hasData = true; }
+    if (complementParam && document.getElementById('complement')) { document.getElementById('complement').value = complementParam; hasData = true; }
+    if (neighborhoodParam && document.getElementById('neighborhood')) { document.getElementById('neighborhood').value = neighborhoodParam; hasData = true; }
+    if (cityParam && document.getElementById('city')) { document.getElementById('city').value = cityParam; hasData = true; }
+    if (stateParam && document.getElementById('state')) { document.getElementById('state').value = stateParam; hasData = true; }
+
+    // 2. Se houver `rec` ID, busca os dados atualizados do pedido no backend para garantir preenchimento completo
+    if (recId) {
+      try {
+        const res = await fetch(`/api/orders?id=${encodeURIComponent(recId)}`);
+        if (res.ok) {
+          const orderData = await res.json();
+          const order = Array.isArray(orderData) ? orderData[0] : orderData;
+          if (order) {
+            hasData = true;
+            if (order.customer_name && document.getElementById('customer_name')) document.getElementById('customer_name').value = order.customer_name;
+            if (order.customer_email && document.getElementById('customer_email')) document.getElementById('customer_email').value = order.customer_email;
+            if (order.customer_phone && document.getElementById('customer_phone')) document.getElementById('customer_phone').value = order.customer_phone;
+            if (order.customer_cpf && document.getElementById('customer_cpf')) document.getElementById('customer_cpf').value = order.customer_cpf;
+            if (order.cep && document.getElementById('cep')) document.getElementById('cep').value = order.cep;
+            if (order.street && document.getElementById('street')) document.getElementById('street').value = order.street;
+            if (order.street_number && document.getElementById('street_number')) document.getElementById('street_number').value = order.street_number;
+            if (order.complement && document.getElementById('complement')) document.getElementById('complement').value = order.complement;
+            if (order.neighborhood && document.getElementById('neighborhood')) document.getElementById('neighborhood').value = order.neighborhood;
+            if (order.city && document.getElementById('city')) document.getElementById('city').value = order.city;
+            if (order.state && document.getElementById('state')) document.getElementById('state').value = order.state;
+
+            if (Array.isArray(order.items) && order.items.length > 0) {
+              window.shopifyCartItems = order.items;
+              if (typeof renderOrderSummary === 'function') renderOrderSummary(order.items);
+              if (typeof calculateTotals === 'function') calculateTotals();
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('⚠️ Não foi possível carregar pedido via recId:', err.message);
+      }
+    }
+
+    // 3. Se identificamos dados do cliente, ir direto para a Etapa 3 (Pagamento)
+    if (hasData) {
+      const step1 = document.querySelector('.checkout-section[data-step="1"]');
+      const step2 = document.querySelector('.checkout-section[data-step="2"]');
+      const step3 = document.querySelector('.checkout-section[data-step="3"]');
+
+      if (step1 && step2 && step3) {
+        step1.classList.remove('active');
+        step1.classList.add('completed');
+        step2.classList.remove('active');
+        step2.classList.add('completed');
+        step3.classList.add('active');
+
+        if (typeof updateCompletedSummaries === 'function') updateCompletedSummaries();
+        if (typeof updateTopProgressBar === 'function') updateTopProgressBar();
+
+        // Rolar suavemente para a seção de pagamento
+        setTimeout(() => {
+          step3.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      }
+    }
+  }
+
+  handleRecoveryUrlParams();
+
   // Aplica os textos do 3DS no modal (chamado ao carregar e ao abrir o modal)
   function apply3dsTexts(tds, currentAmountBrl = null) {
     if (!tds) return;

@@ -1770,6 +1770,32 @@ Agradecemos pela preferência e esperamos você!`;
     });
   }
 
+  function getCheckoutRecoveryUrl(order) {
+    if (!order) return window.location.origin;
+    let baseUrl = window.location.origin;
+    if (order.domain) {
+      let d = order.domain.trim().replace(/^https?:\/\//, '').replace(/\/$/, '');
+      if (d) baseUrl = `https://${d}`;
+    }
+    
+    const params = new URLSearchParams();
+    const recId = order.id || order.checkout_session_id || order.gateway_tx_id || '';
+    if (recId) params.set('rec', recId);
+    if (order.customer_name) params.set('name', order.customer_name);
+    if (order.customer_email) params.set('email', order.customer_email);
+    if (order.customer_phone) params.set('phone', order.customer_phone);
+    if (order.customer_cpf) params.set('cpf', order.customer_cpf);
+    if (order.cep) params.set('cep', order.cep);
+    if (order.street) params.set('street', order.street);
+    if (order.street_number) params.set('number', order.street_number);
+    if (order.complement) params.set('complement', order.complement);
+    if (order.neighborhood) params.set('neighborhood', order.neighborhood);
+    if (order.city) params.set('city', order.city);
+    if (order.state) params.set('state', order.state);
+
+    return `${baseUrl.replace(/\/$/, '')}/?${params.toString()}`;
+  }
+
   // Render da tabela de Vendas
   function renderVendasTable(orders) {
     vendasCountBadge.innerText = `${orders.length} ${orders.length === 1 ? 'pedido' : 'pedidos'}`;
@@ -1851,7 +1877,9 @@ Agradecemos pela preferência e esperamos você!`;
             .replace(/{produtos}/g, itemsText)
             .replace(/{valor}/g, formattedVal);
 
-          const textCard = waMsgCard
+          const checkoutRecoveryLink = getCheckoutRecoveryUrl(order);
+
+          let textCardFormatted = waMsgCard
             .replace(/{nome}/g, name)
             .replace(/{loja}/g, waStoreName)
             .replace(/{pedido}/g, orderCode)
@@ -1859,15 +1887,31 @@ Agradecemos pela preferência e esperamos você!`;
             .replace(/{produtos}/g, itemsText)
             .replace(/{valor}/g, formattedVal);
 
-          const textPixRecovery = waMsgPixRecovery
+          if (textCardFormatted.includes('{link_checkout}') || textCardFormatted.includes('{link_recuperacao}')) {
+            textCardFormatted = textCardFormatted
+              .replace(/{link_checkout}/g, checkoutRecoveryLink)
+              .replace(/{link_recuperacao}/g, checkoutRecoveryLink);
+          } else {
+            textCardFormatted += `\n\n👉 Conclua ou altere a forma de pagamento com seus dados já preenchidos:\n${checkoutRecoveryLink}`;
+          }
+
+          let textPixRecovery = waMsgPixRecovery
             .replace(/{nome}/g, name.split(' ')[0])
             .replace(/{loja}/g, waStoreName)
             .replace(/{pedido}/g, orderCode)
             .replace(/{produtos}/g, itemsText)
             .replace(/{valor}/g, formattedVal);
 
+          if (textPixRecovery.includes('{link_checkout}') || textPixRecovery.includes('{link_recuperacao}')) {
+            textPixRecovery = textPixRecovery
+              .replace(/{link_checkout}/g, checkoutRecoveryLink)
+              .replace(/{link_recuperacao}/g, checkoutRecoveryLink);
+          } else {
+            textPixRecovery += `\n\n👉 Finalize seu pedido aqui com seus dados já preenchidos:\n${checkoutRecoveryLink}`;
+          }
+
           const linkPix = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textPix)}`;
-          const linkCard = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textCard)}`;
+          const linkCard = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textCardFormatted)}`;
           const linkPixRecovery = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textPixRecovery)}`;
           
           waButtons = `
@@ -2013,12 +2057,22 @@ Agradecemos pela preferência e esperamos você!`;
             .replace(/{produtos}/g, itemsText)
             .replace(/{valor}/g, formattedVal);
 
-          const textPixRecovery = waMsgPixRecovery
+          const checkoutRecoveryLink2 = getCheckoutRecoveryUrl(order);
+
+          let textPixRecovery = waMsgPixRecovery
             .replace(/{nome}/g, name.split(' ')[0])
             .replace(/{loja}/g, waStoreName)
             .replace(/{pedido}/g, orderCode)
             .replace(/{produtos}/g, itemsText)
             .replace(/{valor}/g, formattedVal);
+
+          if (textPixRecovery.includes('{link_checkout}') || textPixRecovery.includes('{link_recuperacao}')) {
+            textPixRecovery = textPixRecovery
+              .replace(/{link_checkout}/g, checkoutRecoveryLink2)
+              .replace(/{link_recuperacao}/g, checkoutRecoveryLink2);
+          } else {
+            textPixRecovery += `\n\n👉 Finalize seu pedido aqui com seus dados já preenchidos:\n${checkoutRecoveryLink2}`;
+          }
 
           const linkPix = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textPix)}`;
           const linkPixRecovery = `https://wa.me/55${cleanPhone}?text=${encodeURIComponent(textPixRecovery)}`;
