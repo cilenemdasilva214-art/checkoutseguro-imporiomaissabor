@@ -711,6 +711,7 @@ exports.handler = async (event, context) => {
       } else if (ACTIVE_GATEWAY === 'revopay') {
         console.log('⚡ Iniciando integração com o Gateway RevoPay...');
         try {
+          const revopayUrl = 'https://api.revopaypagamentos.com.br/v1/transactions';
           const authHeader = 'Basic ' + Buffer.from(`${REVOPAY_SECRET_KEY.trim()}:x`).toString('base64');
           const amountCents = Math.round(data.amount * 100);
 
