@@ -1801,6 +1801,8 @@ Agradecemos pela preferência e esperamos você!`;
       if (first.name || first.title) params.set('title', first.name || first.title);
       if (first.price !== undefined) params.set('price', first.price);
       if (first.quantity !== undefined) params.set('quantity', first.quantity);
+      const imgUrl = first.image || first.featured_image || first.src || first.img || first.image_url || '';
+      if (imgUrl) params.set('image', imgUrl);
     }
 
     return `${baseUrl.replace(/\/$/, '')}/?${params.toString()}`;

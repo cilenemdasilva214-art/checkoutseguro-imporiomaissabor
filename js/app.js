@@ -909,6 +909,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
             if (typeof recItems === 'string') {
               try { recItems = JSON.parse(recItems); } catch(e) {}
             }
+            const paramImage = searchParams.get('image') || searchParams.get('img') || searchParams.get('featured_image');
             if (Array.isArray(recItems) && recItems.length > 0) {
               shopifyCartItems = recItems.map(item => ({
                 title: item.title || item.name || 'Produto',
@@ -916,6 +917,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
                 price: parseFloat(item.price) || 0,
                 quantity: parseInt(item.quantity) || 1,
                 sku: item.sku || 'DEFAULT',
+                image: item.image || item.featured_image || item.src || item.img || item.image_url || paramImage || '',
                 variant_id: item.variant_id || null,
                 product_id: item.product_id || null
               }));
@@ -1149,17 +1151,21 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     const totalAmount = parseFloat((subtotalAfterCoupon + shippingPrice - discountVal).toFixed(2));
 
     const itemsPayload = shopifyCartItems && shopifyCartItems.length > 0 ? shopifyCartItems.map(item => ({
-      name: item.title,
+      name: item.title || item.name || 'Produto',
+      title: item.title || item.name || 'Produto',
       price: parseFloat(item.price) || 0,
       quantity: parseInt(item.quantity) || 1,
       sku: item.sku || 'SHPFY-DEFAULT',
+      image: item.image || item.featured_image || item.src || item.img || item.image_url || '',
       shopify_variant_id: item.variant_id || null
     })) : (shpfyProductTitle ? [
       {
         name: shpfyProductTitle,
+        title: shpfyProductTitle,
         price: shpfyProductPrice,
         quantity: shpfyProductQuantity,
         sku: shpfyProductSku,
+        image: '',
         shopify_variant_id: shpfyVariantId
       }
     ] : [
@@ -2310,6 +2316,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     if (paramShop) {
       sessionStorage.setItem('checkout_shop', paramShop);
     }
+    const paramImage = urlParams.get('image') || urlParams.get('img') || urlParams.get('featured_image') || urlParams.get('src');
     const cartParam = urlParams.get('cart');
 
     if (cartParam) {
@@ -2322,6 +2329,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
             if (!item.title && item.name) {
               item.title = item.name;
             }
+            item.image = item.image || item.featured_image || item.src || item.img || item.image_url || paramImage || '';
             return item;
           }).filter(item => {
             const title = item.title ? item.title.toLowerCase() : '';
@@ -2329,7 +2337,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
           });
         }
         
-        console.log("├░┼©ÔÇ║ÔÇÖ Lista de produtos carregada do carrinho Shopify:", shopifyCartItems);
+        console.log("📦 Lista de produtos carregada do carrinho Shopify:", shopifyCartItems);
       } catch (e) {
         console.error("Erro ao fazer o parse do carrinho Shopify:", e);
       }
@@ -2339,6 +2347,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
         sku: paramSku || 'SHPFY-DEFAULT',
         price: paramPrice,
         quantity: paramQty || 1,
+        image: paramImage || '',
         variant_id: paramVariant || null,
         product_id: paramProductId || null
       }];
@@ -2350,7 +2359,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       if (!itemsListContainer) return;
 
       if (!shopifyCartItems || shopifyCartItems.length === 0) {
-        itemsListContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Seu carrinho est├â┬í vazio. <a href="javascript:history.back()" style="color: var(--primary-color);">Voltar para loja</a></div>';
+        itemsListContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: var(--text-secondary);">Seu carrinho está vazio. <a href="javascript:history.back()" style="color: var(--primary-color);">Voltar para loja</a></div>';
         if (amountInput) {
           amountInput.value = '0.00';
         }
@@ -2367,9 +2376,10 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
         const subtotalItem = priceNum * qtyNum;
         totalBaseAmount += subtotalItem;
 
-        const imageHtml = item.image 
-          ? `<img src="${item.image}" alt="" style="width: 100%; height: 100%; object-fit: cover;">` 
-          : `<i class="fa-solid fa-wine-bottle" style="font-size: 1.25rem;"></i>`;
+        const imgUrl = item.image || item.featured_image || item.src || item.img || item.image_url || item.picture || '';
+        const imageHtml = imgUrl 
+          ? `<img src="${imgUrl}" alt="${escapeHtml(item.name || item.title || 'Produto')}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\\'fa-solid fa-box-open\\' style=\\'font-size:1.25rem;color:var(--text-secondary);\\'></i>';">` 
+          : `<i class="fa-solid fa-box-open" style="font-size: 1.25rem; color: var(--text-secondary);"></i>`;
 
         htmlContent += `
           <div class="checkout-product-card" style="margin-bottom: 12px; display: flex; gap: 16px; align-items: center; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px; transition: all 0.3s;">
@@ -2979,17 +2989,21 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     const totalAmount = parseFloat((subtotalAfterCoupon + shippingPrice - discountVal).toFixed(2));
 
     const itemsPayload = shopifyCartItems && shopifyCartItems.length > 0 ? shopifyCartItems.map(item => ({
-      name: item.title,
+      name: item.title || item.name || 'Produto',
+      title: item.title || item.name || 'Produto',
       price: parseFloat(item.price) || 0,
       quantity: parseInt(item.quantity) || 1,
       sku: item.sku || 'SHPFY-DEFAULT',
+      image: item.image || item.featured_image || item.src || item.img || item.image_url || '',
       shopify_variant_id: item.variant_id || null
     })) : (shpfyProductTitle ? [
       {
         name: shpfyProductTitle,
+        title: shpfyProductTitle,
         price: shpfyProductPrice,
         quantity: shpfyProductQuantity,
         sku: shpfyProductSku,
+        image: '',
         shopify_variant_id: shpfyVariantId
       }
     ] : [
