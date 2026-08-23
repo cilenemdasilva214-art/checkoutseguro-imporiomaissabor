@@ -1316,6 +1316,56 @@
                 </div>
               </div>
             </div>
+
+            <!-- GATEWAY 8: REVOPAY -->
+            <div class="gateway-card" id="card-revopay">
+              <div class="gateway-header">
+                <div class="gateway-info">
+                  <div class="gateway-logo" style="background: #283ece;">
+                    <i class="fa-solid fa-credit-card" style="color: #ffffff;"></i>
+                  </div>
+                  <div>
+                    <h3>RevoPay</h3>
+                    <span class="badge" style="background: #283ece; color: #ffffff; font-weight: 600;">Pix & Cartão</span>
+                  </div>
+                </div>
+                <div class="gateway-toggle">
+                  <label class="switch">
+                    <input type="checkbox" id="toggle-revopay">
+                    <span class="slider"></span>
+                  </label>
+                </div>
+              </div>
+              <div class="gateway-body">
+                <div class="settings-group">
+                  <label for="revopay-secret-key">Chave Secreta (secretKey)</label>
+                  <div class="settings-input-wrapper">
+                    <i class="fa-solid fa-key"></i>
+                    <input type="password" id="revopay-secret-key" placeholder="Chave secreta / sk_...">
+                    <button type="button" class="btn-toggle-visibility" data-target="revopay-secret-key">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="settings-group">
+                  <label for="revopay-webhook-secret">Webhook Secret (Opcional)</label>
+                  <div class="settings-input-wrapper">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <input type="password" id="revopay-webhook-secret" placeholder="secret_...">
+                    <button type="button" class="btn-toggle-visibility" data-target="revopay-webhook-secret">
+                      <i class="fa-solid fa-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="settings-group" style="margin-top: 1rem; background: rgba(40, 62, 206, 0.08); border: 1px solid rgba(40, 62, 206, 0.2); padding: 12px; border-radius: 8px;">
+                  <label style="color: #283ece; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                    <i class="fa-solid fa-link"></i> URL do Webhook RevoPay
+                  </label>
+                  <input type="text" readonly value="https://comprasegura-imporiomaissabor.netlify.app/.netlify/functions/webhook-revopay" style="font-size: 0.8rem; background: rgba(0,0,0,0.3); color: #fff; cursor: text;" onclick="this.select();">
+                  <span style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; display: block;">Cole esta URL nas configurações de postback no painel da RevoPay para atualizar os status das vendas.</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- SEÇÃO: INTEGRAÇÃO TRANSPORTADORA -->

@@ -967,9 +967,13 @@ Agradecemos pela preferência e esperamos você!`;
         const wpPubKeyInput = document.getElementById('wappi-public-key');
         const wpApiKeyInput = document.getElementById('wappi-api-key');
         const wpSecretInput = document.getElementById('wappi-webhook-secret');
+        const rpSecKeyInput = document.getElementById('revopay-secret-key');
+        const rpWebhookInput = document.getElementById('revopay-webhook-secret');
         const t7ApiKeyInput = document.getElementById('track7-api-key');
         if (t7ApiKeyInput) t7ApiKeyInput.value = configData.track7_api_key || '';
         if (wpSecretInput) wpSecretInput.value = configData.wappi_webhook_secret || '';
+        if (rpSecKeyInput) rpSecKeyInput.value = configData.revopay_secret_key || '';
+        if (rpWebhookInput) rpWebhookInput.value = configData.revopay_webhook_secret || '';
 
         if (pPubKeyInput) pPubKeyInput.value = pPublic;
         if (pSecKeyInput) pSecKeyInput.value = pSecret;
@@ -5530,6 +5534,7 @@ Agradecemos pela preferência e esperamos você!`;
   const togglePagflex = document.getElementById('toggle-pagflex');
   const toggleBlackcat = document.getElementById('toggle-blackcat');
   const toggleWappi = document.getElementById('toggle-wappi');
+  const toggleRevopay = document.getElementById('toggle-revopay');
   const cardPaguex = document.getElementById('card-paguex');
   const cardPaguexCamp = document.getElementById('card-paguexcamp');
   const cardHypercash = document.getElementById('card-hypercash');
@@ -5538,6 +5543,7 @@ Agradecemos pela preferência e esperamos você!`;
   const cardPagflex = document.getElementById('card-pagflex');
   const cardBlackcat = document.getElementById('card-blackcat');
   const cardWappi = document.getElementById('card-wappi');
+  const cardRevopay = document.getElementById('card-revopay');
   const pPubKeyInput = document.getElementById('paguex-public-key');
   const pSecKeyInput = document.getElementById('paguex-secret-key');
   const pcPubKeyInput = document.getElementById('paguexcamp-public-key');
@@ -5565,6 +5571,7 @@ Agradecemos pela preferência e esperamos você!`;
     if (togglePagflex) togglePagflex.checked = (selected === 'pagflexbr');
     if (toggleBlackcat) toggleBlackcat.checked = (selected === 'blackcat');
     if (toggleWappi) toggleWappi.checked = (selected === 'wappi');
+    if (toggleRevopay) toggleRevopay.checked = (selected === 'revopay');
     
     if (cardPaguex) cardPaguex.classList.toggle('active', selected === 'paguex');
     if (cardPaguexCamp) cardPaguexCamp.classList.toggle('active', selected === 'paguexcamp');
@@ -5574,6 +5581,7 @@ Agradecemos pela preferência e esperamos você!`;
     if (cardPagflex) cardPagflex.classList.toggle('active', selected === 'pagflexbr');
     if (cardBlackcat) cardBlackcat.classList.toggle('active', selected === 'blackcat');
     if (cardWappi) cardWappi.classList.toggle('active', selected === 'wappi');
+    if (cardRevopay) cardRevopay.classList.toggle('active', selected === 'revopay');
   };
 
   if (togglePaguex) togglePaguex.addEventListener('change', () => { if(togglePaguex.checked) updateGatewayToggles('paguex'); else updateGatewayToggles(''); });
@@ -5584,6 +5592,7 @@ Agradecemos pela preferência e esperamos você!`;
   if (togglePagflex) togglePagflex.addEventListener('change', () => { if(togglePagflex.checked) updateGatewayToggles('pagflexbr'); else updateGatewayToggles(''); });
   if (toggleBlackcat) toggleBlackcat.addEventListener('change', () => { if(toggleBlackcat.checked) updateGatewayToggles('blackcat'); else updateGatewayToggles(''); });
   if (toggleWappi) toggleWappi.addEventListener('change', () => { if(toggleWappi.checked) updateGatewayToggles('wappi'); else updateGatewayToggles(''); });
+  if (toggleRevopay) toggleRevopay.addEventListener('change', () => { if(toggleRevopay.checked) updateGatewayToggles('revopay'); else updateGatewayToggles(''); });
 
   if (btnSaveIntegracoes) {
     btnSaveIntegracoes.addEventListener('click', async () => {
@@ -5596,6 +5605,7 @@ Agradecemos pela preferência e esperamos você!`;
       if (togglePagflex && togglePagflex.checked) activeGateway = 'pagflexbr';
       if (toggleBlackcat && toggleBlackcat.checked) activeGateway = 'blackcat';
       if (toggleWappi && toggleWappi.checked) activeGateway = 'wappi';
+      if (toggleRevopay && toggleRevopay.checked) activeGateway = 'revopay';
 
       const pPublic = pPubKeyInput ? pPubKeyInput.value.trim() : '';
       const pcPublic = pcPubKeyInput ? pcPubKeyInput.value.trim() : '';
@@ -5616,6 +5626,10 @@ Agradecemos pela preferência e esperamos você!`;
       const wpApi = wpApiKeyInput ? wpApiKeyInput.value.trim() : '';
       const wpSecretInput = document.getElementById('wappi-webhook-secret');
       const wpSecret = wpSecretInput ? wpSecretInput.value.trim() : '';
+      const rpSecKeyInput = document.getElementById('revopay-secret-key');
+      const rpSecret = rpSecKeyInput ? rpSecKeyInput.value.trim() : '';
+      const rpWebhookInput = document.getElementById('revopay-webhook-secret');
+      const rpWebhook = rpWebhookInput ? rpWebhookInput.value.trim() : '';
       const t7ApiKeyInput = document.getElementById('track7-api-key');
       const t7Api = t7ApiKeyInput ? t7ApiKeyInput.value.trim() : '';
 
@@ -5647,6 +5661,8 @@ Agradecemos pela preferência e esperamos você!`;
             wappi_public_key: wpPublic,
             wappi_api_key: wpApi,
             wappi_webhook_secret: wpSecret,
+            revopay_secret_key: rpSecret,
+            revopay_webhook_secret: rpWebhook,
             track7_api_key: t7Api
           })
         });

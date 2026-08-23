@@ -114,6 +114,8 @@ exports.handler = async (event, context) => {
         wappi_public_key: '',
         wappi_api_key: '',
         wappi_webhook_secret: '',
+        revopay_secret_key: '',
+        revopay_webhook_secret: '',
         track7_api_key: ''
       };
  
@@ -158,6 +160,8 @@ exports.handler = async (event, context) => {
         if (c.key === 'wappi_public_key') result.wappi_public_key = c.value;
         if (c.key === 'wappi_api_key') result.wappi_api_key = c.value;
         if (c.key === 'wappi_webhook_secret') result.wappi_webhook_secret = c.value;
+        if (c.key === 'revopay_secret_key') result.revopay_secret_key = c.value;
+        if (c.key === 'revopay_webhook_secret') result.revopay_webhook_secret = c.value;
         if (c.key === 'track7_api_key') result.track7_api_key = c.value;
       });
 
@@ -228,6 +232,8 @@ exports.handler = async (event, context) => {
         wappi_public_key,
         wappi_api_key,
         wappi_webhook_secret,
+        revopay_secret_key,
+        revopay_webhook_secret,
         track7_api_key
       } = data;
  
@@ -274,6 +280,8 @@ exports.handler = async (event, context) => {
       if (wappi_public_key !== undefined) payloads.push({ key: 'wappi_public_key', value: (wappi_public_key || '').trim() });
       if (wappi_api_key !== undefined) payloads.push({ key: 'wappi_api_key', value: (wappi_api_key || '').trim() });
       if (wappi_webhook_secret !== undefined) payloads.push({ key: 'wappi_webhook_secret', value: (wappi_webhook_secret || '').trim() });
+      if (revopay_secret_key !== undefined) payloads.push({ key: 'revopay_secret_key', value: (revopay_secret_key || '').trim() });
+      if (revopay_webhook_secret !== undefined) payloads.push({ key: 'revopay_webhook_secret', value: (revopay_webhook_secret || '').trim() });
       if (track7_api_key !== undefined) payloads.push({ key: 'track7_api_key', value: (track7_api_key || '').trim() });
 
       // Salva ou atualiza usando upsert por Postgrest REST API

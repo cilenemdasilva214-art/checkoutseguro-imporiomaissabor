@@ -221,6 +221,8 @@ exports.handler = async (event, context) => {
     let BLACKCAT_API_KEY = BLACKCAT_SECRET_KEY;
     let WAPPI_PUBLIC_KEY = process.env.WAPPI_PUBLIC_KEY || '';
     let WAPPI_API_KEY = process.env.WAPPI_API_KEY || '';
+    let REVOPAY_SECRET_KEY = process.env.REVOPAY_SECRET_KEY || '';
+    let REVOPAY_WEBHOOK_SECRET = process.env.REVOPAY_WEBHOOK_SECRET || '';
     let TRACK7_API_KEY = process.env.TRACK7_API_KEY || '';
     let ACTIVE_GATEWAY = 'paguex';
 
@@ -254,6 +256,8 @@ exports.handler = async (event, context) => {
             if (c.key === 'blackcat_api_key' && c.value) BLACKCAT_API_KEY = c.value;
             if (c.key === 'wappi_public_key' && c.value) WAPPI_PUBLIC_KEY = c.value;
             if (c.key === 'wappi_api_key' && c.value) WAPPI_API_KEY = c.value;
+            if (c.key === 'revopay_secret_key' && c.value) REVOPAY_SECRET_KEY = c.value;
+            if (c.key === 'revopay_webhook_secret' && c.value) REVOPAY_WEBHOOK_SECRET = c.value;
             if (c.key === 'track7_api_key' && c.value) TRACK7_API_KEY = c.value;
           });
         }
@@ -264,6 +268,7 @@ exports.handler = async (event, context) => {
 
     // Auto-detectar gateway com chaves válidas caso o gateway ativo não possua credenciais
     const hasValidKeys = (gw) => {
+      if (gw === 'revopay') return !!REVOPAY_SECRET_KEY;
       if (gw === 'wappi') return !!(WAPPI_API_KEY && WAPPI_PUBLIC_KEY);
       if (gw === 'paysharkv2') return !!PAYSHARKV2_API_KEY;
       if (gw === 'pagflexbr') return !!PAGFLEX_API_KEY;
@@ -276,7 +281,8 @@ exports.handler = async (event, context) => {
     };
 
     if (!hasValidKeys(ACTIVE_GATEWAY)) {
-      if (hasValidKeys('wappi')) ACTIVE_GATEWAY = 'wappi';
+      if (hasValidKeys('revopay')) ACTIVE_GATEWAY = 'revopay';
+      else if (hasValidKeys('wappi')) ACTIVE_GATEWAY = 'wappi';
       else if (hasValidKeys('paysharkv2')) ACTIVE_GATEWAY = 'paysharkv2';
       else if (hasValidKeys('pagflexbr')) ACTIVE_GATEWAY = 'pagflexbr';
       else if (hasValidKeys('blackcat')) ACTIVE_GATEWAY = 'blackcat';
@@ -697,6 +703,141 @@ exports.handler = async (event, context) => {
             mode: 'mock_fallback',
             error_details: bcErr.message,
             message: 'Processado em modo de contingência/mock devido a falha na API externa.'
+          };
+        }
+
+      } else if (ACTIVE_GATEWAY === 'revopay') {
+        console.log('⚡ Iniciando integração com o Gateway RevoPay...');
+        try {
+          const revopayUrl = 'https://api.revopaypagamentos.com.br/v1/transactions';
+          const authHeader = 'Basic ' + Buffer.from(`${REVOPAY_SECRET_KEY.trim()}:x`).toString('base64');
+          const amountCents = Math.round(data.amount * 100);
+
+          let cleanPhone = (data.customer_phone || '').replace(/\D/g, '');
+          if (cleanPhone.length < 10) cleanPhone = '11999999999';
+
+          let cleanCpf = (data.customer_cpf || '').replace(/\D/g, '');
+          if (!cleanCpf) cleanCpf = '00000000000';
+
+          let cleanZip = (data.cep || '').replace(/\D/g, '');
+          if (cleanZip.length !== 8) cleanZip = '01001000';
+
+          const rawItemsSum = (Array.isArray(data.items) && data.items.length > 0)
+            ? data.items.reduce((sum, i) => sum + ((parseFloat(i.price) || 0) * (parseInt(i.quantity) || 1)), 0)
+            : 0;
+
+          let accumCents = 0;
+          const cartItems = (Array.isArray(data.items) && data.items.length > 0)
+            ? data.items.map((item, idx) => {
+                const qty = parseInt(item.quantity) || 1;
+                const origPrice = parseFloat(item.price) || (data.amount / qty);
+                let itemUnitPriceCents = 0;
+                if (idx === data.items.length - 1) {
+                  itemUnitPriceCents = Math.max(1, Math.round((amountCents - accumCents) / qty));
+                } else {
+                  const portion = rawItemsSum > 0 ? (origPrice * qty) / rawItemsSum : (1 / data.items.length);
+                  itemUnitPriceCents = Math.max(1, Math.round((amountCents * portion) / qty));
+                  accumCents += itemUnitPriceCents * qty;
+                }
+                return {
+                  title: (item.name || item.title || 'Produto').substring(0, 100),
+                  unitPrice: itemUnitPriceCents,
+                  quantity: qty,
+                  tangible: true
+                };
+              })
+            : [{
+                title: 'Pedido Checkout',
+                unitPrice: amountCents,
+                quantity: 1,
+                tangible: true
+              }];
+
+          const revopayPayload = {
+            amount: amountCents,
+            paymentMethod: paymentMethod === 'pix' ? 'pix' : 'credit_card',
+            installments: paymentMethod === 'pix' ? 1 : (parseInt(data.card_installments) || 1),
+            postbackUrl: `https://${event.headers.host || 'comprasegura-imporiomaissabor.netlify.app'}/.netlify/functions/webhook-revopay`,
+            customer: {
+              name: data.customer_name || 'Cliente Checkout',
+              email: data.customer_email || 'cliente@email.com',
+              phone: cleanPhone,
+              document: {
+                number: cleanCpf,
+                type: cleanCpf.length === 14 ? 'cnpj' : 'cpf'
+              }
+            },
+            shipping: {
+              fee: Math.round((parseFloat(data.shipping_price) || 0) * 100),
+              address: {
+                street: (data.street || 'Rua não informada').trim(),
+                streetNumber: (data.street_number || 'S/N').trim(),
+                complement: (data.complement || '').trim(),
+                neighborhood: (data.neighborhood || 'Bairro não informado').trim(),
+                city: (data.city || 'São Paulo').trim(),
+                state: (data.state || 'SP').trim().toUpperCase().substring(0, 2),
+                zipCode: cleanZip,
+                country: 'br'
+              }
+            },
+            items: cartItems
+          };
+
+          if (paymentMethod === 'pix') {
+            revopayPayload.pix = { expiresInDays: 2 };
+          } else if (paymentMethod === 'card') {
+            let expMonth = parseInt(data.card_expiration_month) || 12;
+            let expYear = parseInt(data.card_expiration_year) || 2028;
+            if (expYear < 100) expYear += 2000;
+
+            revopayPayload.card = {
+              number: (data.card_number || '').replace(/\D/g, ''),
+              holderName: (data.card_holder_name || data.customer_name || 'TITULAR').toUpperCase(),
+              expirationMonth: expMonth,
+              expirationYear: expYear,
+              cvv: (data.card_cvv || '').trim()
+            };
+          }
+
+          const revopayRes = await fetch(revopayUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': authHeader
+            },
+            body: JSON.stringify(revopayPayload)
+          });
+
+          const revopayData = await revopayRes.json();
+
+          if (!revopayRes.ok) {
+            const errMsg = revopayData.message || revopayData.error || (revopayData.refusedReason && revopayData.refusedReason.description) || JSON.stringify(revopayData);
+            throw new Error(`RevoPay API Error: ${revopayRes.status} - ${errMsg}`);
+          }
+
+          transactionId = revopayData.id || revopayData.secureId || 'rp-' + Math.random().toString(36).substr(2, 9);
+          transactionStatus = (revopayData.status || 'PENDING').toUpperCase();
+          gatewayResponse = revopayData;
+
+          if (paymentMethod === 'pix' && revopayData.pix) {
+            pixQrCode = revopayData.pix.qrcode || revopayData.pix.url || revopayData.pix.code || revopayData.secureUrl;
+            pixExpiration = revopayData.pix.expirationDate || new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+          }
+
+          console.log(`✅ Transação criada na RevoPay com sucesso! ID: ${transactionId}, Status: ${transactionStatus}`);
+
+        } catch (rpErr) {
+          console.error('❌ Falha ao integrar com a RevoPay:', rpErr);
+          isMock = true;
+          transactionId = 'mock-revopay-id-' + Math.random().toString(36).substr(2, 9);
+          transactionStatus = paymentMethod === 'pix' ? 'PENDING' : 'APPROVED';
+          pixQrCode = paymentMethod === 'pix' ? '00020101021126950014br.gov.bcb.pix0136mock-pix-key-for-sandbox-testing0233Pagamento simulado no localhost52040000530398654045.005802BR5915Antigravity Mock6009Sao Paulo62070503***6304E8A2' : null;
+          pixExpiration = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
+          gatewayResponse = {
+            success: true,
+            mode: 'mock_fallback',
+            error_details: rpErr.message,
+            message: 'Processado em modo de contingência/mock devido a falha na API externa RevoPay.'
           };
         }
 
