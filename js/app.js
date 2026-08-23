@@ -2275,13 +2275,114 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     });
   }
 
-  // Globais para rastreamento de produto Shopify
   let shpfyProductTitle = null;
   let shpfyProductSku = null;
   let shpfyProductPrice = null;
   let shpfyProductQuantity = 1;
   let shpfyVariantId = null;
   let shopifyCartItems = []; // Global variable to store all products in the Shopify cart
+
+  // ==========================================
+  // BUSCA AUTOMÁTICA DE PRODUTOS DIRETO DA LOJA (WOOCOMMERCE / SHOPIFY)
+  // ==========================================
+  window._storeCatalogProducts = null;
+
+  async function loadStoreCatalogProducts() {
+    if (window._storeCatalogProducts && window._storeCatalogProducts.length > 0) {
+      return window._storeCatalogProducts;
+    }
+
+    let catalog = [];
+
+    // 1. Tentar buscar pelo WooCommerce da loja
+    try {
+      const wcRes = await fetch('/api/woocommerce?action=products');
+      if (wcRes.ok) {
+        const wcProducts = await wcRes.json();
+        if (Array.isArray(wcProducts) && wcProducts.length > 0) {
+          catalog = wcProducts.map(p => ({
+            id: p.id,
+            name: p.name || '',
+            title: p.name || '',
+            sku: p.sku || '',
+            image: (p.images && p.images[0] && p.images[0].src) ? p.images[0].src : ''
+          }));
+          console.log(`📦 Catalog carregado via WooCommerce: ${catalog.length} produtos.`);
+        }
+      }
+    } catch (e) {
+      console.warn('Busca WooCommerce catalog:', e.message);
+    }
+
+    // 2. Se não trouxe do WooCommerce, tentar buscar da Shopify
+    if (catalog.length === 0) {
+      try {
+        const shRes = await fetch('/api/shopify?action=products');
+        if (shRes.ok) {
+          const shProducts = await shRes.json();
+          if (Array.isArray(shProducts) && shProducts.length > 0) {
+            catalog = shProducts.map(p => ({
+              id: p.id,
+              name: p.title || '',
+              title: p.title || '',
+              sku: (p.variants && p.variants[0] && p.variants[0].sku) ? p.variants[0].sku : '',
+              image: (p.image && p.image.src) ? p.image.src : ((p.images && p.images[0]) ? p.images[0].src : '')
+            }));
+            console.log(`📦 Catalog carregado via Shopify: ${catalog.length} produtos.`);
+          }
+        }
+      } catch (e) {
+        console.warn('Busca Shopify catalog:', e.message);
+      }
+    }
+
+    window._storeCatalogProducts = catalog;
+    return catalog;
+  }
+
+  async function enrichCartItemsWithCatalogImages(items) {
+    if (!Array.isArray(items) || items.length === 0) return;
+
+    // Verificar se algum item está sem foto
+    const needsImages = items.some(item => !item.image || !item.image.startsWith('http'));
+    if (!needsImages) return;
+
+    const catalog = await loadStoreCatalogProducts();
+    if (!catalog || catalog.length === 0) return;
+
+    let updatedAny = false;
+
+    items.forEach(item => {
+      if (item.image && item.image.startsWith('http')) return;
+
+      const itemTitle = (item.name || item.title || '').toLowerCase().trim();
+      const itemSku = (item.sku || '').toLowerCase().trim();
+
+      // Busca exata ou por substring no título do produto da loja
+      const match = catalog.find(cat => {
+        const catTitle = (cat.title || cat.name || '').toLowerCase().trim();
+        const catSku = (cat.sku || '').toLowerCase().trim();
+        if (itemSku && catSku && itemSku === catSku) return true;
+        if (catTitle && itemTitle && (catTitle === itemTitle || itemTitle.includes(catTitle) || catTitle.includes(itemTitle))) return true;
+        
+        // Comparação de palavras-chave principais (ex: "lombo de bacalhau")
+        const itemWords = itemTitle.replace(/[()\-]/g, ' ').split(' ').filter(w => w.length > 3);
+        const catWords = catTitle.replace(/[()\-]/g, ' ').split(' ').filter(w => w.length > 3);
+        const commonWords = itemWords.filter(w => catWords.includes(w));
+        return commonWords.length >= 2;
+      });
+
+      if (match && match.image) {
+        item.image = match.image;
+        updatedAny = true;
+        console.log(`🖼️ Foto HD do produto "${item.name || item.title}" puxada da loja:`, match.image);
+      }
+    });
+
+    if (updatedAny && typeof window.renderCheckoutCart === 'function') {
+      window.renderCheckoutCart();
+    }
+  }
 
   // Função para carregar produtos vindos do redirecionamento Shopify
   function parseUrlParameters() {
@@ -2448,6 +2549,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
     if (shopifyCartItems && shopifyCartItems.length > 0) {
       window.renderCheckoutCart();
+      enrichCartItemsWithCatalogImages(shopifyCartItems);
     }
   }
 
