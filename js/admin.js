@@ -687,8 +687,11 @@ Agradecemos pela preferência e esperamos você!`;
     });
   });
 
+  let currentActiveView = 'dashboard';
+
   // Função centralizada para alternar views
   function switchView(targetView) {
+    currentActiveView = targetView;
     viewPanels.forEach(panel => {
       if (panel.id === `view-${targetView}`) {
         panel.classList.remove('hide');
@@ -696,6 +699,10 @@ Agradecemos pela preferência e esperamos você!`;
         panel.classList.add('hide');
       }
     });
+
+    if (typeof renderData === 'function') {
+      renderData();
+    }
 
     // Atualizar títulos e filtros
     const meta = viewMeta[targetView];
@@ -804,7 +811,7 @@ Agradecemos pela preferência e esperamos você!`;
       // 1. Carregar Configurações Globais e Pedidos PARALELAMENTE para ficar muito mais rápido
       const [configRes, ordersRes] = await Promise.all([
         fetchWithAuth('/api/config'),
-        fetchWithAuth('/api/orders?limit=10000')
+        fetchWithAuth('/api/orders?limit=1000')
       ]);
 
       // --- PROCESSAR CONFIGURAÇÃ•ES ---
@@ -1136,47 +1143,50 @@ Agradecemos pela preferência e esperamos você!`;
     const ordersList = periodTransactions.filter(tx => tx.status !== 'draft');
     const leadsList = periodTransactions.filter(tx => tx.status === 'draft');
 
-    // 1. RENDERIZAR MÃ‰TRICAS PRINCIPAIS
+    // 1. RENDERIZAR MÉTRICAS PRINCIPAIS (Super leve)
     renderMetrics(ordersList, totalDays);
-
-    // 2. RENDERIZAR FUNIL DE COMPORTAMENTO
-    renderFunnel(periodTransactions);
-
-    // 3. RENDERIZAR CONVERSÃƒO DE PIX
     renderPixConversion(ordersList);
 
-    // 4. RENDERIZAR DISTRIBUIÇÃ•ES
-    renderDistributions(ordersList);
+    // 2. RENDERIZAR APENAS AS TABELAS DA ABA ATIVA NO MOMENTO (Zero travamentos)
+    const view = currentActiveView || 'dashboard';
 
-    // 5. RENDERIZAR TOP PRODUTOS
-    renderTopProducts(ordersList);
+    if (view === 'dashboard' || view === 'vendas') {
+      const successfulCardSales = ordersList.filter(tx => tx.status && (
+        tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'APPROVED' || tx.status.toUpperCase() === 'PRE-APPROVED'
+      ) && (!tx.payment_method || tx.payment_method.toLowerCase() !== 'pix'));
+      renderVendasTable(successfulCardSales);
 
-    // 6. RENDERIZAR TABELA DE LEADS (CARRINHOS ABANDONADOS)
-    renderLeadsTable(leadsList);
+      const pixSales = ordersList.filter(tx => tx.payment_method && tx.payment_method.toLowerCase() === 'pix');
+      renderVendasPixTable(pixSales);
+    }
 
-    // 7. RENDERIZAR TABELA DE PEDIDOS (TODAS SESSÃ•ES)
-    renderPedidosTable(periodTransactions);
+    if (view === 'dashboard' || view === 'relatorios') {
+      renderFunnel(periodTransactions);
+      renderDistributions(ordersList);
+      renderTopProducts(ordersList);
+    }
 
-    // 8. RENDERIZAR TABELA DE VENDAS COM CARTÃƒO DE CRÃ‰DITO
-    const successfulCardSales = ordersList.filter(tx => tx.status && (
-      tx.status.toUpperCase() === 'PAID' || tx.status.toUpperCase() === 'APPROVED' || tx.status.toUpperCase() === 'PRE-APPROVED'
-    ) && (!tx.payment_method || tx.payment_method.toLowerCase() !== 'pix'));
-    renderVendasTable(successfulCardSales);
+    if (view === 'leads') {
+      renderLeadsTable(leadsList);
+    }
 
-    // 8a. RENDERIZAR TABELA DE VENDAS PIX (PENDENTES E PAGAS)
-    const pixSales = ordersList.filter(tx => tx.payment_method && tx.payment_method.toLowerCase() === 'pix');
-    renderVendasPixTable(pixSales);
+    if (view === 'pedidos') {
+      renderPedidosTable(periodTransactions);
+    }
 
-    // 8b. RENDERIZAR TABELA DE VENDAS RECUSADAS
-    const failedSales = ordersList.filter(tx => tx.status && tx.status.toUpperCase() === 'FAILED');
-    renderRecusadasTable(failedSales);
+    if (view === 'recusadas') {
+      const failedSales = ordersList.filter(tx => tx.status && tx.status.toUpperCase() === 'FAILED');
+      renderRecusadasTable(failedSales);
+    }
 
-    // 8c. RENDERIZAR TABELA DE CARTÃ•ES DE CRÃ‰DITO
-    const creditCardTransactions = periodTransactions.filter(tx => tx.payment_method && tx.payment_method.toLowerCase() === 'card');
-    renderCartoesTable(creditCardTransactions);
+    if (view === 'cartoes') {
+      const creditCardTransactions = periodTransactions.filter(tx => tx.payment_method && tx.payment_method.toLowerCase() === 'card');
+      renderCartoesTable(creditCardTransactions);
+    }
 
-    // 9. RENDERIZAR TABELA DE CLIENTES CADASTRADOS E LEADS
-    renderClientesTable(periodTransactions);
+    if (view === 'clientes') {
+      renderClientesTable(periodTransactions);
+    }
   }
 
   // Render dos cards de métricas
@@ -1805,6 +1815,8 @@ Agradecemos pela preferência e esperamos você!`;
     return `${baseUrl.replace(/\/$/, '')}/?${params.toString()}`;
   }
 
+  let vendasTableLimit = 50;
+
   // Render da tabela de Vendas
   function renderVendasTable(orders) {
     vendasCountBadge.innerText = `${orders.length} ${orders.length === 1 ? 'pedido' : 'pedidos'}`;
@@ -1819,7 +1831,8 @@ Agradecemos pela preferência e esperamos você!`;
         </tr>
       `;
     } else {
-      vendasTbody.innerHTML = orders.map(order => {
+      const displayOrders = orders.slice(0, vendasTableLimit);
+      let html = displayOrders.map(order => {
         const dateStr = formatDateTime(order.created_at);
         const name = escapeHtml(order.customer_name || 'Sem Nome');
         
@@ -1989,8 +2002,27 @@ Agradecemos pela preferência e esperamos você!`;
         `;
       }).join('');
 
-      addDetailButtonListeners();
-      addEditButtonListeners();
+      if (orders.length > displayOrders.length) {
+        html += `
+          <tr id="row-more-vendas">
+            <td colspan="6" style="text-align:center; padding:1rem;">
+              <button type="button" id="btn-more-vendas" style="background:rgba(124,77,255,0.12); border:1px solid var(--primary-color); color:var(--primary-color); padding:0.5rem 1.25rem; border-radius:8px; font-weight:600; cursor:pointer;">
+                <i class="fa-solid fa-chevron-down" style="margin-right:0.4rem;"></i> Carregar mais 50 vendas (${orders.length - displayOrders.length} restantes)
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+
+      vendasTbody.innerHTML = html;
+
+      const btnMore = document.getElementById('btn-more-vendas');
+      if (btnMore) {
+        btnMore.addEventListener('click', () => {
+          vendasTableLimit += 50;
+          renderVendasTable(orders);
+        });
+      }
     }
   }
 
@@ -5983,9 +6015,22 @@ Agradecemos pela preferência e esperamos você!`;
 
 });
 
-// Polling de 30 segundos para manter dados atualizados sem WebSocket
-setInterval(() => {
-  if (safeStorage.getItem('admin_authenticated') === 'true') {
-    loadInitialData();
+// Polling ultra-leve de 30 segundos para manter vendas atualizadas sem travamento
+async function refreshOrdersOnly() {
+  if (document.hidden) return; // Não gasta CPU/memória se a aba estiver em segundo plano
+  if (safeStorage.getItem('admin_authenticated') !== 'true') return;
+
+  try {
+    const ordersRes = await fetchWithAuth('/api/orders?limit=1000');
+    if (ordersRes.ok) {
+      allTransactions = await ordersRes.json();
+      if (typeof renderData === 'function') {
+        renderData();
+      }
+    }
+  } catch (e) {
+    console.warn('Erro ao atualizar pedidos em segundo plano:', e.message);
   }
-}, 30000);
+}
+
+setInterval(refreshOrdersOnly, 30000);
