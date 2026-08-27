@@ -17,7 +17,7 @@
   <script>
     try {
       if (localStorage.getItem('admin_theme') === 'light') {
-        document.body.classList.add('light-theme');
+        document.documentElement.classList.add('light-theme');
       }
     } catch (e) {
       console.warn("Acesso ao localStorage bloqueado no iframe:", e);
@@ -3319,7 +3319,7 @@
 
   <!-- Script Core Admin -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/admin.js?v=3"></script>
+  <script src="js/admin.js?v=4.0"></script>
   <!-- MODAL: EDITAR PEDIDO -->
   <div class="modal-overlay" id="edit-order-modal">
     <div class="modal-content" style="max-width: 500px; background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 24px; padding: 2rem;">
