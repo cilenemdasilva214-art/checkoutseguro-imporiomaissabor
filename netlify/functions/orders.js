@@ -51,7 +51,13 @@ exports.handler = async (event, context) => {
       };
     }
     
-    const targetUrl = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/card_checkout_test_raw?id=eq.${idToDelete}`;
+    let filterQuery = `id=eq.${idToDelete}`;
+    if (idToDelete.includes(',')) {
+      const idsArray = idToDelete.split(',').map(s => s.trim()).filter(Boolean);
+      filterQuery = `id=in.(${idsArray.join(',')})`;
+    }
+    
+    const targetUrl = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/card_checkout_test_raw?${filterQuery}`;
     
     try {
       const response = await fetch(targetUrl, {
