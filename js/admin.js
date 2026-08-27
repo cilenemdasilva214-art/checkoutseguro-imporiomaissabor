@@ -6037,12 +6037,22 @@ Agradecemos pela preferência e esperamos você!`;
           const errData = await res.json();
           throw new Error(errData.error || 'Erro desconhecido ao salvar.');
         }
+
+        // Atualizar imediatamente a memória local do admin para exibição instantânea sem F5
+        const targetIdx = allTransactions.findIndex(t => String(t.id) === String(id));
+        if (targetIdx !== -1) {
+          allTransactions[targetIdx] = {
+            ...allTransactions[targetIdx],
+            ...payload
+          };
+        }
+
         alert('Pedido atualizado com sucesso!');
         const editModal = document.getElementById('edit-order-modal');
         if (editModal) editModal.classList.remove('open');
         
-        if (typeof loadInitialData === 'function') {
-            loadInitialData();
+        if (typeof renderData === 'function') {
+          renderData();
         }
       } catch (err) {
         console.error(err);
