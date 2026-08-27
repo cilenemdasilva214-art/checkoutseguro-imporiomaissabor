@@ -177,8 +177,11 @@ exports.handler = async (event, context) => {
   // Se houver um domínio configurado no Netlify (CHECKOUT_DOMAIN), use ele, senão use o hostname detectado
   const siteDomain = process.env.CHECKOUT_DOMAIN || requestDomain || '';
 
+  // Se a requisição vier do painel admin, não força filtro de domínio via backend
+  const isAdmin = referer.toLowerCase().includes('admin');
+
   let domainFilter = '';
-  if (siteDomain && siteDomain !== 'localhost' && siteDomain !== '127.0.0.1') {
+  if (!isAdmin && siteDomain && siteDomain !== 'localhost' && siteDomain !== '127.0.0.1') {
     if (
       siteDomain.includes('imporiomaissabor') || 
       siteDomain.includes('porto') || 

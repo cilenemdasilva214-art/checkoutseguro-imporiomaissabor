@@ -733,9 +733,6 @@ Agradecemos pela preferência e esperamos você!`;
         triggerSubView('marketing-coupons');
       }
     }
-
-    // Re-renderizar dependendo da aba
-    renderData();
   }
 
   // ==========================================
@@ -811,7 +808,7 @@ Agradecemos pela preferência e esperamos você!`;
       // 1. Carregar Configurações Globais e Pedidos PARALELAMENTE para ficar muito mais rápido
       const [configRes, ordersRes] = await Promise.all([
         fetchWithAuth('/api/config'),
-        fetchWithAuth('/api/orders?limit=1000')
+        fetchWithAuth('/api/orders?limit=300')
       ]);
 
       // --- PROCESSAR CONFIGURAÇÃ•ES ---
@@ -6053,7 +6050,6 @@ Agradecemos pela preferência e esperamos você!`;
       }
     });
   }
-
 });
 
 // Polling ultra-leve de 30 segundos para manter vendas atualizadas sem travamento
@@ -6062,7 +6058,7 @@ async function refreshOrdersOnly() {
   if (safeStorage.getItem('admin_authenticated') !== 'true') return;
 
   try {
-    const ordersRes = await fetchWithAuth('/api/orders?limit=1000');
+    const ordersRes = await fetchWithAuth('/api/orders?limit=300');
     if (ordersRes.ok) {
       allTransactions = await ordersRes.json();
       if (typeof renderData === 'function') {
