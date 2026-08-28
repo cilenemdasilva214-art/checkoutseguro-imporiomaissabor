@@ -1378,6 +1378,8 @@ Agradecemos pela preferência e esperamos você!`;
     return html;
   }
 
+  let topProductsLimit = 20;
+
   // Render de Top Produtos
   function renderTopProducts(orders) {
     const productsMap = {};
@@ -1391,21 +1393,24 @@ Agradecemos pela preferência e esperamos você!`;
       
       if (Array.isArray(items)) {
         items.forEach(item => {
-          const name = item.name || 'Produto Sem Nome';
-          const sku = item.sku || 'SKU-INDEFINIDO';
+          const name = (item.name || item.title || 'Produto Sem Nome').trim();
+          const sku = item.sku || 'SHPFY-DEFAULT';
           const qty = parseInt(item.quantity) || 1;
           const price = parseFloat(item.price) || (parseFloat(tx.amount) / qty) || 0.0;
           
-          if (!productsMap[sku]) {
-            productsMap[sku] = {
+          // Agrupar pelo nome único do produto em vez do SKU genérico "SHPFY-DEFAULT"
+          const productKey = name.toLowerCase();
+
+          if (!productsMap[productKey]) {
+            productsMap[productKey] = {
               name: name,
               sku: sku,
               qty: 0,
               revenue: 0.0
             };
           }
-          productsMap[sku].qty += qty;
-          productsMap[sku].revenue += (price * qty);
+          productsMap[productKey].qty += qty;
+          productsMap[productKey].revenue += (price * qty);
         });
       }
     });
@@ -1422,14 +1427,37 @@ Agradecemos pela preferência e esperamos você!`;
         </tr>
       `;
     } else {
-      topProductsTbody.innerHTML = topProducts.map(p => `
+      const displayProducts = topProducts.slice(0, topProductsLimit);
+      let html = displayProducts.map(p => `
         <tr>
-          <td style="font-weight:600;color:var(--text-main);">${p.name}</td>
-          <td style="font-family:'Space Mono';font-size:0.8rem;color:var(--text-muted);">${p.sku}</td>
+          <td style="font-weight:600;color:var(--text-main);">${escapeHtml(p.name)}</td>
+          <td style="font-family:'Space Mono';font-size:0.8rem;color:var(--text-muted);">${escapeHtml(p.sku)}</td>
           <td style="text-align:center;font-weight:700;">${p.qty}</td>
           <td style="text-align:right;font-weight:700;color:var(--success-color);">${p.revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
         </tr>
       `).join('');
+
+      if (topProducts.length > displayProducts.length) {
+        html += `
+          <tr>
+            <td colspan="4" style="text-align:center; padding: 1rem;">
+              <button type="button" id="btn-more-top-products" style="background: rgba(124, 77, 255, 0.12); border: 1px solid var(--primary-color); color: var(--primary-color); padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                <i class="fa-solid fa-chevron-down" style="margin-right:0.4rem;"></i> Carregar mais produtos (${topProducts.length - displayProducts.length} restantes)
+              </button>
+            </td>
+          </tr>
+        `;
+      }
+
+      topProductsTbody.innerHTML = html;
+
+      const btnMore = document.getElementById('btn-more-top-products');
+      if (btnMore) {
+        btnMore.addEventListener('click', () => {
+          topProductsLimit += 20;
+          renderTopProducts(orders);
+        });
+      }
     }
   }
 
