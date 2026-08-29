@@ -1380,7 +1380,7 @@ Agradecemos pela preferência e esperamos você!`;
 
   let topProductsLimit = 20;
 
-  // Render de Top Produtos
+  // Render de Top Produtos (Ordenado por mais vendidos em quantidade)
   function renderTopProducts(orders) {
     const productsMap = {};
 
@@ -1415,32 +1415,49 @@ Agradecemos pela preferência e esperamos você!`;
       }
     });
 
-    // Ordena decrescente por receita
-    const topProducts = Object.values(productsMap).sort((a, b) => b.revenue - a.revenue);
+    // Ordena de forma estritamente decrescente por QUANTIDADE VENDIDA (unidades mais vendidas no topo)
+    const topProducts = Object.values(productsMap).sort((a, b) => {
+      if (b.qty !== a.qty) return b.qty - a.qty;
+      return b.revenue - a.revenue;
+    });
 
     if (topProducts.length === 0) {
       topProductsTbody.innerHTML = `
         <tr>
-          <td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem;">
+          <td colspan="5" style="text-align:center;color:var(--text-muted);padding:2rem;">
             Nenhum produto vendido no período selecionado.
           </td>
         </tr>
       `;
     } else {
       const displayProducts = topProducts.slice(0, topProductsLimit);
-      let html = displayProducts.map(p => `
-        <tr>
-          <td style="font-weight:600;color:var(--text-main);">${escapeHtml(p.name)}</td>
-          <td style="font-family:'Space Mono';font-size:0.8rem;color:var(--text-muted);">${escapeHtml(p.sku)}</td>
-          <td style="text-align:center;font-weight:700;">${p.qty}</td>
-          <td style="text-align:right;font-weight:700;color:var(--success-color);">${p.revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
-        </tr>
-      `).join('');
+      let html = displayProducts.map((p, index) => {
+        const rank = index + 1;
+        let rankBadge = `<span class="badge" style="background:rgba(255,255,255,0.05); color:var(--text-muted); font-weight:700; font-family:'Space Mono'; font-size:0.85rem;">#${rank}</span>`;
+        
+        if (rank === 1) {
+          rankBadge = `<span class="badge" style="background:rgba(234,179,8,0.18); color:#eab308; border:1px solid rgba(234,179,8,0.35); font-weight:700; font-family:'Space Mono'; font-size:0.85rem;"><i class="fa-solid fa-trophy" style="margin-right:3px;"></i> #1</span>`;
+        } else if (rank === 2) {
+          rankBadge = `<span class="badge" style="background:rgba(148,163,184,0.18); color:#cbd5e1; border:1px solid rgba(148,163,184,0.35); font-weight:700; font-family:'Space Mono'; font-size:0.85rem;"><i class="fa-solid fa-medal" style="margin-right:3px;"></i> #2</span>`;
+        } else if (rank === 3) {
+          rankBadge = `<span class="badge" style="background:rgba(217,119,6,0.18); color:#f59e0b; border:1px solid rgba(217,119,6,0.35); font-weight:700; font-family:'Space Mono'; font-size:0.85rem;"><i class="fa-solid fa-award" style="margin-right:3px;"></i> #3</span>`;
+        }
+
+        return `
+          <tr>
+            <td style="text-align:center;">${rankBadge}</td>
+            <td style="font-weight:600;color:var(--text-main);">${escapeHtml(p.name)}</td>
+            <td style="font-family:'Space Mono';font-size:0.8rem;color:var(--text-muted);">${escapeHtml(p.sku)}</td>
+            <td style="text-align:center;font-weight:700;color:var(--primary-color);font-size:0.95rem;">${p.qty} un</td>
+            <td style="text-align:right;font-weight:700;color:var(--success-color);">${p.revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+          </tr>
+        `;
+      }).join('');
 
       if (topProducts.length > displayProducts.length) {
         html += `
           <tr>
-            <td colspan="4" style="text-align:center; padding: 1rem;">
+            <td colspan="5" style="text-align:center; padding: 1rem;">
               <button type="button" id="btn-more-top-products" style="background: rgba(124, 77, 255, 0.12); border: 1px solid var(--primary-color); color: var(--primary-color); padding: 0.5rem 1.25rem; border-radius: 8px; font-weight: 600; cursor: pointer;">
                 <i class="fa-solid fa-chevron-down" style="margin-right:0.4rem;"></i> Carregar mais produtos (${topProducts.length - displayProducts.length} restantes)
               </button>
