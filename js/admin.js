@@ -4951,8 +4951,8 @@ Agradecemos pela preferência e esperamos você!`;
     const prodPrice = parseFloat(themeConfig.productPrice !== undefined ? themeConfig.productPrice : 10.00);
     const formattedPrice = 'R$ ' + prodPrice.toFixed(2).replace('.', ',');
     
-    if (mockProdName) mockProdName.innerText = themeConfig.productName || 'item.product.name';
-    if (mockProdSize) mockProdSize.innerText = themeConfig.productSize || 'size';
+    if (mockProdName) mockProdName.innerText = themeConfig.productName || 'Produto Empório Mais Sabor';
+    if (mockProdSize) mockProdSize.innerText = themeConfig.productSize || 'Seleção Especial';
     if (mockProdPrice) mockProdPrice.innerText = formattedPrice;
     if (mockSubtotalVal) mockSubtotalVal.innerText = formattedPrice;
     if (mockTotalVal) mockTotalVal.innerText = formattedPrice;

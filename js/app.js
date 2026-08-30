@@ -724,8 +724,14 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       const baseAmountInput = document.getElementById('base-amount');
       
       const customPrice = parseFloat(config.productPrice !== undefined ? config.productPrice : 129.90);
-      const customName = config.productName || 'Produto Empório Mais Sabor';
-      const customSize = config.productSize || 'Seleção Especial Empório Mais Sabor';
+      let customName = config.productName || 'Produto Empório Mais Sabor';
+      if (!customName || customName === 'item.product.name' || customName.includes('Sandbox')) {
+        customName = 'Produto Empório Mais Sabor';
+      }
+      let customSize = config.productSize || 'Seleção Especial Empório Mais Sabor';
+      if (!customSize || customSize === 'size' || customSize.includes('ilimitados')) {
+        customSize = 'Seleção Especial Empório Mais Sabor';
+      }
       
       if (prodName) prodName.textContent = customName;
       if (prodSize) prodSize.textContent = customSize;
