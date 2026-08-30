@@ -2320,7 +2320,12 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
 
     if (cartParam) {
       try {
-        shopifyCartItems = JSON.parse(decodeURIComponent(cartParam));
+        let rawCart = cartParam;
+        try {
+          shopifyCartItems = JSON.parse(rawCart);
+        } catch (e1) {
+          shopifyCartItems = JSON.parse(decodeURIComponent(rawCart));
+        }
         
         // Remove "Tabela de Medidas" ghost products that sometimes come from Shopify themes/apps
         if (Array.isArray(shopifyCartItems)) {
