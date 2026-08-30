@@ -724,8 +724,8 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       const baseAmountInput = document.getElementById('base-amount');
       
       const customPrice = parseFloat(config.productPrice !== undefined ? config.productPrice : 129.90);
-      const customName = config.productName || 'Pacote Sandbox Elite';
-      const customSize = config.productSize || 'Acesso para testes ilimitados';
+      const customName = config.productName || 'Produto Empório Mais Sabor';
+      const customSize = config.productSize || 'Seleção Especial Empório Mais Sabor';
       
       if (prodName) prodName.textContent = customName;
       if (prodSize) prodSize.textContent = customSize;
@@ -1062,10 +1062,10 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       }
     ] : [
       {
-        name: "Pacote Sandbox Elite",
+        name: "Produto Empório Mais Sabor",
         price: subtotal,
         quantity: 1,
-        sku: "SANDBOX-ELITE-PK"
+        sku: "EMPORIO-PROD-PK"
       }
     ]);
 
@@ -1284,7 +1284,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
           // Salvamento do primeiro rascunho de carrinho abandonado
           await saveCheckoutDraft('dados_pessoais');
           trackPixelEvent('InitiateCheckout', {
-            content_name: shpfyProductTitle || 'Pacote Sandbox Elite',
+            content_name: shpfyProductTitle || 'Produto Empório Mais Sabor',
             currency: 'BRL',
             value: totalAmount
           });
@@ -1293,7 +1293,7 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
           // Atualiza rascunho com o endereço e frete
           await saveCheckoutDraft('entrega');
           trackPixelEvent('AddPaymentInfo', {
-            content_name: shpfyProductTitle || 'Pacote Sandbox Elite',
+            content_name: shpfyProductTitle || 'Produto Empório Mais Sabor',
             currency: 'BRL',
             value: totalAmount
           });
@@ -3002,10 +3002,10 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
       }
     ] : [
       {
-        name: "Pacote Sandbox Elite",
+        name: "Produto Empório Mais Sabor",
         price: subtotal,
         quantity: 1,
-        sku: "SANDBOX-ELITE-PK"
+        sku: "EMPORIO-PROD-PK"
       }
     ]);
 
