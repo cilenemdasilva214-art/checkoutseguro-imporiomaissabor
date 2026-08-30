@@ -86,8 +86,8 @@ exports.handler = async (event, context) => {
     // AÇÃO: BUSCAR PRODUTOS
     // ----------------------------------------------------
     if (action === 'products' && event.httpMethod === 'GET') {
-      const url = `https://${storeDomain}/wp-json/wc/v3/products?per_page=100`;
-      console.log(`📡 Buscando produtos do WooCommerce em: ${url}`);
+      const url = `https://${storeDomain}/wp-json/wc/v3/products?per_page=100&order=desc&orderby=date`;
+      console.log(`📡 Buscando produtos do WooCommerce (mais recentes primeiro) em: ${url}`);
       
       const response = await fetch(url, { headers });
 
