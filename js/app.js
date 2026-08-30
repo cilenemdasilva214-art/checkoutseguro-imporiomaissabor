@@ -2285,12 +2285,12 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
   // Função para carregar produtos vindos do redirecionamento Shopify
   function parseUrlParameters() {
     const urlParams = new URLSearchParams(window.location.search);
-    const paramTitle = urlParams.get('title');
-    const paramPrice = urlParams.get('price');
-    const paramSku = urlParams.get('sku');
-    const paramQty = urlParams.get('quantity');
-    const paramVariant = urlParams.get('shopify_variant_id');
-    const paramProductId = urlParams.get('shopify_product_id') || urlParams.get('product_id');
+    const paramTitle = urlParams.get('title') || urlParams.get('name') || urlParams.get('product_name') || urlParams.get('product') || urlParams.get('item_name');
+    const paramPrice = urlParams.get('price') || urlParams.get('product_price') || urlParams.get('amount') || urlParams.get('unit_price') || urlParams.get('val');
+    const paramSku = urlParams.get('sku') || urlParams.get('product_sku') || urlParams.get('item_sku');
+    const paramQty = urlParams.get('quantity') || urlParams.get('qty') || urlParams.get('q');
+    const paramVariant = urlParams.get('shopify_variant_id') || urlParams.get('variation_id') || urlParams.get('variant_id');
+    const paramProductId = urlParams.get('shopify_product_id') || urlParams.get('product_id') || urlParams.get('id');
     const paramOrigin = urlParams.get('origin');
     const paramShop = urlParams.get('shop');
 
@@ -2315,8 +2315,8 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
     if (paramShop) {
       sessionStorage.setItem('checkout_shop', paramShop);
     }
-    const paramImage = urlParams.get('image') || urlParams.get('img') || urlParams.get('featured_image') || urlParams.get('src');
-    const cartParam = urlParams.get('cart');
+    const paramImage = urlParams.get('image') || urlParams.get('img') || urlParams.get('featured_image') || urlParams.get('src') || urlParams.get('thumbnail');
+    const cartParam = urlParams.get('cart') || urlParams.get('items') || urlParams.get('wc_cart');
 
     if (cartParam) {
       try {
@@ -2336,13 +2336,14 @@ Obs: Caso j├â┬í tenha realizado o pagamento, enviaremos uma mensagem confi
           });
         }
         
-        console.log("📦 Lista de produtos carregada do carrinho Shopify:", shopifyCartItems);
+        console.log("📦 Lista de produtos carregada do carrinho:", shopifyCartItems);
       } catch (e) {
-        console.error("Erro ao fazer o parse do carrinho Shopify:", e);
+        console.error("Erro ao fazer o parse do carrinho:", e);
       }
     } else if (paramTitle && paramPrice) {
       shopifyCartItems = [{
         title: paramTitle,
+        name: paramTitle,
         sku: paramSku || 'SHPFY-DEFAULT',
         price: paramPrice,
         quantity: paramQty || 1,
