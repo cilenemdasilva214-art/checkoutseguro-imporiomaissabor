@@ -1,6 +1,29 @@
 // Netlify Serverless Function: checkout
 // Caminho: netlify/functions/checkout.js
 
+function normalizeBrazilianState(stateStr) {
+  if (!stateStr) return 'SP';
+  const clean = stateStr.trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  const stateMap = {
+    'acre': 'AC', 'alagoas': 'AL', 'amapa': 'AP', 'amazonas': 'AM',
+    'bahia': 'BA', 'ceara': 'CE', 'distrito federal': 'DF', 'espirito santo': 'ES',
+    'goias': 'GO', 'maranhao': 'MA', 'mato grosso': 'MT', 'mato grosso do sul': 'MS',
+    'minas gerais': 'MG', 'para': 'PA', 'paraiba': 'PB', 'parana': 'PR',
+    'pernambuco': 'PE', 'piaui': 'PI', 'rio de janeiro': 'RJ', 'rio grande do norte': 'RN',
+    'rio grande do sul': 'RS', 'rondonia': 'RO', 'roraima': 'RR', 'santa catarina': 'SC',
+    'sao paulo': 'SP', 'sergipe': 'SE', 'tocantins': 'TO'
+  };
+
+  if (stateMap[clean]) return stateMap[clean];
+
+  const upper = stateStr.trim().toUpperCase();
+  if (upper.length === 2) return upper;
+
+  return upper.substring(0, 2);
+}
+
 async function validatePricesWithShopify(items, storeDomain, accessToken) {
   if (!storeDomain || !accessToken) return items; // Fallback se não tiver config
   
@@ -51,7 +74,7 @@ async function sendOrderToTrack7(apiKey, data, transactionId, totalAmount) {
     const addressStreet = (data.street || '').trim() || 'Rua não informada';
     const addressNeighborhood = (data.neighborhood || '').trim() || 'Bairro não informado';
     const addressCity = (data.city || '').trim() || 'São Paulo';
-    const addressState = (data.state || 'SP').trim().toUpperCase().substring(0, 2);
+    const addressState = normalizeBrazilianState(data.state);
 
     const track7Products = (Array.isArray(data.items) && data.items.length > 0)
       ? data.items.map(item => ({
@@ -777,7 +800,7 @@ exports.handler = async (event, context) => {
                 complement: (data.complement || '').trim(),
                 neighborhood: (data.neighborhood || 'Bairro não informado').trim(),
                 city: (data.city || 'São Paulo').trim(),
-                state: (data.state || 'SP').trim().toUpperCase().substring(0, 2),
+                state: normalizeBrazilianState(data.state),
                 zipCode: cleanZip,
                 country: 'br'
               }
