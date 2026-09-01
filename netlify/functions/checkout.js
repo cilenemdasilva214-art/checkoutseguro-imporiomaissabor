@@ -830,13 +830,26 @@ exports.handler = async (event, context) => {
 
         } catch (rpErr) {
           console.error('❌ Falha ao integrar com a RevoPay:', rpErr);
-          if (rpErr.message && (rpErr.message.toLowerCase().includes('invalid cpf') || rpErr.message.includes('CPF_INVALID'))) {
+          const errStr = (rpErr.message || '').toLowerCase();
+
+          if (errStr.includes('invalid cpf') || errStr.includes('cpf_invalid') || errStr.includes('cpf inválido')) {
             return {
               statusCode: 400,
               headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 success: false,
                 error: 'O CPF informado é inválido. Por favor, verifique se digitou o CPF corretamente e tente novamente.'
+              })
+            };
+          }
+
+          if (errStr.includes('máximo por pix') || errStr.includes('maximo por pix') || errStr.includes('500')) {
+            return {
+              statusCode: 400,
+              headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                success: false,
+                error: 'A RevoPay limita pagamentos via Pix ao valor máximo de R$ 500,00 por transação. Para compras acima de R$ 500,00, utilize Cartão de Crédito ou divida em mais pedidos.'
               })
             };
           }
