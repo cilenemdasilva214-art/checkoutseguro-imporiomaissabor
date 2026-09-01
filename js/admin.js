@@ -817,7 +817,7 @@ Agradecemos pela preferência e esperamos você!`;
       // 1. Carregar Configurações Globais e Pedidos PARALELAMENTE para ficar muito mais rápido
       const [configRes, ordersRes] = await Promise.all([
         fetchWithAuth('/api/config'),
-        fetchWithAuth('/api/orders?limit=300')
+        fetchWithAuth('/api/orders?limit=10000')
       ]);
 
       // --- PROCESSAR CONFIGURAÇÃ•ES ---
@@ -6157,7 +6157,7 @@ async function refreshOrdersOnly() {
   if (safeStorage.getItem('admin_authenticated') !== 'true') return;
 
   try {
-    const ordersRes = await fetchWithAuth('/api/orders?limit=300');
+    const ordersRes = await fetchWithAuth('/api/orders?limit=10000');
     if (ordersRes.ok) {
       allTransactions = await ordersRes.json();
       if (typeof renderData === 'function') {
