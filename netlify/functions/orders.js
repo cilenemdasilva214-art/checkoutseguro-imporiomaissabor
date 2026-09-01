@@ -3,9 +3,19 @@ const { verifyToken } = require('./auth-middleware');
 // Caminho: netlify/functions/orders.js
 
 exports.handler = async (event, context) => {
-  if (event.httpMethod !== 'OPTIONS' && event.httpMethod !== 'GET') {
-    if (!verifyToken(event)) {
-      return { statusCode: 401, body: JSON.stringify({ error: 'Unauthorized' }) };
+  const isAdmin = verifyToken(event);
+  const idParam = event.queryStringParameters ? event.queryStringParameters.id : null;
+
+  // EXIGIR AUTENTICAÇÃO OBRIGATÓRIA PARA DELETE, PATCH OU LISTAGEM GERAL DE PEDIDOS/LEADS (GET sem ID)
+  if (event.httpMethod !== 'OPTIONS') {
+    if (event.httpMethod === 'DELETE' || event.httpMethod === 'PATCH' || (event.httpMethod === 'GET' && !idParam)) {
+      if (!isAdmin) {
+        return {
+          statusCode: 401,
+          headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: 'Acesso negado: Autenticação de administrador necessária para acessar os dados dos pedidos e leads.' })
+        };
+      }
     }
   }
 
@@ -178,10 +188,10 @@ exports.handler = async (event, context) => {
   const siteDomain = process.env.CHECKOUT_DOMAIN || requestDomain || '';
 
   // Se a requisição vier do painel admin, não força filtro de domínio via backend
-  const isAdmin = referer.toLowerCase().includes('admin');
+  const isRefererAdmin = referer.toLowerCase().includes('admin');
 
   let domainFilter = '';
-  if (!isAdmin && siteDomain && siteDomain !== 'localhost' && siteDomain !== '127.0.0.1') {
+  if (!isRefererAdmin && siteDomain && siteDomain !== 'localhost' && siteDomain !== '127.0.0.1') {
     if (
       siteDomain.includes('imporiomaissabor') || 
       siteDomain.includes('porto') || 
