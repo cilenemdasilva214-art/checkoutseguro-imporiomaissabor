@@ -607,6 +607,11 @@ Agradecemos pela preferência e esperamos você!`;
       title: 'Integrações de Gateways',
       subtitle: 'Gerencie e alterne dinamicamente entre os gateways de pagamento',
       showFilter: false
+    },
+    'seguranca-auditoria': {
+      title: 'Segurança & Auditoria de IPs',
+      subtitle: 'Sessão única ativa, histórico de acessos por IP e alertas via WhatsApp',
+      showFilter: false
     }
   };
 
@@ -731,6 +736,10 @@ Agradecemos pela preferência e esperamos você!`;
         triggerSubView(activeSubBtn.getAttribute('data-subview'));
       } else {
         triggerSubView('marketing-coupons');
+      }
+    } else if (targetView === 'seguranca-auditoria') {
+      if (typeof loadSecurityLogs === 'function') {
+        loadSecurityLogs();
       }
     }
   }
@@ -6105,7 +6114,42 @@ Agradecemos pela preferência e esperamos você!`;
       }
     });
   }
-});
+
+  const btnRefreshSec = document.getElementById('btn-refresh-security-logs');
+  if (btnRefreshSec) {
+    btnRefreshSec.addEventListener('click', loadSecurityLogs);
+  }
+
+  const formSecPhone = document.getElementById('form-security-notify-phone');
+  if (formSecPhone) {
+    formSecPhone.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = safeStorage.getItem('adminToken');
+      if (!token) return;
+
+      const phoneInput = document.getElementById('sec-notify-phone-input');
+      const notifyPhone = phoneInput ? phoneInput.value.trim() : '';
+
+      try {
+        const res = await fetch('/api/auth?action=save_notify_phone', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ notifyPhone })
+        });
+
+        if (res.ok) {
+          alert('✅ Número de WhatsApp salvo com sucesso para receber notificações de segurança!');
+        } else {
+          alert('❌ Erro ao salvar número de notificação.');
+        }
+      } catch(err) {
+        alert('Erro ao comunicar com o servidor: ' + err.message);
+      }
+    });
+  }
 
 // Polling ultra-leve de 30 segundos para manter vendas atualizadas sem travamento
 async function refreshOrdersOnly() {
@@ -6126,3 +6170,116 @@ async function refreshOrdersOnly() {
 }
 
 setInterval(refreshOrdersOnly, 30000);
+
+// ==========================================
+// SEGURANÇA: SESSÃO ÚNICA & AUDITORIA DE IPS
+// ==========================================
+let isCheckingSession = false;
+
+async function checkAdminSession() {
+  const token = safeStorage.getItem('adminToken');
+  if (!token || isCheckingSession) return;
+
+  isCheckingSession = true;
+  try {
+    const res = await fetch('/api/auth?action=check_session', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (res.status === 401) {
+      handleSessionDisconnected({ reason: 'session_expired' });
+      return;
+    }
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.active === false) {
+        handleSessionDisconnected(data);
+      }
+    }
+  } catch(e) {
+    console.error('Erro na checagem de sessão:', e);
+  } finally {
+    isCheckingSession = false;
+  }
+}
+
+function handleSessionDisconnected(info) {
+  safeStorage.setItem('adminToken', '');
+  try { localStorage.removeItem('adminToken'); sessionStorage.removeItem('adminToken'); } catch(e) {}
+
+  const locText = info && info.newLocation ? ` em ${info.newLocation}` : '';
+  const ipText = info && info.newIp ? ` (IP: ${info.newIp})` : '';
+
+  alert(`🔒 SESSÃO DESCONECTADA POR SEGURANÇA!\n\nOutro login foi efetuado no seu Painel Admin${locText}${ipText}.\n\nPara a sua segurança, apenas 1 pessoa/dispositivo pode permanecer conectado por vez.`);
+
+  window.location.reload();
+}
+
+// Checagem de sessão única a cada 10 segundos
+setInterval(checkAdminSession, 10000);
+
+async function loadSecurityLogs() {
+  const token = safeStorage.getItem('adminToken');
+  if (!token) return;
+
+  const tbody = document.getElementById('sec-logs-tbody');
+  const ipEl = document.getElementById('sec-active-ip');
+  const locEl = document.getElementById('sec-active-location');
+  const timeEl = document.getElementById('sec-active-time');
+  const devEl = document.getElementById('sec-active-device');
+  const phoneInput = document.getElementById('sec-notify-phone-input');
+
+  if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Carregando registros de auditoria...</td></tr>`;
+
+  try {
+    const res = await fetch('/api/auth?action=logs', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!res.ok) return;
+
+    const { activeSession, logs, notifyPhone } = await res.json();
+
+    if (phoneInput) phoneInput.value = notifyPhone || '';
+
+    if (activeSession) {
+      if (ipEl) ipEl.textContent = activeSession.ip || 'Desconhecido';
+      if (locEl) locEl.textContent = `${activeSession.city || ''} - ${activeSession.region || ''} (${activeSession.country || 'BR'})`;
+      if (timeEl) timeEl.textContent = activeSession.loginTime ? new Date(activeSession.loginTime).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '-';
+      if (devEl) devEl.textContent = (activeSession.userAgent || '').slice(0, 70);
+    }
+
+    if (tbody) {
+      if (!logs || logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">Nenhum histórico de acesso gravado até o momento.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = logs.map(log => {
+        const dateStr = log.timestamp ? new Date(log.timestamp).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '-';
+        const isSuccess = log.status === 'SUCCESS';
+        const statusBadge = isSuccess 
+          ? `<span style="background:rgba(16, 185, 129, 0.1); color:#10b981; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.75rem;">SUCESSO</span>`
+          : `<span style="background:rgba(239, 68, 68, 0.1); color:#ef4444; padding:2px 8px; border-radius:4px; font-weight:700; font-size:0.75rem;">FALHA</span>`;
+
+        const locStr = `${log.city || ''} ${log.region ? '- ' + log.region : ''} (${log.country || 'BR'})`;
+
+        return `
+          <tr>
+            <td style="font-weight:600; font-size:0.85rem;">${dateStr}</td>
+            <td style="font-family:'Space Mono', monospace; font-size:0.85rem; color:var(--text-main);">${escapeHtml(log.ip || '-')}</td>
+            <td style="font-weight:500; font-size:0.85rem; color:var(--primary-color);">${escapeHtml(locStr)}</td>
+            <td>${statusBadge}</td>
+            <td style="font-size:0.8rem; color:var(--text-muted); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(log.userAgent || '')}">${escapeHtml(log.userAgent || '-')}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+  } catch(e) {
+    console.error('Erro ao carregar auditoria de segurança:', e);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:#ef4444;">Erro ao carregar dados de segurança.</td></tr>`;
+  }
+}
+});
