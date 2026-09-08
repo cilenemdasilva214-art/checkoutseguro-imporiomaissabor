@@ -312,6 +312,32 @@
         </div>
       </header>
 
+      <!-- ALERTA DE NOVO ACESSO POR IP DIFERENTE -->
+      <div id="ip-change-alert-banner" class="hide" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(245, 158, 11, 0.15)); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 16px; padding: 1.25rem 1.5rem; margin: 1.5rem 2rem 0 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: 0 8px 24px rgba(239, 68, 68, 0.2); transition: 0.3s ease;">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(239, 68, 68, 0.25); color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0;">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+              <span style="font-weight: 800; font-size: 1rem; color: #ef4444; text-transform: uppercase; letter-spacing: 0.5px;">🚨 Alerta de Segurança: Novo IP de Acesso Detectado</span>
+              <span style="background: rgba(239, 68, 68, 0.2); color: #ef4444; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">NOVO IP</span>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-main); margin: 0; line-height: 1.4;" id="ip-alert-banner-text">
+              Um novo login foi efetuado no painel a partir de um IP diferente!
+            </p>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+          <button type="button" id="btn-view-sec-logs" class="menu-item" data-view="seguranca-auditoria" style="background: #ef4444; color: #fff; border: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit;">
+            <i class="fa-solid fa-shield-halved"></i> Ver Detalhes dos IPs
+          </button>
+          <button type="button" id="btn-close-ip-alert" style="background: rgba(255,255,255,0.1); border: none; color: var(--text-muted); width: 36px; height: 36px; border-radius: 8px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      </div>
+
       <!-- VIEW 1: DASHBOARD GERAL -->
       <section class="view-panel" id="view-dashboard">
         

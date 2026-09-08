@@ -6126,6 +6126,26 @@ Agradecemos pela preferência e esperamos você!`;
     btnRefreshSec.addEventListener('click', loadSecurityLogs);
   }
 
+  const btnCloseIpAlert = document.getElementById('btn-close-ip-alert');
+  if (btnCloseIpAlert) {
+    btnCloseIpAlert.addEventListener('click', () => {
+      const banner = document.getElementById('ip-change-alert-banner');
+      if (banner) banner.classList.add('hide');
+    });
+  }
+
+  const btnViewSecLogs = document.getElementById('btn-view-sec-logs');
+  if (btnViewSecLogs) {
+    btnViewSecLogs.addEventListener('click', () => {
+      if (typeof switchView === 'function') {
+        switchView('seguranca-auditoria');
+      }
+    });
+  }
+
+  // Executa avaliação de logs de segurança no carregamento do painel
+  loadSecurityLogs();
+
   const formSecPhone = document.getElementById('form-security-notify-phone');
   if (formSecPhone) {
     formSecPhone.addEventListener('submit', async (e) => {
@@ -6254,6 +6274,26 @@ async function loadSecurityLogs() {
       if (locEl) locEl.textContent = `${activeSession.city || ''} - ${activeSession.region || ''} (${activeSession.country || 'BR'})`;
       if (timeEl) timeEl.textContent = activeSession.loginTime ? new Date(activeSession.loginTime).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : '-';
       if (devEl) devEl.textContent = (activeSession.userAgent || '').slice(0, 70);
+    }
+
+    // --- ALERTA VISUAL DE NOVO IP NO TOPO DO PAINEL ---
+    const successLogs = Array.isArray(logs) ? logs.filter(l => l.status === 'SUCCESS') : [];
+    const banner = document.getElementById('ip-change-alert-banner');
+    const bannerText = document.getElementById('ip-alert-banner-text');
+
+    if (banner && successLogs.length >= 2) {
+      const currentLog = successLogs[0];
+      const prevLog = successLogs[1];
+
+      if (currentLog.ip && prevLog.ip && currentLog.ip !== prevLog.ip) {
+        const timeStr = currentLog.timestamp ? new Date(currentLog.timestamp).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) : 'recém-realizado';
+        const locStr = `${currentLog.city || ''} ${currentLog.region ? '- ' + currentLog.region : ''} (${currentLog.country || 'BR'})`.trim();
+        
+        if (bannerText) {
+          bannerText.innerHTML = `O login mais recente foi realizado a partir de um IP diferente! <strong>IP: ${escapeHtml(currentLog.ip)}</strong> (${escapeHtml(locStr)}) em ${timeStr}. Dispositivo: ${escapeHtml((currentLog.userAgent || '').slice(0, 60))}.`;
+        }
+        banner.classList.remove('hide');
+      }
     }
 
     if (tbody) {
