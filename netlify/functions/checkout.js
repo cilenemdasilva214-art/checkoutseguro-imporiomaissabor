@@ -876,6 +876,17 @@ exports.handler = async (event, context) => {
               })
             };
           }
+
+          if (errStr.includes('recipient') || errStr.includes('seller nao configurado') || errStr.includes('424')) {
+            return {
+              statusCode: 400,
+              headers: { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                success: false,
+                error: 'As novas chaves da RevoPay estão salvas, porém a RevoPay recusou o pagamento (Erro 424: "Recipient Pagar.me do seller não configurado"). Por favor, acesse o painel da RevoPay e cadastre a sua conta bancária/recebedor para ativar o recebimento.'
+              })
+            };
+          }
           isMock = true;
           transactionId = 'mock-revopay-id-' + Math.random().toString(36).substr(2, 9);
           transactionStatus = paymentMethod === 'pix' ? 'PENDING' : 'APPROVED';
