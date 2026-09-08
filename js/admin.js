@@ -932,6 +932,8 @@ Agradecemos pela preferência e esperamos você!`;
         const togglePaysharkV2 = document.getElementById('toggle-paysharkv2');
         const togglePagflex = document.getElementById('toggle-pagflex');
         const toggleBlackcat = document.getElementById('toggle-blackcat');
+        const toggleWappi = document.getElementById('toggle-wappi');
+        const toggleRevopay = document.getElementById('toggle-revopay');
         
         const cardPaguex = document.getElementById('card-paguex');
         const cardPaguexCamp = document.getElementById('card-paguexcamp');
@@ -940,6 +942,8 @@ Agradecemos pela preferência e esperamos você!`;
         const cardPaysharkV2 = document.getElementById('card-paysharkv2');
         const cardPagflex = document.getElementById('card-pagflex');
         const cardBlackcat = document.getElementById('card-blackcat');
+        const cardWappi = document.getElementById('card-wappi');
+        const cardRevopay = document.getElementById('card-revopay');
 
         if (togglePaguex) togglePaguex.checked = (activeGateway === 'paguex');
         if (togglePaguexCamp) togglePaguexCamp.checked = (activeGateway === 'paguexcamp');
@@ -949,6 +953,7 @@ Agradecemos pela preferência e esperamos você!`;
         if (togglePagflex) togglePagflex.checked = (activeGateway === 'pagflexbr');
         if (toggleBlackcat) toggleBlackcat.checked = (activeGateway === 'blackcat');
         if (toggleWappi) toggleWappi.checked = (activeGateway === 'wappi');
+        if (toggleRevopay) toggleRevopay.checked = (activeGateway === 'revopay');
 
         if (cardPaguex) cardPaguex.classList.toggle('active', activeGateway === 'paguex');
         if (cardPaguexCamp) cardPaguexCamp.classList.toggle('active', activeGateway === 'paguexcamp');
@@ -958,6 +963,7 @@ Agradecemos pela preferência e esperamos você!`;
         if (cardPagflex) cardPagflex.classList.toggle('active', activeGateway === 'pagflexbr');
         if (cardBlackcat) cardBlackcat.classList.toggle('active', activeGateway === 'blackcat');
         if (cardWappi) cardWappi.classList.toggle('active', activeGateway === 'wappi');
+        if (cardRevopay) cardRevopay.classList.toggle('active', activeGateway === 'revopay');
 
         const pPubKeyInput = document.getElementById('paguex-public-key');
         const pSecKeyInput = document.getElementById('paguex-secret-key');

@@ -181,6 +181,7 @@ exports.handler = async (event, context) => {
         delete result.blackcat_secret_key;
         delete result.blackcat_api_key;
         delete result.wappi_api_key;
+        delete result.revopay_secret_key;
       }
 
       return {
